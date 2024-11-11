@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from PyQt5.QtWidgets import QGraphicsEllipseItem, QGraphicsTextItem
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QPen, QColor, QBrush
@@ -44,7 +44,7 @@ class Vertex(QGraphicsEllipseItem):
         self.edges.append(edge)
         self.update() # Update the degree of the vertex
 
-    def setHighlight(self, flag, colorIndex: int | None):
+    def setHighlight(self, flag, colorIndex: Union[int, None]):
         colors = [QColor("#42ffd9"), QColor("#FF6E64")]
         self.isHighlighted = flag
         if flag and colorIndex is not None:

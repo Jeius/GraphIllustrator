@@ -4,8 +4,8 @@ import os
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtGui import QIcon
 
-from ui.main_window import Ui_MainWindow
-from model.graph import Graph
+from .ui.main_window import Ui_MainWindow
+from .model.graph import Graph
 
 def loadIcon(path):
     if getattr(sys, 'frozen', False):  # PyInstaller bundled executable
@@ -47,7 +47,7 @@ class MyApp(QMainWindow):
         self.setStyleSheet(loadStylesheet("style/globals.css"))
         self.setWindowIcon(loadIcon("public/images/icon.webp"))
 
-        self.graph = Graph
+        self.graph = Graph()
         self.ui.view.setScene(self.graph)
 
 if __name__ == "__main__":

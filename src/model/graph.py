@@ -1,11 +1,11 @@
 import math
-from typing import List
+from typing import List, Union
 from PyQt5 import QtGui, QtWidgets, QtCore
 
 from .vertex import Vertex
 from .edge import Edge
-from algorithm.djisktra import Djisktra
-from algorithm.floyd import FloydWarshall
+from ..algorithm.djisktra import Djisktra
+from ..algorithm.floyd import FloydWarshall
 
 class Graph(QtWidgets.QGraphicsScene):
     def __init__(self):
@@ -179,7 +179,7 @@ class Graph(QtWidgets.QGraphicsScene):
         self.isAddingVertex = False
         self.isUsingDjisktra = False
 
-    def showPath(self, start: Vertex | None, goal: Vertex | None):
+    def showPath(self, start: Union[Vertex, None], goal: Union[Vertex, None]):
         # Unhighlight all items first
         self.setHighlightItems(False)
 
