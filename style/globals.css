@@ -1,0 +1,99 @@
+QMainWindow,
+QFrame {
+    background-color: #3a3a3a;
+    color: #ffffff;
+}
+
+QPushButton {
+    background-color: rgb(78, 78, 78);
+    color: rgb(255, 255, 255);
+    border: 1px solid rgb(120, 120, 120);
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-right: 12px;
+    padding-left: 12px;
+    border-radius: 5px;
+}
+
+QPushButton:hover {
+    background-color: rgb(120, 120, 120);
+}
+
+QPushButton:checked {
+    background-color: rgb(120, 120, 120);
+}
+
+QComboBox {
+    background-color: rgb(78, 78, 78);
+    color: rgb(255, 255, 255);
+    selection-background-color: rgb(120, 120, 120);
+}
+
+QLineEdit,
+QPlainTextEdit {
+    background-color: rgb(78, 78, 78);
+    border: 1px solid rgb(120, 120, 120);
+}
+
+QRadioButton {
+    color: rgb(255, 255, 255);
+}
+
+QGroupBox {
+    color: rgb(255, 255, 255);
+}
+
+QTabWidget::pane {
+    background-color: rgb(120, 120, 120);
+    border: 3px solid rgb(120, 120, 120);
+    border-top-left-radius: 0px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+QTabBar::tab {
+    background-color: rgb(84, 84, 84);
+    color: rgb(255, 255, 255);
+    padding: 5px;
+}
+
+QTabBar::tab:first {
+    border-top-left-radius: 4px;
+}
+
+QTabBar::tab:last {
+    border-top-right-radius: 4px;
+}
+
+QTabBar::tab:selected {
+    background-color: rgb(120, 120, 120)
+}
+
+QMenuBar,
+QStatusBar {
+    background-color: #444444;
+    color: #ffffff;
+}
+
+QMenuBar::item::selected {
+    background-color: #3a3a3a;
+}
+
+QMenu {
+    background-color: #3a3a3a;
+    color: #ffffff;
+    border: 1px solid #8f8f8f;
+}
+
+QMenu::item::selected {
+    background-color: #444444;
+}
+
+QMenu::item:disabled {
+    color: darkgray;
+}
+
+QMenu::item:disabled:hover {
+    background-color: transparent;
+}

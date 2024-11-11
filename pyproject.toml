@@ -1,0 +1,8 @@
+[project]
+name = "Graph Illustrator"
+version = "2.0"
+description = "Algorithmic Graph Theory activity."
+authors = ["Julius Pahama <julius.pahama@g.msuiit.edu.ph>"]
+readme = "README.md"
+
+

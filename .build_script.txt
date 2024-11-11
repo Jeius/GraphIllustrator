@@ -1,0 +1,1 @@
+pyinstaller --name GraphIllustrator --noconsole --add-data "style/globals.css:style/." --add-data "public/images/icon.webp:." src/__main__.py
