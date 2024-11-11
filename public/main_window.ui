@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>756</width>
+    <width>631</width>
     <height>690</height>
    </rect>
   </property>
@@ -51,7 +51,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>738</width>
+         <width>613</width>
          <height>69</height>
         </rect>
        </property>
@@ -142,7 +142,7 @@
             <x>0</x>
             <y>0</y>
             <width>69</width>
-            <height>556</height>
+            <height>577</height>
            </rect>
           </property>
           <property name="minimumSize">
@@ -160,7 +160,7 @@
           <property name="styleSheet">
            <string notr="true"/>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_3">
+          <layout class="QGridLayout" name="gridLayout">
            <property name="leftMargin">
             <number>0</number>
            </property>
@@ -173,7 +173,7 @@
            <property name="bottomMargin">
             <number>0</number>
            </property>
-           <item>
+           <item row="0" column="0">
             <widget class="Ui_InfoPanel" name="frame">
              <property name="minimumSize">
               <size>
@@ -216,34 +216,6 @@
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>756</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menu_add">
-    <property name="title">
-     <string>Add</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menu_edit">
-    <property name="title">
-     <string>Edit</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menu_delete">
-    <property name="title">
-     <string>Delete</string>
-    </property>
-   </widget>
-   <addaction name="menu_add"/>
-   <addaction name="menu_edit"/>
-   <addaction name="menu_delete"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>

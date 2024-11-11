@@ -4,8 +4,8 @@ from PyQt5 import QtGui, QtWidgets, QtCore
 
 from .vertex import Vertex
 from .edge import Edge
-from ..algorithm.djisktra import Djisktra
-from ..algorithm.floyd import FloydWarshall
+from algorithm.djisktra import Djisktra
+from algorithm.floyd import FloydWarshall
 
 class Graph(QtWidgets.QGraphicsScene):
     def __init__(self):
@@ -22,6 +22,7 @@ class Graph(QtWidgets.QGraphicsScene):
         self.isAddingEdge = False    # Flag to enable adding edge
         self.isUsingDjisktra = False  # Flag to enable djisktra algorithm
         self.isUsingFloyd = False     # Flag to enable floyd algorithm
+        self.isDirectedGraph = True
 
     def createVertex(self, scene_position: QtCore.QPointF):
         # Define the diameter of the circle

@@ -1,13 +1,13 @@
 QMainWindow,
 QFrame {
-    background-color: #3a3a3a;
+    background-color: #2a2a2b;
     color: #ffffff;
 }
 
 QPushButton {
-    background-color: rgb(78, 78, 78);
+    background-color: #2b2b2c;
     color: rgb(255, 255, 255);
-    border: 1px solid rgb(120, 120, 120);
+    border: 1px solid #70707c;
     padding-bottom: 5px;
     padding-top: 5px;
     padding-right: 12px;
@@ -15,24 +15,22 @@ QPushButton {
     border-radius: 5px;
 }
 
-QPushButton:hover {
-    background-color: rgb(120, 120, 120);
-}
-
+QPushButton:hover,
 QPushButton:checked {
-    background-color: rgb(120, 120, 120);
+    background-color: #3b3b3d;
 }
 
 QComboBox {
-    background-color: rgb(78, 78, 78);
+    background-color: #2b2b2c;
     color: rgb(255, 255, 255);
-    selection-background-color: rgb(120, 120, 120);
+    selection-background-color: #3b3b3d;
 }
 
 QLineEdit,
 QPlainTextEdit {
-    background-color: rgb(78, 78, 78);
-    border: 1px solid rgb(120, 120, 120);
+    background-color: #2b2b2c;
+    border: 1px solid #70707c;
+    color: rgb(255, 255, 255);
 }
 
 QRadioButton {
@@ -44,8 +42,8 @@ QGroupBox {
 }
 
 QTabWidget::pane {
-    background-color: rgb(120, 120, 120);
-    border: 3px solid rgb(120, 120, 120);
+    background-color: #3b3b3d;
+    border: 3px solid #3b3b3d;
     border-top-left-radius: 0px;
     border-top-right-radius: 6px;
     border-bottom-left-radius: 6px;
@@ -53,21 +51,15 @@ QTabWidget::pane {
 }
 
 QTabBar::tab {
-    background-color: rgb(84, 84, 84);
+    background-color: transparent;
     color: rgb(255, 255, 255);
-    padding: 5px;
-}
-
-QTabBar::tab:first {
-    border-top-left-radius: 4px;
-}
-
-QTabBar::tab:last {
-    border-top-right-radius: 4px;
+    padding: 6px;
 }
 
 QTabBar::tab:selected {
-    background-color: rgb(120, 120, 120)
+    background-color: #3a3a3a;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
 }
 
 QMenuBar,
@@ -96,4 +88,51 @@ QMenu::item:disabled {
 
 QMenu::item:disabled:hover {
     background-color: transparent;
+}
+
+QScrollArea {
+    border: none;
+}
+
+QScrollBar:horizontal {
+    background: #2e2e2e;
+    height: 6px;
+    margin: 0px 1px 0px 1px;
+}
+
+QScrollBar:vertical {
+    background: #2e2e2e;
+    width: 6px;
+    margin: 1px 0px 1px 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #555555;
+    border: 1px solid #444444;
+    min-width: 20px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #555555;
+    border: 1px solid #444444;
+    min-height: 20px;
+}
+
+QScrollBar::handle:horizontal:hover,
+QScrollBar::handle:vertical:hover {
+    background-color: #666666;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal,
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    background: none;
+}
+
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal,
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    background: none;
 }

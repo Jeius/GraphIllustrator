@@ -1,4 +1,3 @@
-
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -12,12 +11,11 @@ class Ui_InfoPanel(QFrame):
     def setupUi(self, InfoPanel):
         if not InfoPanel.objectName():
             InfoPanel.setObjectName(u"InfoPanel")
-        InfoPanel.resize(250, 740)
+        InfoPanel.resize(250, 729)
         InfoPanel.setMaximumSize(QSize(250, 16777215))
-        self.verticalLayout = QVBoxLayout(InfoPanel)
-        self.verticalLayout.setSpacing(12)
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout = QGridLayout(InfoPanel)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.size_order_layout = QHBoxLayout()
         self.size_order_layout.setSpacing(5)
         self.size_order_layout.setObjectName(u"size_order_layout")
@@ -52,7 +50,7 @@ class Ui_InfoPanel(QFrame):
         self.size_order_layout.addWidget(self.size_box, 0, Qt.AlignRight)
 
 
-        self.verticalLayout.addLayout(self.size_order_layout)
+        self.gridLayout.addLayout(self.size_order_layout, 0, 0, 1, 1)
 
         self.sets_grid = QWidget(InfoPanel)
         self.sets_grid.setObjectName(u"sets_grid")
@@ -90,25 +88,25 @@ class Ui_InfoPanel(QFrame):
         self.gridLayout_3.addWidget(self.edge_set_label, 8, 0, 1, 1)
 
 
-        self.verticalLayout.addWidget(self.sets_grid)
+        self.gridLayout.addWidget(self.sets_grid, 1, 0, 1, 1)
+
+        self.line_2 = QFrame(InfoPanel)
+        self.line_2.setObjectName(u"line_2")
+        self.line_2.setFrameShape(QFrame.HLine)
+        self.line_2.setFrameShadow(QFrame.Sunken)
+
+        self.gridLayout.addWidget(self.line_2, 2, 0, 1, 1)
 
         self.adj_matrix_widget = QWidget(InfoPanel)
         self.adj_matrix_widget.setObjectName(u"adj_matrix_widget")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.adj_matrix_widget.sizePolicy().hasHeightForWidth())
         self.adj_matrix_widget.setSizePolicy(sizePolicy1)
         self.verticalLayout_7 = QVBoxLayout(self.adj_matrix_widget)
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
-        self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
-        self.line_2 = QFrame(self.adj_matrix_widget)
-        self.line_2.setObjectName(u"line_2")
-        self.line_2.setFrameShape(QFrame.HLine)
-        self.line_2.setFrameShadow(QFrame.Sunken)
-
-        self.verticalLayout_7.addWidget(self.line_2)
-
+        self.verticalLayout_7.setContentsMargins(0, 0, 0, 6)
         self.adj_matrix_label = QLabel(self.adj_matrix_widget)
         self.adj_matrix_label.setObjectName(u"adj_matrix_label")
 
@@ -116,19 +114,20 @@ class Ui_InfoPanel(QFrame):
 
         self.adj_matrix_box = QPlainTextEdit(self.adj_matrix_widget)
         self.adj_matrix_box.setObjectName(u"adj_matrix_box")
+        self.adj_matrix_box.setMinimumSize(QSize(0, 180))
         self.adj_matrix_box.setReadOnly(True)
 
         self.verticalLayout_7.addWidget(self.adj_matrix_box)
 
 
-        self.verticalLayout.addWidget(self.adj_matrix_widget)
+        self.gridLayout.addWidget(self.adj_matrix_widget, 3, 0, 1, 1)
 
         self.line_3 = QFrame(InfoPanel)
         self.line_3.setObjectName(u"line_3")
         self.line_3.setFrameShape(QFrame.HLine)
         self.line_3.setFrameShadow(QFrame.Sunken)
 
-        self.verticalLayout.addWidget(self.line_3)
+        self.gridLayout.addWidget(self.line_3, 4, 0, 1, 1)
 
         self.path_table_widget = QWidget(InfoPanel)
         self.path_table_widget.setObjectName(u"path_table_widget")
@@ -147,7 +146,7 @@ class Ui_InfoPanel(QFrame):
         self.verticalLayout_8.addWidget(self.path_table)
 
 
-        self.verticalLayout.addWidget(self.path_table_widget)
+        self.gridLayout.addWidget(self.path_table_widget, 5, 0, 1, 1)
 
 
         self.retranslateUi(InfoPanel)

@@ -1,33 +1,18 @@
-# -*- coding: utf-8 -*-
-
-################################################################################
-## Form generated from reading UI file 'main_windowbTnwnZ.ui'
-##
-## Created by: Qt User Interface Compiler version 5.15.2
-##
-## WARNING! All changes made in this file will be lost when recompiling UI file!
-################################################################################
-
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from workspace import Workspace
-from info_panel import Ui_InfoPanel
-from control_panel import Ui_ControlPanel
+from .workspace import Workspace
+from .info_panel import Ui_InfoPanel
+from .control_panel import Ui_ControlPanel
 
 
-class Ui_MainWindow(QMainWindow):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.setupUi(self)
-
-    def setupUi(self, MainWindow: QMainWindow):
+class Ui_MainWindow():
+    def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(756, 690)
+        MainWindow.resize(631, 690)
         MainWindow.setMinimumSize(QSize(0, 50))
-
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -40,13 +25,10 @@ class Ui_MainWindow(QMainWindow):
         sizePolicy.setHeightForWidth(self.cp_scroll_area.sizePolicy().hasHeightForWidth())
         self.cp_scroll_area.setSizePolicy(sizePolicy)
         self.cp_scroll_area.setMaximumSize(QSize(99999, 99999))
-        self.cp_scroll_area.setStyleSheet(u"QScrollArea {\n"
-"	border: none;\n"
-"}")
         self.cp_scroll_area.setWidgetResizable(True)
         self.cp_scroll_area_content = QWidget()
         self.cp_scroll_area_content.setObjectName(u"cp_scroll_area_content")
-        self.cp_scroll_area_content.setGeometry(QRect(0, 0, 738, 69))
+        self.cp_scroll_area_content.setGeometry(QRect(0, 0, 613, 69))
         sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
@@ -89,13 +71,13 @@ class Ui_MainWindow(QMainWindow):
         self.ip_scroll_area.setWidgetResizable(True)
         self.ip_scroll_area_content = QWidget()
         self.ip_scroll_area_content.setObjectName(u"ip_scroll_area_content")
-        self.ip_scroll_area_content.setGeometry(QRect(0, 0, 69, 556))
+        self.ip_scroll_area_content.setGeometry(QRect(0, 0, 69, 577))
         self.ip_scroll_area_content.setMinimumSize(QSize(0, 547))
         self.ip_scroll_area_content.setMaximumSize(QSize(250, 16777215))
         self.ip_scroll_area_content.setStyleSheet(u"")
-        self.verticalLayout_3 = QVBoxLayout(self.ip_scroll_area_content)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout = QGridLayout(self.ip_scroll_area_content)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.frame = Ui_InfoPanel(self.ip_scroll_area_content)
         self.frame.setObjectName(u"frame")
         self.frame.setMinimumSize(QSize(0, 547))
@@ -103,7 +85,7 @@ class Ui_MainWindow(QMainWindow):
         self.frame.setFrameShape(QFrame.StyledPanel)
         self.frame.setFrameShadow(QFrame.Raised)
 
-        self.verticalLayout_3.addWidget(self.frame)
+        self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
 
         self.ip_scroll_area.setWidget(self.ip_scroll_area_content)
 
@@ -120,23 +102,9 @@ class Ui_MainWindow(QMainWindow):
         self.verticalLayout.addWidget(self.h_layout_widget)
 
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QMenuBar(MainWindow)
-        self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 756, 21))
-        self.menu_add = QMenu(self.menubar)
-        self.menu_add.setObjectName(u"menu_add")
-        self.menu_edit = QMenu(self.menubar)
-        self.menu_edit.setObjectName(u"menu_edit")
-        self.menu_delete = QMenu(self.menubar)
-        self.menu_delete.setObjectName(u"menu_delete")
-        MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
         MainWindow.setStatusBar(self.statusbar)
-
-        self.menubar.addAction(self.menu_add.menuAction())
-        self.menubar.addAction(self.menu_edit.menuAction())
-        self.menubar.addAction(self.menu_delete.menuAction())
 
         self.retranslateUi(MainWindow)
 
@@ -144,9 +112,6 @@ class Ui_MainWindow(QMainWindow):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.menu_add.setTitle(QCoreApplication.translate("MainWindow", u"Add", None))
-        self.menu_edit.setTitle(QCoreApplication.translate("MainWindow", u"Edit", None))
-        self.menu_delete.setTitle(QCoreApplication.translate("MainWindow", u"Delete", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Graph Illustrator - Julius Pahama", None))
     # retranslateUi
 

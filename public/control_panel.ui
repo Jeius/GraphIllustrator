@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
+ <author>Julius Pahama</author>
  <class>ControlPanel</class>
  <widget class="QFrame" name="ControlPanel">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1016</width>
-    <height>168</height>
+    <width>989</width>
+    <height>180</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -36,244 +37,6 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QTabWidget" name="tabs">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>600</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QFrame {
-	border-radius: 5px
-}</string>
-     </property>
-     <property name="currentIndex">
-      <number>1</number>
-     </property>
-     <property name="tabsClosable">
-      <bool>false</bool>
-     </property>
-     <property name="movable">
-      <bool>true</bool>
-     </property>
-     <property name="tabBarAutoHide">
-      <bool>false</bool>
-     </property>
-     <widget class="QWidget" name="directed_tab">
-      <attribute name="title">
-       <string>Directed Graph</string>
-      </attribute>
-      <layout class="QHBoxLayout" name="horizontalLayout_8">
-       <item>
-        <widget class="QGroupBox" name="d_algorithm_box">
-         <property name="minimumSize">
-          <size>
-           <width>250</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>300</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-         <property name="title">
-          <string>Algorithms</string>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-         <layout class="QVBoxLayout" name="d_algorithm_layout">
-          <property name="spacing">
-           <number>12</number>
-          </property>
-          <item alignment="Qt::AlignVCenter">
-           <widget class="QWidget" name="horizontalWidget" native="true">
-            <layout class="QHBoxLayout" name="horizontalLayout_10">
-             <item alignment="Qt::AlignHCenter">
-              <widget class="QRadioButton" name="dijkstra_radio">
-               <property name="text">
-                <string>Dijkstra</string>
-               </property>
-              </widget>
-             </item>
-             <item alignment="Qt::AlignHCenter">
-              <widget class="QRadioButton" name="floyd_radio">
-               <property name="text">
-                <string>Floyd Warshal</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-           <widget class="QPushButton" name="run_algo_d_button">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>25</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Run Algorithm</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="undirected_tab">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <attribute name="title">
-       <string>Undirected Graph</string>
-      </attribute>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QGroupBox" name="ud_algorithm_box">
-         <property name="minimumSize">
-          <size>
-           <width>250</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>300</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="title">
-          <string>Algorithms</string>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_13">
-          <property name="spacing">
-           <number>12</number>
-          </property>
-          <item alignment="Qt::AlignVCenter">
-           <widget class="QWidget" name="horizontalWidget_2" native="true">
-            <layout class="QHBoxLayout" name="horizontalLayout_12">
-             <item alignment="Qt::AlignHCenter">
-              <widget class="QRadioButton" name="prim_radio">
-               <property name="text">
-                <string>Prim</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">buttonGroup_2</string>
-               </attribute>
-              </widget>
-             </item>
-             <item alignment="Qt::AlignHCenter">
-              <widget class="QRadioButton" name="kruskal_radio">
-               <property name="text">
-                <string>Kruskal</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">buttonGroup_2</string>
-               </attribute>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-           <widget class="QPushButton" name="run_algo_ud_button">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>25</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Run Algorithm</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="complement_box">
-         <property name="title">
-          <string>Graph Complement</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item alignment="Qt::AlignHCenter">
-           <widget class="QPushButton" name="complement_button">
-            <property name="minimumSize">
-             <size>
-              <width>110</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>200</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Show Complement</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
-   <item>
-    <widget class="Line" name="line_4">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QGroupBox" name="add_box">
      <property name="maximumSize">
       <size>
@@ -284,16 +47,32 @@
      <property name="title">
       <string>Add</string>
      </property>
-     <property name="flat">
-      <bool>true</bool>
-     </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <property name="horizontalSpacing">
        <number>12</number>
       </property>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="add_vertex_button">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Add Vertex</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0" alignment="Qt::AlignRight">
        <widget class="QLabel" name="id_type_label">
         <property name="text">
@@ -321,12 +100,6 @@
         <property name="checkable">
          <bool>true</bool>
         </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
        </widget>
       </item>
       <item row="1" column="1">
@@ -343,9 +116,6 @@
         <property name="autoFillBackground">
          <bool>false</bool>
         </property>
-        <property name="placeholderText">
-         <string/>
-        </property>
         <property name="frame">
          <bool>true</bool>
         </property>
@@ -359,37 +129,6 @@
           <string>Character</string>
          </property>
         </item>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QPushButton" name="add_vertex_button">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>200</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Add Vertex</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-        <property name="default">
-         <bool>false</bool>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
        </widget>
       </item>
      </layout>
@@ -412,9 +151,6 @@
      </property>
      <property name="title">
       <string>Edit</string>
-     </property>
-     <property name="flat">
-      <bool>true</bool>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_11">
       <item alignment="Qt::AlignHCenter">
@@ -454,9 +190,6 @@
      <property name="title">
       <string>Delete</string>
      </property>
-     <property name="flat">
-      <bool>true</bool>
-     </property>
      <layout class="QVBoxLayout" name="verticalLayout_12">
       <item alignment="Qt::AlignHCenter">
        <widget class="QPushButton" name="delete_button">
@@ -488,6 +221,292 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTabWidget" name="tabs">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>600</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QFrame { border-radius: 5px; background-color: #3b3b3d} QPushButton, QLineEdit {background-color: #2b2b2c; border-color: #70707c;} QPushButton:hover { background-color: #3b3b3d;}</string>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <property name="tabsClosable">
+      <bool>false</bool>
+     </property>
+     <property name="movable">
+      <bool>true</bool>
+     </property>
+     <property name="tabBarAutoHide">
+      <bool>false</bool>
+     </property>
+     <widget class="QWidget" name="directed_tab">
+      <attribute name="title">
+       <string>Directed Graph</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <item>
+        <widget class="QGroupBox" name="d_algorithm_box">
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="title">
+          <string>Algorithms</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="dijkstra_radio">
+            <property name="text">
+             <string>Dijkstra</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="floyd_radio">
+            <property name="text">
+             <string>Floyd Warshal</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="path_finding_box">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>160</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Path Finding</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QPushButton" name="path_button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Find Path</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="undirected_tab">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <attribute name="title">
+       <string>Undirected Graph</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QGroupBox" name="ud_algorithm_box">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Algorithms</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="prim_radio">
+            <property name="text">
+             <string>Prim</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="kruskal_radio">
+            <property name="text">
+             <string>Kruskal</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="mcst_box">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>180</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Minimum Cost Spanning Tree</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <item row="1" column="0" alignment="Qt::AlignVCenter">
+           <widget class="QPushButton" name="mcst_button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Find MCST</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+           <widget class="QWidget" name="mcst_form" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="text">
+                <string>Minimum Cost</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="mcst_textbox">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>32</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="complement_box">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Graph Complement</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QPushButton" name="complement_button">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Show Complement</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
@@ -573,7 +592,4 @@
  </widget>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="buttonGroup_2"/>
- </buttongroups>
 </ui>

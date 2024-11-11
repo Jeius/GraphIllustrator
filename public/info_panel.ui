@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>250</width>
-    <height>740</height>
+    <height>729</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -19,10 +19,7 @@
   <property name="windowTitle">
    <string>Frame</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>12</number>
-   </property>
+  <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
     <number>0</number>
    </property>
@@ -35,7 +32,7 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item>
+   <item row="0" column="0">
     <layout class="QHBoxLayout" name="size_order_layout">
      <property name="spacing">
       <number>5</number>
@@ -110,7 +107,7 @@
      </item>
     </layout>
    </item>
-   <item>
+   <item row="1" column="0">
     <widget class="QWidget" name="sets_grid" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -180,10 +177,17 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="2" column="0">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
     <widget class="QWidget" name="adj_matrix_widget" native="true">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -199,15 +203,8 @@
        <number>0</number>
       </property>
       <property name="bottomMargin">
-       <number>0</number>
+       <number>6</number>
       </property>
-      <item>
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
       <item>
        <widget class="QLabel" name="adj_matrix_label">
         <property name="text">
@@ -217,6 +214,12 @@
       </item>
       <item>
        <widget class="QPlainTextEdit" name="adj_matrix_box">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>180</height>
+         </size>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>
@@ -225,14 +228,14 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="4" column="0">
     <widget class="Line" name="line_3">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item>
+   <item row="5" column="0">
     <widget class="QWidget" name="path_table_widget" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_8">
       <property name="leftMargin">
@@ -245,7 +248,7 @@
        <number>0</number>
       </property>
       <property name="bottomMargin">
-       <number>0</number>
+       <number>6</number>
       </property>
       <item>
        <widget class="QLabel" name="path_table_label">
