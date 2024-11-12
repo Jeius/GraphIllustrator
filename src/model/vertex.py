@@ -1,79 +1,99 @@
+import string
 from typing import List, Union
-from PyQt5.QtWidgets import QGraphicsEllipseItem, QGraphicsTextItem
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QGraphicsEllipseItem, QGraphicsTextItem, QGraphicsSceneMouseEvent
+from PyQt5.QtCore import Qt, QPointF
 from PyQt5.QtGui import QFont, QPen, QColor, QBrush
 
 class Vertex(QGraphicsEllipseItem):
-    def __init__(self, id, x, y, width, height):
-        from .edge import Edge
-        self.edges: List[Edge] = []  # Stores the edges of this vertex
-        self.is_moving = False  # Flag to track dragging state
-        self.id = id  # Id for the label
-        self.isHighlighted = False
-
-        # Create a QGraphicsEllipseItem for the vertex
-        super().__init__(x, y, width, height)
-
-        self.setFlag(QGraphicsEllipseItem.ItemIsMovable, True)  # Make the item movable
-        self.setFlag(QGraphicsEllipseItem.ItemIsSelectable, True)  # Allow the item to be selectable
-        self.setFlag(QGraphicsEllipseItem.ItemSendsGeometryChanges, True)  # Notify of position changes
-        self.setCursor(Qt.PointingHandCursor)  # Set cursor shape when hovering over the item
-        self.setToolTip(f"Degree: {str(len(self.edges))}")  # Set the degree of this vertex as tooltip
+    def __init__(self, id_index: int, diameter, parent):
+        super().__init__(0, 0, diameter, diameter)
         
-        self.addLabel()     # Creates a text label inside the vertex
+        from .edge import Edge
+        from .graph import Graph
+        self.edges: List[Edge] = []  # Stores the edges of this vertex
+        self.id_index = id_index
+        self.graph: Graph = parent
+        
+        self.setFlag(Vertex.ItemIsMovable, True)  # Make the item movable
+        self.setFlag(Vertex.ItemIsSelectable, True)  # Allow the item to be selectable
+        self.setFlag(Vertex.ItemSendsGeometryChanges, True)  # Notify of position changes
+        self.setCursor(Qt.PointingHandCursor)  # Set cursor shape when hovering over the item
+        self.setToolTip(f"Degree: {str(len(self.edges))}")
+        self.setAcceptHoverEvents(True)
+        self.setZValue(1)
 
-    def addLabel(self):
-        # Create a QGraphicsTextItem for the label
-        self.label = QGraphicsTextItem(str(self.id), self)
+        self.is_moving = False  # Flag to track dragging state
+        self.is_highlighted = False
+        self.is_hovered = False
+        
+        self.uppercase_alphabets = list(string.ascii_uppercase)
+        self.id = self.createId(id_index)
+
+        self.label = QGraphicsTextItem(self.id[1], self)
         font = QFont("Inter", 11, QFont.Bold)  # Set the font and size
-        self.label.setFont(font)
+        self.label.setFont(font)  
 
-        # Center the text within the ellipse
-        rect = self.rect()
-        text_rect = self.label.boundingRect()
-        x = rect.width() / 2 - text_rect.width() / 2
-        y = rect.height() / 2 - text_rect.height() / 2
-        self.label.setPos(x, y)
-    
+        self.graph.graphChanged.connect(self.update)
+
+
+    def updateLabel(self):
+        new_id = self.createId(self.id_index)
+
+        if self.id != new_id:
+            self.id = new_id
+            self.label.setPlainText(self.id[1])
+            self.graph.emitSignal()
+
+        self_center = self.rect().center()
+        text_center = self.label.boundingRect().center()
+        center = QPointF(self_center - text_center)
+        self.label.setPos(center)
+        
     def getPosition(self):
         # Gets the position of the vertex in the scene
         return self.mapToScene(self.boundingRect().center())
     
     def addEdge(self, edge):
-        # Add the new edge to the list of edges
         self.edges.append(edge)
-        self.update() # Update the degree of the vertex
+
+    def clearEdges(self):
+        self.edges.clear()
 
     def setHighlight(self, flag, colorIndex: Union[int, None]):
         colors = [QColor("#42ffd9"), QColor("#FF6E64")]
-        self.isHighlighted = flag
+        self.is_highlighted = flag
         if flag and colorIndex is not None:
             self.highlightColor = colors[colorIndex]
 
-    def update(self):
-        self.setToolTip(f"Degree: {str(len(self.edges))}")
-        self.addLabel()
-        super().update()
-
     def paint(self, painter, option, widget=None):
         # This is an overriden paint to change the selection appearance of the vertex
-
+        self.updateLabel()
         # Default pen and brush
         pen = QPen(Qt.black, 2)
         brush = QBrush(QColor("#3db93a"))
 
         # Check if the item is selected
-        if self.isSelected():
+        if self.isSelected() or self.is_hovered:
             # Set the brush for the selected state
             brush = QBrush(QColor("#86f986"))  # Lightgreen fill
         else:
-            if self.isHighlighted:
+            if self.is_highlighted:
                 brush = QBrush(self.highlightColor)
 
         # Apply the pen and brush
         painter.setPen(pen)
         painter.setBrush(brush)
         painter.drawEllipse(self.rect())
+
+    def createId(self, index: int):
+        if self.graph.is_id_int:
+            return (index, str(index + 1))
+        else:
+            return (index, self.uppercase_alphabets[index])
+
+    def update(self):
+        self.updateLabel()
+        return super().update()
     
     def mousePressEvent(self, event):
         # Override the mousePressEvent to allow dragging of the vertex
@@ -82,21 +102,50 @@ class Vertex(QGraphicsEllipseItem):
             self.is_moving = True   # Set the dragging flag to true
             self.mousePressPos = event.scenePos()  # Capture the initial mouse position
             self.itemPressPos = self.pos()  # Capture the initial position of the ellipse
-        super().mousePressEvent(event)
+
+            if self.graph.is_deleting: 
+                self.graph.removeItem(self)
+
+        return super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
          # Override the mouseMoveEvent to drag the vertex
         if self.is_moving:
-            # Calculate the new position of the ellipse based on mouse movement
-            new_position = self.itemPressPos + (event.scenePos() - self.mousePressPos)
-            self.setPos(new_position) # Set the position of the vertex according to the new position
+            # Get the bounding rect of the item and the scene's width and height
+            item_rect = self.boundingRect()
+            scene = self.scene()
+            scene_width = scene.width()
+            scene_height = scene.height()
+
+            # Constrain the item's position within the scene boundaries
+            x_pos = self.x()
+            y_pos = self.y()
+
+            if x_pos < 0:
+                self.setPos(0, y_pos)
+            elif x_pos + item_rect.right() > scene_width:
+                self.setPos(scene_width - item_rect.width(), y_pos)
+
+            if y_pos < 0:
+                self.setPos(x_pos, 0)
+            elif y_pos + item_rect.bottom() > scene_height:
+                self.setPos(x_pos, scene_height - item_rect.height())
             
-        super().mouseMoveEvent(event)
+        return super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.setCursor(Qt.PointingHandCursor)  # Change cursor back to open hand after dragging
             self.is_moving = False  # Set the dragging flag to false
-        super().mouseReleaseEvent(event)
+        return super().mouseReleaseEvent(event)
 
+    def hoverEnterEvent(self, event):
+        degree = len(self.edges)
+        self.setToolTip(f"Degree: {str(degree)}")
+        self.is_hovered = True
+        return super().hoverEnterEvent(event)
     
+    def hoverLeaveEvent(self, event):
+        self.is_hovered = False
+        return super().hoverLeaveEvent(event)
+

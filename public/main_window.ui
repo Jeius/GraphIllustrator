@@ -84,7 +84,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="Ui_ControlPanel" name="frame_2">
+         <widget class="Ui_ControlPanel" name="control_panel">
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
@@ -174,7 +174,7 @@
             <number>0</number>
            </property>
            <item row="0" column="0">
-            <widget class="Ui_InfoPanel" name="frame">
+            <widget class="Ui_InfoPanel" name="info_panel">
              <property name="minimumSize">
               <size>
                <width>0</width>

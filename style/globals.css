@@ -136,3 +136,14 @@ QScrollBar::add-page:vertical,
 QScrollBar::sub-page:vertical {
     background: none;
 }
+
+QGraphicsView {
+    background-color: #8f8f8f;
+}
+
+QToolTip {
+    color: #111113;
+    background-color: #70707c;
+    border: 1px solid #2e2e2e;
+    padding: 5px;
+}

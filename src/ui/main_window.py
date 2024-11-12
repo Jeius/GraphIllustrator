@@ -39,12 +39,12 @@ class Ui_MainWindow():
         self.horizontalLayout_9.setSpacing(12)
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
         self.horizontalLayout_9.setContentsMargins(0, 0, 0, 0)
-        self.frame_2 = Ui_ControlPanel(self.cp_scroll_area_content)
-        self.frame_2.setObjectName(u"frame_2")
-        self.frame_2.setFrameShape(QFrame.StyledPanel)
-        self.frame_2.setFrameShadow(QFrame.Raised)
+        self.control_panel = Ui_ControlPanel(self.cp_scroll_area_content)
+        self.control_panel.setObjectName(u"frame_2")
+        self.control_panel.setFrameShape(QFrame.StyledPanel)
+        self.control_panel.setFrameShadow(QFrame.Raised)
 
-        self.horizontalLayout_9.addWidget(self.frame_2)
+        self.horizontalLayout_9.addWidget(self.control_panel)
 
         self.cp_scroll_area.setWidget(self.cp_scroll_area_content)
 
@@ -78,14 +78,14 @@ class Ui_MainWindow():
         self.gridLayout = QGridLayout(self.ip_scroll_area_content)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
-        self.frame = Ui_InfoPanel(self.ip_scroll_area_content)
-        self.frame.setObjectName(u"frame")
-        self.frame.setMinimumSize(QSize(0, 547))
-        self.frame.setMaximumSize(QSize(250, 16777215))
-        self.frame.setFrameShape(QFrame.StyledPanel)
-        self.frame.setFrameShadow(QFrame.Raised)
+        self.info_panel = Ui_InfoPanel(self.ip_scroll_area_content)
+        self.info_panel.setObjectName(u"frame")
+        self.info_panel.setMinimumSize(QSize(0, 547))
+        self.info_panel.setMaximumSize(QSize(250, 16777215))
+        self.info_panel.setFrameShape(QFrame.StyledPanel)
+        self.info_panel.setFrameShadow(QFrame.Raised)
 
-        self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.info_panel, 0, 0, 1, 1)
 
         self.ip_scroll_area.setWidget(self.ip_scroll_area_content)
 
