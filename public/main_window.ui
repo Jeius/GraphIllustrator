@@ -24,6 +24,9 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>9</number>
+    </property>
     <item>
      <widget class="QScrollArea" name="cp_scroll_area">
       <property name="sizePolicy">
@@ -38,11 +41,6 @@
         <height>99999</height>
        </size>
       </property>
-      <property name="styleSheet">
-       <string notr="true">QScrollArea {
-	border: none;
-}</string>
-      </property>
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
@@ -51,7 +49,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>613</width>
+         <width>611</width>
          <height>69</height>
         </rect>
        </property>
@@ -69,7 +67,7 @@
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_9">
         <property name="spacing">
-         <number>12</number>
+         <number>0</number>
         </property>
         <property name="leftMargin">
          <number>0</number>
@@ -115,7 +113,7 @@
        <item>
         <widget class="QScrollArea" name="ip_scroll_area">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -126,13 +124,6 @@
            <height>16777215</height>
           </size>
          </property>
-         <property name="styleSheet">
-          <string notr="true">QScrollArea {
-    border: none; /* Removes any border from the scroll area */
-}
-
-</string>
-         </property>
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
@@ -142,20 +133,8 @@
             <x>0</x>
             <y>0</y>
             <width>69</width>
-            <height>577</height>
+            <height>570</height>
            </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>547</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>250</width>
-            <height>16777215</height>
-           </size>
           </property>
           <property name="styleSheet">
            <string notr="true"/>
@@ -179,12 +158,6 @@
               <size>
                <width>0</width>
                <height>547</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>250</width>
-               <height>16777215</height>
               </size>
              </property>
              <property name="frameShape">

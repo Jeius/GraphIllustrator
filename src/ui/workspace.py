@@ -27,5 +27,6 @@ class Workspace(QGraphicsView):
             self.graph.createVertex(scene_position) 
         elif event.button() == Qt.RightButton:  
             self.graph.clearSelection()
+            self.graph.setHighlightItems(False, None)
 
         return super().mousePressEvent(event)

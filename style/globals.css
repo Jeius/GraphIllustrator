@@ -24,6 +24,7 @@ QComboBox {
     background-color: #2b2b2c;
     color: rgb(255, 255, 255);
     selection-background-color: #3b3b3d;
+    padding: 2px;
 }
 
 QLineEdit,
@@ -31,6 +32,8 @@ QPlainTextEdit {
     background-color: #2b2b2c;
     border: 1px solid #70707c;
     color: rgb(255, 255, 255);
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 QRadioButton {
@@ -146,4 +149,36 @@ QToolTip {
     background-color: #70707c;
     border: 1px solid #2e2e2e;
     padding: 5px;
+}
+
+QTableWidget {
+    background-color: #2a2a2b;
+    color: #ffffff;
+    border: 1px solid #70707c;
+}
+
+QTableWidget::item:selected {
+    background-color: #16335c;
+    color: white;
+}
+
+QHeaderView::section {
+    background-color: #2a2a2b;
+    color: #ffffff;
+    padding: 4px;
+}
+
+QHeaderView::section:vertical {
+    background-color: #16335c;
+    color: #ffffff;
+}
+
+QTableCornerButton::section {
+    background-color: transparent;
+}
+
+QTableWidgetItem {
+    color: #ffffff;
+    font-size: 10px;
+    font-family: 'Courier New', Courier, monospace;
 }

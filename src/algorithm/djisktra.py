@@ -1,20 +1,30 @@
 import math
+from typing import Union
 
 class Djisktra():
     from ..model.vertex import Vertex
 
-    def __init__(self, vertices:list[Vertex]) -> None:
+    def __init__(self) -> None:
         from ..model.vertex import Vertex
         self.paths = {}
         self.distances = []
-        self.startVertex: Vertex = None
-        self.vertices = vertices
+        self.start_vertex = None
+
+    def findPath(self, start: Union[Vertex, None], adjacencyMatrix: list[list[float]], vertices: list[Vertex]):
+        if not start:
+            raise Exception("Invalid or no starting vertex is specified.")
+        
+        if len(adjacencyMatrix) == 0:
+            raise Exception("No edges found. Please add edges!")
+        
+        if len(vertices) == 0:
+            raise Exception("Graph is empty. Please add vertices!")
 
 
-    def findPath(self, start: Vertex, adjacencyMatrix: list[list[float]]):
-        self.startVertex = start
-        startIndex = self.vertices.index(start)
-        n = len(self.vertices)
+        self.start_vertex = start
+        startIndex = vertices.index(start)
+
+        n = len(vertices)
         s = set()  # Processed vertices
         d = [math.inf] * n  # Distance array, initialize to infinity
         d[startIndex] = 0  # Distance to the start vertex is 0

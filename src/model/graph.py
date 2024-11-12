@@ -10,22 +10,22 @@ from ..algorithm.djisktra import Djisktra
 from ..algorithm.floyd import FloydWarshall
 
 class Graph(QtWidgets.QGraphicsScene):
-    graphChanged = pyqtSignal(object)
+    graphChanged = pyqtSignal()
 
     def __init__(self):
         super().__init__()
-        self.vertices: List[Vertex] = []  # List of the vertices
         self.selected_vertices: List[Vertex] = []   # List of the selected vertices
-        self.edges: List[Edge] = []     # List of edges
         self.adjacencyMatrix: list[list[float]] = []     # Adjacency matrix
         
-        self.djisktra = Djisktra(self.vertices)
-        self.floyd = FloydWarshall(self.vertices)
+        self.dijkstra = Djisktra()
+        self.floyd = FloydWarshall()
 
-        self.is_adding_vertex = False  # Flag to enable adding vertex
-        self.is_adding_edge = False    # Flag to enable adding edge
-        self.is_using_dijkstra = False  # Flag to enable djisktra algorithm
-        self.is_using_floyd = False     # Flag to enable floyd algorithm
+        self.is_adding_vertex = False 
+        self.is_adding_edge = False   
+        self.is_using_dijkstra = True 
+        self.is_using_floyd = False     
+        self.is_using_prim = False
+        self.is_using_kruskal = False
         self.is_directed_graph = True
         self.is_deleting = False
         self.is_editing_weight = False
@@ -42,34 +42,35 @@ class Graph(QtWidgets.QGraphicsScene):
         id = self.genIdIndex()
         vertex = Vertex(id, diameter, self)
         vertex.setPos(position) 
-        self.vertices.append(vertex)
         self.addItem(vertex)
 
         self.emitSignal()
     
     def createAdjMatrix(self):
+        vertices = self.getVertices()
         # Terminate the execution if there are no vertices
-        size = len(self.vertices)
+        size = len(vertices)
         if size == 0:
             return
 
-        # Intiallize matrix with zeros
+        # Intiallize matrix with infinities
         self.adjacencyMatrix = [[math.inf for _ in range(size)] for _ in range(size)]  
 
-        # Create a dictionary of index values with the vertex ids as keys
-        idToIndex = {vertex.id: index for index, vertex in enumerate(self.vertices)}
-
-        for vertex in self.vertices:
+        for vertex in vertices:
             for edge in vertex.edges:
                 if vertex == edge.getStart():
-                    indexA = idToIndex[edge.start_vertex.id]
-                    indexB = idToIndex[edge.end_vertex.id]
+                    start_index = edge.start_vertex.id[0]
+                    end_index = edge.end_vertex.id[0]
                     
                     if edge.weight != math.inf:
-                        self.adjacencyMatrix[indexA][indexB] = edge.weight
+                        if self.is_directed_graph:
+                            self.adjacencyMatrix[start_index][end_index] = edge.weight
+                        else:
+                            self.adjacencyMatrix[start_index][end_index] = edge.weight
+                            self.adjacencyMatrix[end_index][start_index] = edge.weight
             
-                    self.adjacencyMatrix[indexA][indexA] = 0
-                    self.adjacencyMatrix[indexB][indexB] = 0               
+                    self.adjacencyMatrix[start_index][start_index] = 0
+                    self.adjacencyMatrix[end_index][end_index] = 0               
 
     def createEdge(self,):
         selected_items = self.selectedItems()
@@ -103,7 +104,7 @@ class Graph(QtWidgets.QGraphicsScene):
                 if self.is_directed_graph:
                     self.setCurvedEdge(edge)   
 
-            selected_vertices.append(vertex) 
+                selected_vertices.append(vertex) 
         self.emitSignal()
 
     def genIdIndex(self):
@@ -111,53 +112,18 @@ class Graph(QtWidgets.QGraphicsScene):
         vertices = self.getVertices()
 
         if len(vertices) != 0:
-            index = vertices[0].id_index + 1
+            index = vertices[-1].id_index + 1
 
         return index
-
-    def delete(self):
-        # Delete the selected items from the graph
-        # Iterate from the vertices if the selected item is a vertex
-        for vertex in self.vertices.copy():  # Iterate from a copy
-            if vertex.isSelected():
-                # Remove from the list of vertices
-                self.vertices.remove(vertex) 
-                
-                # Also remove the edges from its neighbor that was connected 
-                # to the vertex
-                for vertex_edge in vertex.edges:
-                    neighbor = vertex_edge.getOpposite(vertex)
-
-                    for neighbor_edge in neighbor.edges.copy():
-                        # Get the opposite of the neighbor, this means that 
-                        # the opposite will most likely be the vertex
-                        neighbor_opposite = neighbor_edge.getOpposite(neighbor)
-
-                        # Check if it is true, 
-                        # then remove the edge in the neighbor's edges
-                        if neighbor_opposite == vertex:
-                            neighbor_edge in neighbor.edges and neighbor.edges.remove(neighbor_edge)
-                            neighbor_edge in self.edges and self.edges.remove(neighbor_edge)
-                            del neighbor_edge   # Deleting the edge to save memory
-            del vertex  # Deleting the vertex to save memory
-
-        # Iterate from the edges if the selected item is an edge
-        for edge in self.edges.copy(): # Iterate from a copy
-            if edge.isSelected():
-                # Remove the edge in both endpoints
-                edge in edge.start_vertex.edges and edge.start_vertex.edges.remove(edge)
-                edge in edge.end_vertex.edges and edge.end_vertex.edges.remove(edge)
-                self.edges.remove(edge)
-                del edge
 
 
                 
 #--------------------------- Setters ------------------------------------------#
-    def setHighlightItems(self, highlighting: bool):
-        for edge in self.edges:
+    def setHighlightItems(self, highlighting: bool, colorType: Union[str, None]):
+        for edge in self.getEdges():
             edge.setHighlight(highlighting)
-        for vertex in self.vertices:
-            vertex.setHighlight(highlighting, None)
+        for vertex in self.getVertices():
+            vertex.setHighlight(highlighting, colorType)
 
     def setDirectedGraph(self, is_directed: bool):
         self.is_directed_graph = is_directed
@@ -175,14 +141,42 @@ class Graph(QtWidgets.QGraphicsScene):
         else:
             edge.setCurved(False) 
 
+    def setFloyd(self, is_floyd: bool):
+        self.floyd.reset()
+        self.clearSelection()
+        self.setHighlightItems(False, None)
+        self.is_using_floyd = is_floyd
+        self.emitSignal()
+
+    def setDijkstra(self, is_dijkstra: bool):
+        self.dijkstra.reset()
+        self.clearSelection()
+        self.setHighlightItems(False, None)
+        self.is_using_dijkstra = is_dijkstra
+        self.emitSignal()
+
+    def setPrim(self, is_prim: bool):
+        self.is_using_prim = is_prim
+        self.emitSignal()
+
+    def setKruskal(self, is_kruskal: bool):
+        self.is_using_kruskal = is_kruskal
+        self.emitSignal()
+
+
+
 #--------------------------- Getters ------------------------------------------#
     def getVertices(self):
         items = self.items()
-        return [item for item in items if isinstance(item, Vertex)]
+        vertices = [item for item in items if isinstance(item, Vertex)]
+        vertices.reverse()
+        return vertices
     
     def getEdges(self):
         items = self.items()
-        return [item for item in items if isinstance(item, Edge)]
+        edges = [item for item in items if isinstance(item, Edge)]
+        edges.reverse()
+        return edges
     
     def getComplement(self):
         vertices = self.getVertices()
@@ -228,6 +222,9 @@ class Graph(QtWidgets.QGraphicsScene):
 
 #--------------------------- Delete ---------------------------------------------#
     def removeItem(self, item):
+        self.dijkstra.reset()
+        self.floyd.reset()
+
         edges = self.getEdges()
 
         if isinstance(item, Vertex):
@@ -260,11 +257,10 @@ class Graph(QtWidgets.QGraphicsScene):
         self.emitSignal()
 
     def clear(self):
-        super().clear()
         self.adjacencyMatrix.clear()
-        self.is_adding_edge = False
-        self.is_adding_vertex = False
-        self.is_using_dijkstra = False
+        self.dijkstra.reset()
+        self.floyd.reset()
+        super().clear()
         self.emitSignal()
         
     def clearEdges(self):
@@ -273,85 +269,96 @@ class Graph(QtWidgets.QGraphicsScene):
             edge.start_vertex.clearEdges()
             edge.end_vertex.clearEdges()
             self.removeItem(edge)
+        self.dijkstra.reset()
+        self.floyd.reset()
         self.emitSignal()
 
 
 
 
 #----------------------------- Algorithms -------------------------------------------#
-    def useDjisktra(self):
-        if self.is_using_dijkstra:
-            for item in self.selectedItems():
-                if isinstance(item, Vertex):
-                    self.djisktra.findPath(item, self.adjacencyMatrix)
+    def findPath(self):
+        try:
+            vertices = self.getVertices()
+            matrix = self.adjacencyMatrix
 
-    def useFloyd(self):
-        if self.is_using_floyd:
-            self.floyd.findPath(self.adjacencyMatrix)
+            if self.is_using_floyd:
+                self.floyd.findPath(matrix, vertices)
+                self.clearSelection()
 
+            elif self.is_using_dijkstra:
+                for item in self.selectedItems():
+                    start_vertex = item
+                    if not isinstance(start_vertex, Vertex):
+                        continue
+                    self.dijkstra.findPath(start_vertex, matrix, vertices)
+            
+            self.setHighlightItems(False, None)
+        except Exception as e:
+            self._showErrorDialog(title="Invalid Graph", message="")
 
 
 
 #----------------------------- Local Functions --------------------------------------#
-    def _showInvalid(self):
+    def _showErrorDialog(self, title: string, message: str):
         msg_box = QtWidgets.QMessageBox()
         msg_box.setIcon(QtWidgets.QMessageBox.Warning)
-        msg_box.setWindowTitle("Invalid Path")
-        msg_box.setText("No path found.")
+        msg_box.setWindowTitle(title)
+        msg_box.setText(message)
         msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
         msg_box.exec_()
 
     def showPath(self, start: Union[Vertex, None], goal: Union[Vertex, None]):
-        # Unhighlight all items first
-        self.setHighlightItems(False)
-
         # Ensure start and goal are valid
         if not start or not goal:
             return
+        
+        # Unhighlight all items first
+        self.setHighlightItems(False, None)
+        self.clearSelection()
 
         # Highlight start and goal vertices
-        goal.setHighlight(True, 1)
-        start.setHighlight(True, 0)
+        goal.setHighlight(True, "end")
+        start.setHighlight(True, "start")
+
+        vertices = self.getVertices()
 
         try:
-            paths = None
-
             # Get paths based on algorithm choice
             if self.is_using_floyd:
                 paths = self.floyd.paths
             elif self.is_using_dijkstra:
-                paths = self.djisktra.paths
+                paths = self.dijkstra.paths
 
             if not paths:
                 return
 
             # Retrieve path from start to goal
             if self.is_using_floyd:
-                path = list(paths[(self.vertices.index(start), self.vertices.index(goal))])
+                path = list(paths[(vertices.index(start), vertices.index(goal))])
             elif self.is_using_dijkstra:
-                path = list(paths[self.vertices.index(goal)])
+                path = list(paths[vertices.index(goal)])
 
             # Highlight edges along the path
             while len(path) > 1:
-                start = self.vertices[path.pop(0)]
-                end = self.vertices[path[0]]
-                edge = self.getDuplicate(Edge(start, end))
-                if edge is not None:
-                    edge.setHighlight(True)
-        except Exception as e:
-            self._showInvalid()
+                section_start: Vertex = vertices[path.pop(0)]
+                section_end: Vertex = vertices[path[0]]
+                edge = self.getDuplicate(Edge(section_start, section_end, self))
 
-        for item in self.items():
-            item.update()
+                if edge is None:
+                    continue
+
+                edge.setHighlight(True)
+                if section_start != start:
+                    section_start.setHighlight(True, "route")
+
+        except Exception as e:
+            self._showErrorDialog(title="Invalid Path", message="No path found.")
 
     def emitSignal(self):
-        self.update()
-        self.graphChanged.emit(self)
+        self.createAdjMatrix()
+        self.graphChanged.emit()
 
     def onSelectionChanged(self):
         if self.is_adding_edge:
             self.createEdge()
-
-    def update(self):
-        self.createAdjMatrix()
-        return super().update()

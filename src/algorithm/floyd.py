@@ -3,13 +3,19 @@ import math
 class FloydWarshall:
     from ..model.vertex import Vertex
 
-    def __init__(self, vertices: list[Vertex]) -> None:
+    def __init__(self) -> None:
         self.paths = {}
         self.distances = []
-        self.vertices = vertices
 
-    def findPath(self, adjacencyMatrix: list[list[float]]):
-        n = len(self.vertices)
+    def findPath(self, adjacencyMatrix: list[list[float]], vertices: list[Vertex]):
+        if len(adjacencyMatrix) == 0:
+            raise Exception("No edges found. Please add edges!")
+        
+        if len(vertices) == 0:
+            raise Exception("Graph is empty. Please add vertices!")
+        
+
+        n = len(vertices)
         # Initialize the distance and predecessor matrices
         d = [[math.inf] * n for _ in range(n)]
         predecessors = [[None] * n for _ in range(n)]
@@ -32,13 +38,13 @@ class FloydWarshall:
                         predecessors[i][j] = predecessors[k][j]
 
         # Step 3: Build paths from predecessor matrix
-        self.paths = self._buildPaths(predecessors)
+        self.paths = self._buildPaths(predecessors, vertices)
         self.distances = d
         return self.paths
 
-    def _buildPaths(self, predecessors: list[list[int]]):
+    def _buildPaths(self, predecessors: list[list[int]], vertices: list[Vertex]):
         paths = {}
-        n = len(self.vertices)
+        n = len(vertices)
 
         for i in range(n):
             for j in range(n):

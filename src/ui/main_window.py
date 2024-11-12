@@ -13,9 +13,11 @@ class Ui_MainWindow():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(631, 690)
         MainWindow.setMinimumSize(QSize(0, 50))
+        MainWindow.setStyleSheet(u"")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
+        self.verticalLayout.setSpacing(9)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.cp_scroll_area = QScrollArea(self.centralwidget)
         self.cp_scroll_area.setObjectName(u"cp_scroll_area")
@@ -28,7 +30,7 @@ class Ui_MainWindow():
         self.cp_scroll_area.setWidgetResizable(True)
         self.cp_scroll_area_content = QWidget()
         self.cp_scroll_area_content.setObjectName(u"cp_scroll_area_content")
-        self.cp_scroll_area_content.setGeometry(QRect(0, 0, 613, 69))
+        self.cp_scroll_area_content.setGeometry(QRect(0, 0, 611, 69))
         sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
@@ -36,11 +38,11 @@ class Ui_MainWindow():
         self.cp_scroll_area_content.setSizePolicy(sizePolicy1)
         self.cp_scroll_area_content.setMaximumSize(QSize(16777215, 16777215))
         self.horizontalLayout_9 = QHBoxLayout(self.cp_scroll_area_content)
-        self.horizontalLayout_9.setSpacing(12)
+        self.horizontalLayout_9.setSpacing(0)
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
         self.horizontalLayout_9.setContentsMargins(0, 0, 0, 0)
         self.control_panel = Ui_ControlPanel(self.cp_scroll_area_content)
-        self.control_panel.setObjectName(u"frame_2")
+        self.control_panel.setObjectName(u"control_panel")
         self.control_panel.setFrameShape(QFrame.StyledPanel)
         self.control_panel.setFrameShadow(QFrame.Raised)
 
@@ -57,31 +59,23 @@ class Ui_MainWindow():
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.ip_scroll_area = QScrollArea(self.h_layout_widget)
         self.ip_scroll_area.setObjectName(u"ip_scroll_area")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.ip_scroll_area.sizePolicy().hasHeightForWidth())
         self.ip_scroll_area.setSizePolicy(sizePolicy2)
         self.ip_scroll_area.setMaximumSize(QSize(16777215, 16777215))
-        self.ip_scroll_area.setStyleSheet(u"QScrollArea {\n"
-"    border: none; /* Removes any border from the scroll area */\n"
-"}\n"
-"\n"
-"")
         self.ip_scroll_area.setWidgetResizable(True)
         self.ip_scroll_area_content = QWidget()
         self.ip_scroll_area_content.setObjectName(u"ip_scroll_area_content")
-        self.ip_scroll_area_content.setGeometry(QRect(0, 0, 69, 577))
-        self.ip_scroll_area_content.setMinimumSize(QSize(0, 547))
-        self.ip_scroll_area_content.setMaximumSize(QSize(250, 16777215))
+        self.ip_scroll_area_content.setGeometry(QRect(0, 0, 69, 570))
         self.ip_scroll_area_content.setStyleSheet(u"")
         self.gridLayout = QGridLayout(self.ip_scroll_area_content)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.info_panel = Ui_InfoPanel(self.ip_scroll_area_content)
-        self.info_panel.setObjectName(u"frame")
+        self.info_panel.setObjectName(u"info_panel")
         self.info_panel.setMinimumSize(QSize(0, 547))
-        self.info_panel.setMaximumSize(QSize(250, 16777215))
         self.info_panel.setFrameShape(QFrame.StyledPanel)
         self.info_panel.setFrameShadow(QFrame.Raised)
 
@@ -112,6 +106,6 @@ class Ui_MainWindow():
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Graph Illustrator - Julius Pahama", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
     # retranslateUi
 

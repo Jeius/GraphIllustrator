@@ -7,7 +7,7 @@ from PyQt5.QtGui import QFont, QPen, QColor, QBrush
 class Vertex(QGraphicsEllipseItem):
     def __init__(self, id_index: int, diameter, parent):
         super().__init__(0, 0, diameter, diameter)
-        
+
         from .edge import Edge
         from .graph import Graph
         self.edges: List[Edge] = []  # Stores the edges of this vertex
@@ -30,11 +30,16 @@ class Vertex(QGraphicsEllipseItem):
         self.id = self.createId(id_index)
 
         self.label = QGraphicsTextItem(self.id[1], self)
-        font = QFont("Inter", 11, QFont.Bold)  # Set the font and size
+        font = QFont("Inter", 11, QFont.Bold) 
         self.label.setFont(font)  
 
-        self.graph.graphChanged.connect(self.update)
+        self.colors = {
+            "route": QColor("#42ffd9"),
+            "end": QColor("#FF6E64"),
+            "start": QColor("#86f986")
+        }
 
+        self.graph.graphChanged.connect(self.updateLabel)
 
     def updateLabel(self):
         new_id = self.createId(self.id_index)
@@ -59,42 +64,21 @@ class Vertex(QGraphicsEllipseItem):
     def clearEdges(self):
         self.edges.clear()
 
-    def setHighlight(self, flag, colorIndex: Union[int, None]):
-        colors = [QColor("#42ffd9"), QColor("#FF6E64")]
-        self.is_highlighted = flag
-        if flag and colorIndex is not None:
-            self.highlightColor = colors[colorIndex]
+    def setHighlight(self, is_highlight: bool, colorType: Union[str, None]):
+        self.is_highlighted = is_highlight
+        if is_highlight and colorType is not None:
+            self.highlightColor = self.colors[colorType]
 
-    def paint(self, painter, option, widget=None):
-        # This is an overriden paint to change the selection appearance of the vertex
-        self.updateLabel()
-        # Default pen and brush
-        pen = QPen(Qt.black, 2)
-        brush = QBrush(QColor("#3db93a"))
-
-        # Check if the item is selected
-        if self.isSelected() or self.is_hovered:
-            # Set the brush for the selected state
-            brush = QBrush(QColor("#86f986"))  # Lightgreen fill
-        else:
-            if self.is_highlighted:
-                brush = QBrush(self.highlightColor)
-
-        # Apply the pen and brush
-        painter.setPen(pen)
-        painter.setBrush(brush)
-        painter.drawEllipse(self.rect())
+        self.update()
 
     def createId(self, index: int):
         if self.graph.is_id_int:
             return (index, str(index + 1))
         else:
             return (index, self.uppercase_alphabets[index])
-
-    def update(self):
-        self.updateLabel()
-        return super().update()
     
+
+#---------------------- Event Listeners ---------------------------------------------#    
     def mousePressEvent(self, event):
         # Override the mousePressEvent to allow dragging of the vertex
         if event.button() == Qt.LeftButton:
@@ -135,8 +119,10 @@ class Vertex(QGraphicsEllipseItem):
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.setCursor(Qt.PointingHandCursor)  # Change cursor back to open hand after dragging
-            self.is_moving = False  # Set the dragging flag to false
+            # Change cursor back to open hand after dragging
+            self.setCursor(Qt.PointingHandCursor)  
+            # Set the dragging flag to false
+            self.is_moving = False  
         return super().mouseReleaseEvent(event)
 
     def hoverEnterEvent(self, event):
@@ -149,3 +135,22 @@ class Vertex(QGraphicsEllipseItem):
         self.is_hovered = False
         return super().hoverLeaveEvent(event)
 
+    def paint(self, painter, option, widget=None):
+            # This is an overriden paint to change the selection appearance of the vertex
+            self.updateLabel()
+            # Default pen and brush
+            pen = QPen(Qt.black, 2)
+            brush = QBrush(QColor("#275aa1"))
+
+            # Check if the item is selected
+            if self.isSelected() or self.is_hovered:
+                # Set the brush for the selected state
+                brush = QBrush(QColor("#92b6e7"))  # Lightgreen fill
+            else:
+                if self.is_highlighted:
+                    brush = QBrush(self.highlightColor)
+
+            # Apply the pen and brush
+            painter.setPen(pen)
+            painter.setBrush(brush)
+            painter.drawEllipse(self.rect())

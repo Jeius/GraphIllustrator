@@ -8,14 +8,11 @@ class Edge(QGraphicsPathItem):
 
     def __init__(self, start: Vertex, end: Vertex, parent):
         super().__init__()
-        from .graph import Graph
 
+        from .graph import Graph
         self.start_vertex = start
         self.end_vertex = end
         self.weight = math.inf
-        self.is_highlighted = False
-        self.is_hovered = False
-        self.is_curve = False
         self.graph: Graph = parent
 
         self.setFlag(QGraphicsLineItem.ItemIsSelectable, True)  
@@ -23,12 +20,19 @@ class Edge(QGraphicsPathItem):
         self.setPen(QPen(Qt.black, 2))   # Set the edge color and thickness
         self.setAcceptHoverEvents(True)
         self.setZValue(0)
+        
+        self.is_highlighted = False
+        self.is_hovered = False
+        self.is_curve = False
+        
         self._updatePath()
         self._addLabel()
-        
         if self.graph.is_directed_graph:
             self._addArrowHead()
 
+
+
+#------------------------- Local Functions ------------------------------------#
     def __eq__(self, other_edge):
         # Check if two edges are equal according to vertex order
         if isinstance(other_edge, Edge):
@@ -41,58 +45,6 @@ class Edge(QGraphicsPathItem):
                         self.start_vertex == other_edge.end_vertex and 
                         self.end_vertex == other_edge.start_vertex
                         )
-
-    def getOpposite(self, vertex):
-        # Return the neighbor of the vertex
-        if vertex == self.start_vertex:
-            return self.end_vertex
-        else:
-            return self.start_vertex
-
-    def getStart(self):
-        return self.start_vertex
-
-    def paint(self, painter, option, widget=None):
-        self._updatePath()
-        self._updateLabel()
-
-        if self.graph.is_directed_graph:
-            self._updateArrowHead()
-
-        pen = QPen(Qt.black, 2)  # Default color and thickness
-
-        # Check if the item is selected or highlighted
-        if self.isSelected() or self.is_hovered:
-            pen = QPen(Qt.white, 2)  # White color if selected
-        elif self.is_highlighted:
-            pen = QPen(QColor("#42ffd9"), 4)  # Custom color when highlighted
-
-        painter.setPen(pen)
-        painter.drawPath(self.path())
-
-    def showContextMenu(self, pos):
-        # Create a context menu
-        menu = QMenu()
-
-        edit_action = menu.addAction("Edit Weight")
-        edit_action.triggered.connect(self.showEditDialog)
-
-        # Show the menu at the mouse position
-        global_pos = self.mapToScene(pos).toPoint()
-        menu.exec_(self.scene().views()[0].mapToGlobal(global_pos))
-
-    def showEditDialog(self):
-        input_dialog = QInputDialog()
-        input_dialog.setWindowTitle("Edge")
-        input_dialog.setLabelText("Enter the new weight:")
-
-        # Remove the question mark by disabling the ContextHelpButtonHint flag
-        input_dialog.setWindowFlags(input_dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint)
-
-        if input_dialog.exec_() == QDialog.Accepted:
-            weight = input_dialog.textValue()
-            self.weight = int(weight) if weight.isdigit() and int(weight) >= 0 else math.inf
-            self._updateLabel()
 
     def _addLabel(self):
         self.label = QGraphicsEllipseItem(0, 0, 30, 30, self)
@@ -259,20 +211,58 @@ class Edge(QGraphicsPathItem):
 
         # Calculate the position for the label (60 pixels away)
         return midpoint + perpendicular * offset
-        
+    
+
+
+#------------------------------- Getters -----------------------------------#
+    def getOpposite(self, vertex):
+        # Return the neighbor of the vertex
+        if vertex == self.start_vertex:
+            return self.end_vertex
+        else:
+            return self.start_vertex
+
+    def getStart(self):
+        return self.start_vertex
+
+
+    def showContextMenu(self, pos):
+        # Create a context menu
+        menu = QMenu()
+
+        edit_action = menu.addAction("Edit Weight")
+        edit_action.triggered.connect(self.showEditDialog)
+
+        # Show the menu at the mouse position
+        global_pos = self.mapToScene(pos).toPoint()
+        menu.exec_(self.scene().views()[0].mapToGlobal(global_pos))
+
+
+
+
+#-------------------------- Setters -----------------------------------------------------------#
+    def showEditDialog(self):
+        input_dialog = QInputDialog()
+        input_dialog.setWindowTitle("Edge")
+        input_dialog.setLabelText("Enter the new weight:")
+
+        # Remove the question mark by disabling the ContextHelpButtonHint flag
+        input_dialog.setWindowFlags(input_dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+
+        if input_dialog.exec_() == QDialog.Accepted:
+            weight = input_dialog.textValue()
+            self.weight = int(weight) if weight.isdigit() and int(weight) >= 0 else math.inf
+            self._updateLabel()
+            self.graph.emitSignal()
+
     def setHighlight(self, flag):
         self.is_highlighted = flag
+        self.update()
 
     def setCurved(self, flag):
         self.is_curve = flag
 
-    def update(self):
-        self._addLabel()
-        self._addArrowHead()
-        self._updatePath()
-        super().update()
-
-
+#---------------------- Event Listeners ---------------------------------------------#    
     def mousePressEvent(self, event):
         if event.button() == Qt.RightButton:
             self.showContextMenu(event.pos())
@@ -291,3 +281,21 @@ class Edge(QGraphicsPathItem):
     def hoverLeaveEvent(self, event):
         self.is_hovered = False
         return super().hoverLeaveEvent(event)
+    
+    def paint(self, painter, option, widget=None):
+        self._updatePath()
+        self._updateLabel()
+
+        if self.graph.is_directed_graph:
+            self._updateArrowHead()
+
+        pen = QPen(Qt.black, 2)  # Default color and thickness
+
+        # Check if the item is selected or highlighted
+        if self.isSelected() or self.is_hovered:
+            pen = QPen(Qt.white, 2)  # White color if selected
+        elif self.is_highlighted:
+            pen = QPen(QColor("#42ffd9"), 3)  # Custom color when highlighted
+
+        painter.setPen(pen)
+        painter.drawPath(self.path())

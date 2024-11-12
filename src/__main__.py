@@ -1,60 +1,61 @@
 import sys
 import os
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QButtonGroup, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QButtonGroup, QTableWidgetItem
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 
 from .ui.main_window import Ui_MainWindow
 from .model.graph import Graph
 
-def loadIcon(path):
+def getFilePath(path):
+    """Constructs the file path based on the running environment."""
     if getattr(sys, 'frozen', False):  # PyInstaller bundled executable
         base_path = sys._MEIPASS
     else:
         base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # Move up one level
+    return os.path.join(base_path, path)
 
-    file_path = os.path.join(base_path, path)
+def loadIcon(path):
+    file_path = getFilePath(path)
 
     if not os.path.exists(file_path):
         print(f"Icon file not found: {file_path}")
-        return QIcon()  # Return a default icon if not found
+        return QIcon()
 
     return QIcon(file_path)
 
 def loadStylesheet(path):
-    if getattr(sys, 'frozen', False):  # PyInstaller bundled executable
-        base_path = sys._MEIPASS
-    else:
-        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # Move up one level
-
-    file_path = os.path.join(base_path, path)
+    file_path = getFilePath(path)
 
     if not os.path.exists(file_path):
         print(f"Stylesheet file not found: {file_path}")
-        return ""  # Return an empty string if the file is missing
+        return ""  
 
     with open(file_path, "r") as file:
         stylesheet = file.read()
 
     return stylesheet
 
+
 class MyApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.resize(1420, 860)
+        self.resize(1400, 820)
         self.setStyleSheet(loadStylesheet("style/globals.css"))
         self.setWindowIcon(loadIcon("public/images/icon.webp"))
+        self.setWindowTitle("Graph Illustrator by Julius Pahama")
 
         self.graph = Graph()
         self.ui.view.setScene(self.graph)
 
-        self.createButtonGroup()
-        self.connectSignals()
+        self._setupButtonGroup()
+        self._setupPathTable()
+        self._setupConnections()
 
-    def createButtonGroup(self):
+    def _setupButtonGroup(self):
         control_panel = self.ui.control_panel
 
         self.button_group = QButtonGroup(self)
@@ -64,7 +65,18 @@ class MyApp(QMainWindow):
         self.button_group.addButton(control_panel.edit_weight_button)
         self.button_group.setExclusive(True)
     
-    def connectSignals(self):
+    def _setupPathTable(self):
+        path_table = self.ui.info_panel.path_table
+
+        horizontalHeaders = ["Start", "Goal", "Distance"]
+        columns = len(horizontalHeaders)
+
+        path_table.setColumnCount(columns)
+        path_table.setHorizontalHeaderLabels(horizontalHeaders)
+        path_table.resizeColumnsToContents()
+        path_table.verticalHeader().sectionClicked.connect(self.onRowClicked)
+
+    def _setupConnections(self):
         control_panel = self.ui.control_panel
         control_panel.add_vertex_button.toggled.connect(self.setAddingVertex)
         control_panel.add_edge_button.toggled.connect(self.setAddingEdge)
@@ -74,7 +86,10 @@ class MyApp(QMainWindow):
         control_panel.clear_button.clicked.connect(self.clearGraph)
         control_panel.tabs.currentChanged.connect(self.setGraphType)
         control_panel.complement_button.clicked.connect(self.getComplement)
-
+        control_panel.floyd_radio.toggled.connect(self.setFloyd)
+        control_panel.dijkstra_radio.toggled.connect(self.setDijkstra)
+        control_panel.path_button.clicked.connect(self.onPathButtonClicked)
+        
         self.graph.graphChanged.connect(self.updateGraphListeners)
 
     def setAddingVertex(self, adding_vertex: bool):
@@ -102,7 +117,7 @@ class MyApp(QMainWindow):
         self.graph.emitSignal()
     
     def setGraphType(self, index: int):
-        self.unCheckButtonGroup()
+        self._unCheckButtonGroup()
         self.graph.clearEdges()
 
         if index == 0:
@@ -110,26 +125,56 @@ class MyApp(QMainWindow):
         else:
             self.graph.setDirectedGraph(False)
 
+    def setFloyd(self, is_floyd: bool):
+        self._unCheckButtonGroup()
+        self.graph.setFloyd(is_floyd)
+
+    def setDijkstra(self, is_dijsktra: bool):
+        self._unCheckButtonGroup()
+        self.graph.setDijkstra(is_dijsktra)
+
+    def onRowClicked(self, index: int):
+        path_table = self.ui.info_panel.path_table
+        vertices = self.graph.getVertices()
+        start_item = path_table.item(index, 0)
+        goal_item = path_table.item(index, 1)
+
+        start_id = start_item.text()
+        goal_id = goal_item.text()
+
+        start_vertex = next((v for v in vertices if v.id[1] == start_id), None)
+        goal_vertex = next((v for v in vertices if v.id[1] == goal_id), None)
+
+        self.graph.showPath(start_vertex, goal_vertex)
+
     def getComplement(self):
-        self.unCheckButtonGroup()
+        self._unCheckButtonGroup()
         self.graph.getComplement()
 
     def clearGraph(self):
         self.graph.clear()
+        self._updatePathTable()
 
-    def updateGraphListeners(self, graph: Graph):
-        self.updateInfoPanel(graph)
+    def onPathButtonClicked(self):
+        self.graph.findPath()
+        self._updatePathTable()
+        self._unCheckButtonGroup()
 
-    def updateInfoPanel(self, graph: Graph):
+    def updateGraphListeners(self):
+        self.updateInfoPanel()
+
+    def updateInfoPanel(self):
+        graph = self.graph
         order = len(graph.getVertices())
         size = len(graph.getEdges())
-        adj_matrix = graph.adjacencyMatrix
 
         info_panel = self.ui.info_panel
         info_panel.size_box.setText(str(size))
         info_panel.order_box.setText(str(order))       
         self._updateVertexSet()
         self._updateEdgeSet()
+        self._updateMatrix()
+        self._updatePathTable()
 
     def _updateVertexSet(self):
         info_panel = self.ui.info_panel
@@ -139,9 +184,8 @@ class MyApp(QMainWindow):
         for vertex in vertices:
             vertex_set.append(str(vertex.id[1]))
 
-        vertex_set.reverse()
         info_panel.vertex_set_box.clear()
-        info_panel.vertex_set_box.setText("V(G) = {" + ', '.join(map(str, vertex_set)) + '}')
+        info_panel.vertex_set_box.setPlainText("V(G) = {" + ', '.join(map(str, vertex_set)) + '}')
 
     def _updateEdgeSet(self):
         info_panel = self.ui.info_panel
@@ -153,11 +197,95 @@ class MyApp(QMainWindow):
             vertexB_id = edge.end_vertex.id[1]
             edge_set.append(f"({vertexA_id}, {vertexB_id})")
 
-        edge_set.reverse()
         info_panel.edge_set_box.clear()
-        info_panel.edge_set_box.setText("E(G) = {" + ', '.join(map(str, edge_set)) + '}')
+        info_panel.edge_set_box.setPlainText("E(G) = {" + ', '.join(map(str, edge_set)) + '}')
 
-    def unCheckButtonGroup(self):
+    def _updateMatrix(self):
+        table = self.ui.info_panel.adj_matrix_table
+        table.clear()
+        matrix = self.graph.adjacencyMatrix
+
+        table.setRowCount(len(matrix))
+        table.setColumnCount(len(matrix[0]) if matrix else 0)
+
+        for rowIndex, row in enumerate(matrix):
+            for columnIndex, value in enumerate(row):
+                item = QTableWidgetItem(str(value))  
+                table.setItem(rowIndex, columnIndex, item)
+                table.setColumnWidth(columnIndex, 1)
+
+    def _updatePathTable(self):
+        path_table = self.ui.info_panel.path_table
+        vertices = self.graph.getVertices()
+    
+        # Clear the table first
+        path_table.setRowCount(0)
+
+        # Get paths, distances, and vertices based on the algorithm
+        if self.graph.is_using_dijkstra:
+            paths = self.graph.dijkstra.paths
+            distances = self.graph.dijkstra.distances
+            start_vertex = self.graph.dijkstra.start_vertex
+            rows = len(vertices) - 1 if vertices else 0
+
+        elif self.graph.is_using_floyd:
+            paths = self.graph.floyd.paths
+            distances = self.graph.floyd.distances
+            rows = len(vertices) * (len(vertices) - 1)
+            
+        else:
+            return
+
+        # If paths are empty, there's nothing to display
+        if not paths:
+            return
+
+        # Set row count and headers
+        vertical_headers = ["Show Path"] * rows
+        path_table.setRowCount(rows)
+        path_table.setVerticalHeaderLabels(vertical_headers)
+
+        # Populate the table with paths and distances
+        rowIndex = 0
+        if self.graph.is_using_dijkstra:
+            rowIndex = self._seedPathTable(distances, rowIndex, start_vertex)
+        elif self.graph.is_using_floyd:
+            for start in vertices:
+                rowIndex = self._seedPathTable(distances, rowIndex, start)
+
+    def _seedPathTable(self, distances, rowIndex, start_vertex):
+        vertices = self.graph.getVertices()
+        path_table = self.ui.info_panel.path_table
+
+        for goal_vertex in vertices:
+            if start_vertex != goal_vertex:
+                start_index = vertices.index(start_vertex)
+                goal_index = vertices.index(goal_vertex)
+
+                # Create table items
+                start_item = QTableWidgetItem(start_vertex.id[1])
+                start_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+
+                goal_item = QTableWidgetItem(goal_vertex.id[1])
+                goal_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+
+                # Get the appropriate distance
+                distance = (
+                        distances[goal_index] if self.graph.is_using_dijkstra 
+                        else distances[start_index][goal_index]
+                    )
+                distance_item = QTableWidgetItem(str(distance))
+                distance_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+
+                # Set items in the table
+                path_table.setItem(rowIndex, 0, start_item)
+                path_table.setItem(rowIndex, 1, goal_item)
+                path_table.setItem(rowIndex, 2, distance_item)
+                rowIndex += 1
+        return rowIndex
+
+
+    def _unCheckButtonGroup(self):
         checked_button = self.button_group.checkedButton()
 
         if checked_button:
@@ -165,9 +293,16 @@ class MyApp(QMainWindow):
             checked_button.setChecked(False)
             self.button_group.setExclusive(True)
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape:
-            self.unCheckButtonGroup()
+#----------------- Event Listeners ---------------------------------#
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key_Escape:
+            self._unCheckButtonGroup()
+        return super().keyPressEvent(a0)
+
+    def mousePressEvent(self, a0):
+        if a0.button() == Qt.RightButton:
+            self._unCheckButtonGroup()
+        return super().mousePressEvent(a0)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
