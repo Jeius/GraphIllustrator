@@ -119,7 +119,7 @@ class Graph(QtWidgets.QGraphicsScene):
 
                 
 #--------------------------- Setters ------------------------------------------#
-    def setHighlightItems(self, highlighting: bool, colorType: Union[str, None]):
+    def setHighlightItems(self, highlighting: bool, colorType:str = None):
         for edge in self.getEdges():
             edge.setHighlight(highlighting)
         for vertex in self.getVertices():
@@ -144,14 +144,14 @@ class Graph(QtWidgets.QGraphicsScene):
     def setFloyd(self, is_floyd: bool):
         self.floyd.reset()
         self.clearSelection()
-        self.setHighlightItems(False, None)
+        self.setHighlightItems(False)
         self.is_using_floyd = is_floyd
         self.emitSignal()
 
     def setDijkstra(self, is_dijkstra: bool):
         self.dijkstra.reset()
         self.clearSelection()
-        self.setHighlightItems(False, None)
+        self.setHighlightItems(False)
         self.is_using_dijkstra = is_dijkstra
         self.emitSignal()
 
@@ -293,7 +293,7 @@ class Graph(QtWidgets.QGraphicsScene):
                         continue
                     self.dijkstra.findPath(start_vertex, matrix, vertices)
             
-            self.setHighlightItems(False, None)
+            self.setHighlightItems(False)
         except Exception as e:
             self._showErrorDialog(title="Invalid Graph", message="")
 
@@ -314,7 +314,7 @@ class Graph(QtWidgets.QGraphicsScene):
             return
         
         # Unhighlight all items first
-        self.setHighlightItems(False, None)
+        self.setHighlightItems(False)
         self.clearSelection()
 
         # Highlight start and goal vertices

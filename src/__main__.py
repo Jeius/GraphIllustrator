@@ -54,6 +54,7 @@ class MyApp(QMainWindow):
         self._setupButtonGroup()
         self._setupPathTable()
         self._setupConnections()
+        
 
     def _setupButtonGroup(self):
         control_panel = self.ui.control_panel
@@ -89,24 +90,29 @@ class MyApp(QMainWindow):
         control_panel.floyd_radio.toggled.connect(self.setFloyd)
         control_panel.dijkstra_radio.toggled.connect(self.setDijkstra)
         control_panel.path_button.clicked.connect(self.onPathButtonClicked)
+        self.ui.view.tool.done_button.clicked.connect(self.onDoneClicked)
         
         self.graph.graphChanged.connect(self.updateGraphListeners)
 
     def setAddingVertex(self, adding_vertex: bool):
         self.graph.clearSelection()
         self.graph.is_adding_vertex = adding_vertex
+        self.ui.view.tool.done_button.show()
 
     def setAddingEdge(self, adding_edge: bool):
         self.graph.clearSelection()
         self.graph.is_adding_edge = adding_edge
+        self.ui.view.tool.done_button.show()
 
     def setDeleting(self, deleting: bool):
         self.graph.clearSelection()
         self.graph.is_deleting = deleting
+        self.ui.view.tool.done_button.show()
 
     def setEditWeight(self, editing: bool):
         self.graph.clearSelection()
         self.graph.is_editing_weight = editing
+        self.ui.view.tool.done_button.show()
 
     def setIdType(self, index: int):
         self.graph.clearSelection()
@@ -146,6 +152,10 @@ class MyApp(QMainWindow):
         goal_vertex = next((v for v in vertices if v.id[1] == goal_id), None)
 
         self.graph.showPath(start_vertex, goal_vertex)
+
+    def onDoneClicked(self):
+        self._unCheckButtonGroup()
+        self.ui.view.tool.done_button.hide()
 
     def getComplement(self):
         self._unCheckButtonGroup()
@@ -297,11 +307,13 @@ class MyApp(QMainWindow):
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key_Escape:
             self._unCheckButtonGroup()
+            self.ui.view.tool.done_button.hide()
         return super().keyPressEvent(a0)
 
     def mousePressEvent(self, a0):
         if a0.button() == Qt.RightButton:
             self._unCheckButtonGroup()
+            self.ui.view.tool.done_button.hide()
         return super().mousePressEvent(a0)
 
 if __name__ == "__main__":

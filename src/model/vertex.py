@@ -64,7 +64,7 @@ class Vertex(QGraphicsEllipseItem):
     def clearEdges(self):
         self.edges.clear()
 
-    def setHighlight(self, is_highlight: bool, colorType: Union[str, None]):
+    def setHighlight(self, is_highlight: bool, colorType:str = None):
         self.is_highlighted = is_highlight
         if is_highlight and colorType is not None:
             self.highlightColor = self.colors[colorType]
