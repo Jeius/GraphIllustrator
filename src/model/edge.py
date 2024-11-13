@@ -14,10 +14,11 @@ class Edge(QGraphicsPathItem):
         self.end_vertex = end
         self.weight = math.inf
         self.graph: Graph = parent
+        self.label = Label(str(self.weight), self)
 
         self.setFlag(QGraphicsLineItem.ItemIsSelectable, True)  
         self.setCursor(Qt.PointingHandCursor)  
-        self.setPen(QPen(Qt.black, 2))   # Set the edge color and thickness
+        self.setPen(QPen(Qt.black, 2))  
         self.setAcceptHoverEvents(True)
         self.setZValue(0)
         
@@ -26,7 +27,6 @@ class Edge(QGraphicsPathItem):
         self.is_curve = False
         
         self._updatePath()
-        self._addLabel()
         if self.graph.is_directed_graph:
             self._addArrowHead()
 
@@ -46,31 +46,12 @@ class Edge(QGraphicsPathItem):
                         self.end_vertex == other_edge.start_vertex
                         )
 
-    def _addLabel(self):
-        self.label = QGraphicsEllipseItem(0, 0, 30, 30, self)
-        self.label.setBrush(QColor("#8f8f8f"))
-        self.label.setPen(QColor("#8f8f8f"))
-
-        self.label_text = QGraphicsTextItem(self.label)
-        self.label_text.setFont(QFont("Inter", 11, QFont.Bold))
-
     def _addArrowHead(self):
         self.arrow_head = QGraphicsPolygonItem(self)
         self.arrow_head.setFlag(QGraphicsPolygonItem.ItemSendsGeometryChanges, True)
         self._updateArrowHead()
 
     def _updateArrowHead(self, arrow_size=7):
-        brush = QBrush(Qt.black)
-        pen = QPen(Qt.black)
-        if self.isSelected() or self.is_hovered:
-            brush = QBrush(Qt.white)
-            pen = QPen(Qt.white)
-        elif self.is_highlighted:
-            brush = QBrush(QColor("#42ffd9"))
-            pen = QPen(QColor("#42ffd9"))
-        self.arrow_head.setBrush(brush)
-        self.arrow_head.setPen(pen)
-    
         path = self.path()
         p1 = path.elementAt(path.elementCount() - 1)  # Last point in the path
         p1 = QPointF(p1.x, p1.y)
@@ -80,15 +61,17 @@ class Edge(QGraphicsPathItem):
             p0 = path.elementAt(path.elementCount() - 2)
             p0 = QPointF(p0.x, p0.y)
         else:
-            p0 = p1  # If there is no previous point, use p1 (this is a degenerate case)
+            p0 = p1  
 
         # Compute the direction vector (tangent) at the endpoint
         direction = p1 - p0
         length = (direction.x() ** 2 + direction.y() ** 2) ** 0.5
 
         # Avoid division by zero
-        if length == 0:
-            return [p1, p1, p1]
+        if length <= 1:
+            arrow_head_polygon = QPolygonF([p1, p1, p1])
+            self.arrow_head.setPolygon(arrow_head_polygon)
+            return 
 
         # Normalize the direction vector
         dx = direction.x() / length
@@ -108,84 +91,54 @@ class Edge(QGraphicsPathItem):
         self.arrow_head.setPolygon(arrow_head_polygon)
         
     def _updatePath(self):
-        def shape_in_scene_coordinates(item: QGraphicsItem):
-            local_shape = item.shape()
-            scene_shape = QPainterPath()
-
-            # Map each point in the local shape to scene coordinates
-            for i in range(local_shape.elementCount()):
-                element = local_shape.elementAt(i)
-                scene_point = item.mapToScene(QPointF(element.x, element.y))
-                if i == 0:
-                    scene_shape.moveTo(scene_point)
-                else:
-                    scene_shape.lineTo(scene_point)
-            return scene_shape
-
-        def find_intersection(path_item, ellipse_item):
-            path_shape_scene = shape_in_scene_coordinates(path_item)
-            ellipse_shape_scene = shape_in_scene_coordinates(ellipse_item)
-
-            # Find intersection between the two shapes in scene coordinates
-            intersection_path = ellipse_shape_scene.intersected(path_shape_scene)
-
-            if not intersection_path.isEmpty():
-                return intersection_path.boundingRect().center()
-            else:
-                return None
-
-        def createPath(start, end, control_point):
-            path = QPainterPath()
-            path.moveTo(start)
-            if self.is_curve:
-                path.quadTo(control_point, end)
-            else:
-                path.lineTo(end)
-            return path
-
         start = self.start_vertex.getPosition()
         end = self.end_vertex.getPosition()
         control_point = self.getControlPoint()
 
-        path = createPath(start, end, control_point)
-        path_item = QGraphicsPathItem()
-        path_item.setPath(path)
+        if start == end:
+            return
 
-        # Calculate intersection points with the ellipse boundaries
-        start = find_intersection(path_item, self.start_vertex)
-        end = find_intersection(path_item, self.end_vertex)
+        # Define offset in pixels
+        offset = (self.start_vertex.rect().width() / 2) + 3
 
-        shorten_by = 10
+        # Adjusted start and end points
+        start_adjusted = self._shortenPoint(start, end, offset)
+        end_adjusted = self._shortenPoint(end, start, offset)
+
+        path = QPainterPath(start_adjusted)
         if self.is_curve:
-            line_to_start = QLineF(control_point, start)
-            line_to_end = QLineF(control_point, end)
-
-            start = line_to_start.pointAt(1 - shorten_by / line_to_start.length())
-            end = line_to_end.pointAt(1 - shorten_by / line_to_end.length())
+            path.quadTo(control_point, end_adjusted)
         else:
-            line = QLineF(start, end)
-            start = line.pointAt(shorten_by / line.length())
-            end = line.pointAt(1 - shorten_by / line.length())
-        
-        path = createPath(start, end, control_point)
+            path.lineTo(end_adjusted)
+
         self.setPath(path)
+
+
+    def _shortenPoint(self, start, end, offset):
+        # Calculate direction vector
+        dx = end.x() - start.x()
+        dy = end.y() - start.y()
+        
+        # Calculate the distance
+        distance = math.sqrt(dx**2 + dy**2)
+        
+        # Normalize the vector and apply the offset
+        if distance > 0:
+            dx = dx / distance * offset
+            dy = dy / distance * offset
+        return QPointF(start.x() + dx, start.y() + dy)
 
     def _updateLabel(self):    
         self_center = self.path().pointAtPercent(0.5)
-        label_text_center = self.label_text.boundingRect().center()
         label_center = self.label.rect().center()
 
         if self.weight != math.inf:
-            self.label_text.setPlainText(str(self.weight))
+            self.label.setText(str(self.weight))
             self.label.setVisible(True)
         else:
             self.label.setVisible(False)
 
-        text_pos = QPointF(label_center - label_text_center)
-        label_pos = QPointF(self_center - label_center)
-
-        self.label_text.setPos(text_pos)
-        self.label.setPos(label_pos)
+        self.label.setPos(QPointF(self_center - label_center))
 
     def getControlPoint(self, offset=60):
         # Get the line's endpoints
@@ -197,7 +150,7 @@ class Edge(QGraphicsPathItem):
 
         # Normalize the direction
         length = (direction.x() ** 2 + direction.y() ** 2) ** 0.5
-        if length == 0:
+        if length <= 1:
             return  # Avoid division by zero if the points are the same
         direction /= length
 
@@ -206,7 +159,7 @@ class Edge(QGraphicsPathItem):
         # Get the perpendicular direction (90 degrees)
         perpendicular = QPointF(-direction.y(), direction.x())
 
-        # Calculate the position for the label (60 pixels away)
+        # Set the control point perpendicular distance (60 pixels away)
         return midpoint + perpendicular * offset
     
 
@@ -262,7 +215,8 @@ class Edge(QGraphicsPathItem):
 #---------------------- Event Listeners ---------------------------------------------#    
     def mousePressEvent(self, event):
         if event.button() == Qt.RightButton:
-            self.showContextMenu(event.pos())
+            # self.showContextMenu(event.pos())
+            pass
 
         if event.button() == Qt.LeftButton:
             if self.graph.is_deleting: 
@@ -273,26 +227,67 @@ class Edge(QGraphicsPathItem):
 
     def hoverEnterEvent(self, event):
         self.is_hovered = True
+        self.setZValue(1)
         return super().hoverEnterEvent(event)
         
     def hoverLeaveEvent(self, event):
         self.is_hovered = False
+        self.setZValue(0)
         return super().hoverLeaveEvent(event)
     
     def paint(self, painter, option, widget=None):
         self._updatePath()
         self._updateLabel()
+        self.label.setHighlight()
 
         if self.graph.is_directed_graph:
             self._updateArrowHead()
 
         pen = QPen(Qt.black, 2)  # Default color and thickness
+        brush = QBrush(Qt.black)
 
         # Check if the item is selected or highlighted
         if self.isSelected() or self.is_hovered:
-            pen = QPen(Qt.white, 2)  # White color if selected
+            pen = QPen(Qt.white, 2)  
+            brush = QBrush(Qt.white)
+            self.label.setHighlight(QColor("white"))
         elif self.is_highlighted:
             pen = QPen(QColor("#42ffd9"), 3)  # Custom color when highlighted
+            brush = QBrush(QColor("#42ffd9"))
+            self.label.setHighlight(QColor("#42ffd9"))
 
+        
+        self.arrow_head.setBrush(brush)
+        self.arrow_head.setPen(pen)
         painter.setPen(pen)
         painter.drawPath(self.path())
+
+
+
+
+
+class Label(QGraphicsEllipseItem):
+    def __init__(self, text: str, parent: Edge = None):
+        super().__init__(0, 0, 30, 30, parent)
+        self.setCursor(Qt.PointingHandCursor)  
+        self.setBrush(QColor("#8f8f8f"))
+        self.setPen(QColor("#8f8f8f"))
+
+        self.text = QGraphicsTextItem(text, self)
+        self.text.setFont(QFont("Inter", 10, QFont.Bold))
+        self.default_text_color = QColor("black")
+        self._update_text_pos()
+
+    def _update_text_pos(self):
+        text_center = self.text.boundingRect().center()
+        self_center = self.rect().center()
+        self.text.setPos(QPointF(self_center - text_center))
+    
+    def setText(self, text: str):
+        self.text.setPlainText(text)
+        self._update_text_pos()
+    
+    def setHighlight(self, color: QColor = None):
+        self.text.setDefaultTextColor(self.default_text_color)
+        if color:
+            self.text.setDefaultTextColor(color)

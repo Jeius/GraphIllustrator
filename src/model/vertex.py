@@ -20,7 +20,7 @@ class Vertex(QGraphicsEllipseItem):
         self.setCursor(Qt.PointingHandCursor)  # Set cursor shape when hovering over the item
         self.setToolTip(f"Degree: {str(len(self.edges))}")
         self.setAcceptHoverEvents(True)
-        self.setZValue(1)
+        self.setZValue(5)
 
         self.is_moving = False  # Flag to track dragging state
         self.is_highlighted = False
@@ -93,6 +93,7 @@ class Vertex(QGraphicsEllipseItem):
         return super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
+        self.setZValue(6)
          # Override the mouseMoveEvent to drag the vertex
         if self.is_moving:
             # Get the bounding rect of the item and the scene's width and height
@@ -118,6 +119,7 @@ class Vertex(QGraphicsEllipseItem):
         return super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
+        self.setZValue(5)
         if event.button() == Qt.LeftButton:
             # Change cursor back to open hand after dragging
             self.setCursor(Qt.PointingHandCursor)  
@@ -129,10 +131,12 @@ class Vertex(QGraphicsEllipseItem):
         degree = len(self.edges)
         self.setToolTip(f"Degree: {str(degree)}")
         self.is_hovered = True
+        self.setZValue(6)
         return super().hoverEnterEvent(event)
     
     def hoverLeaveEvent(self, event):
         self.is_hovered = False
+        self.setZValue(5)
         return super().hoverLeaveEvent(event)
 
     def paint(self, painter, option, widget=None):
