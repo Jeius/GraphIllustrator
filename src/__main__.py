@@ -89,7 +89,11 @@ class MyApp(QMainWindow):
         control_panel.complement_button.clicked.connect(self.getComplement)
         control_panel.floyd_radio.toggled.connect(self.setFloyd)
         control_panel.dijkstra_radio.toggled.connect(self.setDijkstra)
+        control_panel.prim_radio.toggled.connect(self.setPrim)
+        control_panel.kruskal_radio.toggled.connect(self.setKruskal)
         control_panel.path_button.clicked.connect(self.onPathButtonClicked)
+        control_panel.mcst_button.clicked.connect(self.onMCSTClicked)
+
         self.ui.view.tool.done_button.clicked.connect(self.onDoneClicked)
         
         self.graph.graphChanged.connect(self.updateGraphListeners)
@@ -139,6 +143,14 @@ class MyApp(QMainWindow):
         self._unCheckButtonGroup()
         self.graph.setDijkstra(is_dijsktra)
 
+    def setPrim(self, is_prim: bool):
+        self._unCheckButtonGroup()
+        self.graph.setPrim(is_prim)
+
+    def setKruskal(self, is_kruskal: bool):
+        self._unCheckButtonGroup()
+        self.graph.setKruskal(is_kruskal)
+
     def onRowClicked(self, index: int):
         path_table = self.ui.info_panel.path_table
         vertices = self.graph.getVertices()
@@ -156,6 +168,10 @@ class MyApp(QMainWindow):
     def onDoneClicked(self):
         self._unCheckButtonGroup()
         self.ui.view.tool.done_button.hide()
+    
+    def onMCSTClicked(self):
+        self._unCheckButtonGroup()
+        self.graph.findMCST()
 
     def getComplement(self):
         self._unCheckButtonGroup()
@@ -226,6 +242,12 @@ class MyApp(QMainWindow):
 
     def _updatePathTable(self):
         path_table = self.ui.info_panel.path_table
+        
+        if self.graph.is_directed_graph:
+            self.ui.info_panel.path_table_widget.show()
+        else:
+            self.ui.info_panel.path_table_widget.hide()
+
         vertices = self.graph.getVertices()
     
         # Clear the table first
@@ -312,8 +334,7 @@ class MyApp(QMainWindow):
 
     def mousePressEvent(self, a0):
         if a0.button() == Qt.RightButton:
-            self._unCheckButtonGroup()
-            self.ui.view.tool.done_button.hide()
+            pass
         return super().mousePressEvent(a0)
 
 if __name__ == "__main__":

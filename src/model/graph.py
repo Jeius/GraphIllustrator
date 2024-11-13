@@ -8,6 +8,8 @@ from .vertex import Vertex
 from .edge import Edge
 from ..algorithm.djisktra import Djisktra
 from ..algorithm.floyd import FloydWarshall
+from ..algorithm.prim import Prim
+from ..algorithm.kruskal import Kruskal
 
 class Graph(QtWidgets.QGraphicsScene):
     graphChanged = pyqtSignal()
@@ -19,13 +21,15 @@ class Graph(QtWidgets.QGraphicsScene):
         
         self.dijkstra = Djisktra()
         self.floyd = FloydWarshall()
+        self.prim = Prim()
+        self.kruskal = Kruskal()
 
         self.is_adding_vertex = False 
         self.is_adding_edge = False   
         self.is_using_dijkstra = True 
         self.is_using_floyd = False     
         self.is_using_prim = False
-        self.is_using_kruskal = False
+        self.is_using_kruskal = True
         self.is_directed_graph = True
         self.is_deleting = False
         self.is_editing_weight = False
@@ -217,7 +221,6 @@ class Graph(QtWidgets.QGraphicsScene):
         for edge in edges:
             if new_edge == edge:
                 return edge 
-        return None
     
 
 #--------------------------- Delete ---------------------------------------------#
@@ -297,6 +300,37 @@ class Graph(QtWidgets.QGraphicsScene):
         except Exception as e:
             self._showErrorDialog(title="Invalid Graph", message="")
 
+    def findMCST(self):
+        try:
+            vertices = self.getVertices()
+            matrix = self.adjacencyMatrix
+            selected_vertex = next((vertex for vertex in self.selectedItems() if isinstance(vertex, Vertex)), None)
+
+            if not selected_vertex:
+                raise Exception("No starting vertex selected")
+            
+            start = vertices.index(selected_vertex)
+
+            if self.is_using_prim:
+                mcst_edges = self.prim.getMCST(matrix)
+            elif self.is_using_kruskal:
+                mcst_edges = self.kruskal.getMCST(matrix)
+
+            
+            for edge in self.getEdges():
+                edge.hide()
+
+            for mcst_edge in mcst_edges:
+                start, end, _ = mcst_edge
+                start_vertex = vertices[start]
+                end_vertex = vertices[end]
+                edge = self.getDuplicate(Edge(start_vertex, end_vertex, self))
+
+                if edge:
+                    edge.show()
+        except Exception as e:
+            self._showErrorDialog("Invalid Vertex", str(e))
+
 
 
 #----------------------------- Local Functions --------------------------------------#
@@ -308,7 +342,7 @@ class Graph(QtWidgets.QGraphicsScene):
         msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
         msg_box.exec_()
 
-    def showPath(self, start: Union[Vertex, None], goal: Union[Vertex, None]):
+    def showPath(self, start:Vertex = None, goal:Vertex = None):
         # Ensure start and goal are valid
         if not start or not goal:
             return

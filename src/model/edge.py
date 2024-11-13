@@ -171,7 +171,7 @@ class Edge(QGraphicsPathItem):
         self.setPath(path)
 
     def _updateLabel(self):    
-        self_center = self.boundingRect().center()
+        self_center = self.path().pointAtPercent(0.5)
         label_text_center = self.label_text.boundingRect().center()
         label_center = self.label.rect().center()
 
@@ -183,9 +183,6 @@ class Edge(QGraphicsPathItem):
 
         text_pos = QPointF(label_center - label_text_center)
         label_pos = QPointF(self_center - label_center)
-        
-        if self.is_curve:
-            label_pos = QPointF(self.getControlPoint() - label_center)
 
         self.label_text.setPos(text_pos)
         self.label.setPos(label_pos)
