@@ -7,9 +7,10 @@ class Edge(QGraphicsPathItem):
     from .vertex import Vertex
 
     COLORS = {
-            "highlight": QColor("#92b6e7"),
+            "highlight": QColor("#42ffd9"),
             "default": QColor("black"),
-            "selected": QColor("white")
+            "selected": QColor("white"),
+            "transparent": QColor("transparent")
         }
     
     def __init__(self, start: Vertex, end: Vertex, parent):
@@ -31,7 +32,7 @@ class Edge(QGraphicsPathItem):
         self.setZValue(0)
 
         self.anim_path = QGraphicsPathItem(self)
-        self.anim_path.setPen(QPen(QColor("#42ffd9"), 2))
+        self.anim_path.setPen(QPen(self.COLORS['highlight'], 2))
         self.anim_path.setZValue(1)
         self.anim_path.hide()
         
@@ -227,14 +228,27 @@ class Edge(QGraphicsPathItem):
     def setHighlight(self, is_highlight: bool):
         if is_highlight:
             self.default_pen = QPen(self.COLORS["highlight"], 2) 
+            self.setZValue(1)
         else: 
             self.default_pen = QPen(self.COLORS["default"], 2)
+            self.setZValue(0)
 
         self.setPen(self.default_pen)
         self.update()
 
-    def setCurved(self, flag):
-        self.is_curve = flag
+    def setCurved(self, is_curve):
+        self.is_curve = is_curve
+
+    def setTransparent(self, is_transparent: bool):
+        if is_transparent:
+            self.default_pen = QPen(self.COLORS["transparent"], 2) 
+            self.setZValue(1)
+        else: 
+            self.default_pen = QPen(self.COLORS["default"], 2)
+            self.setZValue(0)
+
+        self.setPen(self.default_pen)
+        self.update()
 
     def on_selected(self):
         pen = QPen(self.COLORS["selected"], 2) 
@@ -281,15 +295,14 @@ class Edge(QGraphicsPathItem):
         self._updatePath()
         self._updateLabel()
 
-        if self.graph.is_directed_graph:
-            self._updateArrowHead()
-        
         pen = self.pen()
         path = self.path()
 
-        painter.setClipRect(self.boundingRect())
-        self.arrow_head.setBrush(pen.brush())
-        self.arrow_head.setPen(pen)
+        if self.graph.is_directed_graph:
+            self._updateArrowHead()
+            self.arrow_head.setBrush(pen.brush())
+            self.arrow_head.setPen(pen)
+        
         self.label.setHighlight(pen.color())
         painter.setPen(pen)
         painter.drawPath(path)

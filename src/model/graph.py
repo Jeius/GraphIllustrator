@@ -28,13 +28,14 @@ class Graph(QGraphicsScene):
         self.is_adding_edge = False   
         self.is_using_dijkstra = True 
         self.is_using_floyd = False     
-        self.is_using_prim = False
-        self.is_using_kruskal = True
+        self.is_using_prim = True
+        self.is_using_kruskal = False
         self.is_directed_graph = True
         self.is_deleting = False
         self.is_editing_weight = False
         self.is_id_int = True
         self.is_setting_up = True
+        self.mcst: int = None
 
         self.selectionChanged.connect(self.onSelectionChanged)
 
@@ -260,6 +261,12 @@ class Graph(QGraphicsScene):
         
         self.emitSignal()
 
+    def revert(self):
+        self.setHighlightItems(False)
+        for edge in self.getEdges():
+            edge.setTransparent(False)
+        self.mcst = None
+
     def clear(self):
         self.adjacencyMatrix.clear()
         self.dijkstra.reset()
@@ -291,15 +298,13 @@ class Graph(QGraphicsScene):
                 self.clearSelection()
 
             elif self.is_using_dijkstra:
-                for item in self.selectedItems():
-                    start_vertex = item
-                    if not isinstance(start_vertex, Vertex):
-                        continue
-                    self.dijkstra.findPath(start_vertex, matrix, vertices)
-            
-            self.setHighlightItems(False)
+                selected_vertex = next((vertex for vertex in self.selectedItems() if isinstance(vertex, Vertex)), None)
+                if not selected_vertex:
+                    raise Exception("No starting vertex selected")
+                
+                self.dijkstra.findPath(selected_vertex, matrix, vertices)
         except Exception as e:
-            self._showErrorDialog(title="Invalid Graph", message="")
+            self._showErrorDialog("Invalid Action", str(e))
 
     def findMCST(self):
         try:
@@ -313,24 +318,42 @@ class Graph(QGraphicsScene):
             start = vertices.index(selected_vertex)
 
             if self.is_using_prim:
-                mcst_edges = self.prim.getMCST(matrix)
+                result = self.prim.MCST(matrix)
             elif self.is_using_kruskal:
-                mcst_edges = self.kruskal.getMCST(matrix)
+                result = self.kruskal.MCST(matrix)
 
-            
             for edge in self.getEdges():
-                edge.hide()
+                edge.setTransparent(True)
 
-            for mcst_edge in mcst_edges:
-                start, end, _ = mcst_edge
+            self.mcst = 0
+            mcst_edges: list[Edge] = []
+
+            for result_edge in result:
+                start, end, weight = result_edge
                 start_vertex = vertices[start]
                 end_vertex = vertices[end]
                 edge = self.getDuplicate(Edge(start_vertex, end_vertex, self))
-
                 if edge:
-                    edge.show()
+                    mcst_edges.append(edge)
+                    self.mcst += weight
+
+            def animate(vertex: Vertex):
+                for edge in vertex.edges:
+                    if edge in mcst_edges:
+                        mcst_edges.remove(edge)
+                        start_point = vertex.getPosition()
+                        end_point = edge.getOpposite(vertex).getPosition()
+                        edge.play(start_point, end_point)
+                        QTimer.singleShot(edge.anim_duration, lambda: animate(edge.getOpposite(vertex)))
+                        return
+                vertex.setHighlight(True, "end")
+            
+            selected_vertex.setHighlight(True, "start")
+            animate(selected_vertex)
+
+
         except Exception as e:
-            self._showErrorDialog("Invalid Vertex", str(e))
+            self._showErrorDialog("Invalid Action", str(e))
 
 
 
@@ -363,7 +386,6 @@ class Graph(QGraphicsScene):
 
             if not paths:
                 return
-
 
             # Retrieve path from start to goal
             if self.is_using_floyd:

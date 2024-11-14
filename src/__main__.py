@@ -85,6 +85,7 @@ class MyApp(QMainWindow):
         control_panel.edit_weight_button.toggled.connect(self.setEditWeight)
         control_panel.id_type_combobox.currentIndexChanged.connect(self.setIdType)
         control_panel.clear_button.clicked.connect(self.clearGraph)
+        control_panel.clear_edges_button.clicked.connect(self.onClearEdgesClicked)
         control_panel.tabs.currentChanged.connect(self.setGraphType)
         control_panel.complement_button.clicked.connect(self.getComplement)
         control_panel.floyd_radio.toggled.connect(self.setFloyd)
@@ -102,22 +103,26 @@ class MyApp(QMainWindow):
     def setAddingVertex(self, adding_vertex: bool):
         self.graph.clearSelection()
         self.graph.is_adding_vertex = adding_vertex
-        self.ui.view.tool.done_button.show()
+        if adding_vertex:
+            self.ui.view.tool.done_button.show()
 
     def setAddingEdge(self, adding_edge: bool):
         self.graph.clearSelection()
         self.graph.is_adding_edge = adding_edge
-        self.ui.view.tool.done_button.show()
+        if adding_edge:
+            self.ui.view.tool.done_button.show()
 
     def setDeleting(self, deleting: bool):
         self.graph.clearSelection()
         self.graph.is_deleting = deleting
-        self.ui.view.tool.done_button.show()
+        if deleting:
+            self.ui.view.tool.done_button.show()
 
     def setEditWeight(self, editing: bool):
         self.graph.clearSelection()
         self.graph.is_editing_weight = editing
-        self.ui.view.tool.done_button.show()
+        if editing:
+            self.ui.view.tool.done_button.show()
 
     def setIdType(self, index: int):
         self.graph.clearSelection()
@@ -174,6 +179,7 @@ class MyApp(QMainWindow):
         self._unCheckButtonGroup()
         self.ui.view.tool.revert_button.show()
         self.graph.findMCST()
+        self.graph.emitSignal()
 
     def getComplement(self):
         self._unCheckButtonGroup()
@@ -181,7 +187,6 @@ class MyApp(QMainWindow):
 
     def clearGraph(self):
         self.graph.clear()
-        self._updatePathTable()
 
     def onPathButtonClicked(self):
         self.graph.findPath()
@@ -189,11 +194,22 @@ class MyApp(QMainWindow):
         self._unCheckButtonGroup()
 
     def onRevertButtonClicked(self):
-        self.graph.setHighlightItems(False)
+        self.graph.revert()
         self.ui.view.tool.revert_button.hide()
+        self.ui.info_panel.path_table.clearSelection()
+
+    def onClearEdgesClicked(self):
+        self.graph.clearEdges()
 
     def updateGraphListeners(self):
         self.updateInfoPanel()
+
+    def updateControlPanel(self):
+        mcst = self.graph.mcst
+        control_panel = self.ui.control_panel
+        control_panel.mcst_textbox.clear()
+        if mcst:
+            control_panel.mcst_textbox.setText(mcst)
 
     def updateInfoPanel(self):
         graph = self.graph
@@ -210,27 +226,26 @@ class MyApp(QMainWindow):
 
     def _updateVertexSet(self):
         info_panel = self.ui.info_panel
-        vertices = self.graph.getVertices()
-        vertex_set = []
-
-        for vertex in vertices:
-            vertex_set.append(str(vertex.id[1]))
-
         info_panel.vertex_set_box.clear()
-        info_panel.vertex_set_box.setPlainText("V(G) = {" + ', '.join(map(str, vertex_set)) + '}')
+        vertices = self.graph.getVertices()
+
+        vertex_set = [str(vertex.id[1]) for vertex in vertices]
+        if vertex_set:
+            info_panel.vertex_set_box.setPlainText("V(G) = {" + ', '.join(map(str, vertex_set)) + '}')
 
     def _updateEdgeSet(self):
         info_panel = self.ui.info_panel
         edges = self.graph.getEdges()
-        edge_set = []
-
-        for edge in edges:
-            vertexA_id = edge.start_vertex.id[1]
-            vertexB_id = edge.end_vertex.id[1]
-            edge_set.append(f"({vertexA_id}, {vertexB_id})")
-
         info_panel.edge_set_box.clear()
-        info_panel.edge_set_box.setPlainText("E(G) = {" + ', '.join(map(str, edge_set)) + '}')
+
+        edge_set = []
+        for edge in edges:
+            start_id = edge.start_vertex.id[1]
+            end_id = edge.end_vertex.id[1]
+            edge_set.append(f"({start_id}, {end_id})")
+        
+        if edge_set:
+            info_panel.edge_set_box.setPlainText("E(G) = {" + ', '.join(map(str, edge_set)) + '}')
 
     def _updateMatrix(self):
         table = self.ui.info_panel.adj_matrix_table

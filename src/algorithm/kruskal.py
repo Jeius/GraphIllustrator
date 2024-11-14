@@ -28,7 +28,7 @@ class UnionFind:
 
 class Kruskal():
 
-    def getMCST(self, adj_matrix):
+    def MCST(self, adj_matrix):
         """
         Kruskal's Algorithm for Minimum Spanning Tree using an adjacency matrix.
         

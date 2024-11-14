@@ -11,7 +11,7 @@ class Ui_ControlPanel(QFrame):
     def setupUi(self, ControlPanel):
         if not ControlPanel.objectName():
             ControlPanel.setObjectName(u"ControlPanel")
-        ControlPanel.resize(989, 180)
+        ControlPanel.resize(965, 180)
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -23,30 +23,13 @@ class Ui_ControlPanel(QFrame):
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.add_box = QGroupBox(ControlPanel)
         self.add_box.setObjectName(u"add_box")
-        self.add_box.setMaximumSize(QSize(400, 16777215))
         self.gridLayout_3 = QGridLayout(self.add_box)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.gridLayout_3.setHorizontalSpacing(12)
-        self.add_vertex_button = QPushButton(self.add_box)
-        self.add_vertex_button.setObjectName(u"add_vertex_button")
-        self.add_vertex_button.setMinimumSize(QSize(100, 30))
-        self.add_vertex_button.setMaximumSize(QSize(200, 16777215))
-        self.add_vertex_button.setCheckable(True)
-
-        self.gridLayout_3.addWidget(self.add_vertex_button, 0, 0, 1, 1)
-
         self.id_type_label = QLabel(self.add_box)
         self.id_type_label.setObjectName(u"id_type_label")
 
         self.gridLayout_3.addWidget(self.id_type_label, 1, 0, 1, 1, Qt.AlignRight)
-
-        self.add_edge_button = QPushButton(self.add_box)
-        self.add_edge_button.setObjectName(u"add_edge_button")
-        self.add_edge_button.setMinimumSize(QSize(100, 30))
-        self.add_edge_button.setMaximumSize(QSize(200, 16777215))
-        self.add_edge_button.setCheckable(True)
-
-        self.gridLayout_3.addWidget(self.add_edge_button, 0, 1, 1, 1)
 
         self.id_type_combobox = QComboBox(self.add_box)
         self.id_type_combobox.addItem("")
@@ -57,6 +40,22 @@ class Ui_ControlPanel(QFrame):
         self.id_type_combobox.setFrame(True)
 
         self.gridLayout_3.addWidget(self.id_type_combobox, 1, 1, 1, 1)
+
+        self.add_edge_button = QPushButton(self.add_box)
+        self.add_edge_button.setObjectName(u"add_edge_button")
+        self.add_edge_button.setMinimumSize(QSize(100, 30))
+        self.add_edge_button.setMaximumSize(QSize(200, 16777215))
+        self.add_edge_button.setCheckable(True)
+
+        self.gridLayout_3.addWidget(self.add_edge_button, 0, 1, 1, 1)
+
+        self.add_vertex_button = QPushButton(self.add_box)
+        self.add_vertex_button.setObjectName(u"add_vertex_button")
+        self.add_vertex_button.setMinimumSize(QSize(100, 30))
+        self.add_vertex_button.setMaximumSize(QSize(200, 16777215))
+        self.add_vertex_button.setCheckable(True)
+
+        self.gridLayout_3.addWidget(self.add_vertex_button, 0, 0, 1, 1)
 
 
         self.horizontalLayout.addWidget(self.add_box)
@@ -70,15 +69,15 @@ class Ui_ControlPanel(QFrame):
 
         self.edit_box = QGroupBox(ControlPanel)
         self.edit_box.setObjectName(u"edit_box")
-        self.edit_box.setMaximumSize(QSize(200, 16777215))
-        self.verticalLayout_11 = QVBoxLayout(self.edit_box)
-        self.verticalLayout_11.setObjectName(u"verticalLayout_11")
+        self.gridLayout_6 = QGridLayout(self.edit_box)
+        self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.edit_weight_button = QPushButton(self.edit_box)
         self.edit_weight_button.setObjectName(u"edit_weight_button")
         self.edit_weight_button.setMinimumSize(QSize(80, 30))
+        self.edit_weight_button.setMaximumSize(QSize(120, 16777215))
         self.edit_weight_button.setCheckable(True)
 
-        self.verticalLayout_11.addWidget(self.edit_weight_button, 0, Qt.AlignHCenter)
+        self.gridLayout_6.addWidget(self.edit_weight_button, 0, 0, 1, 1)
 
 
         self.horizontalLayout.addWidget(self.edit_box)
@@ -92,21 +91,29 @@ class Ui_ControlPanel(QFrame):
 
         self.delete_box = QGroupBox(ControlPanel)
         self.delete_box.setObjectName(u"delete_box")
-        self.delete_box.setMaximumSize(QSize(200, 16777215))
-        self.verticalLayout_12 = QVBoxLayout(self.delete_box)
-        self.verticalLayout_12.setObjectName(u"verticalLayout_12")
+        self.gridLayout_5 = QGridLayout(self.delete_box)
+        self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.delete_button = QPushButton(self.delete_box)
         self.delete_button.setObjectName(u"delete_button")
         self.delete_button.setMinimumSize(QSize(80, 30))
+        self.delete_button.setMaximumSize(QSize(120, 16777215))
         self.delete_button.setCheckable(True)
 
-        self.verticalLayout_12.addWidget(self.delete_button, 0, Qt.AlignHCenter)
+        self.gridLayout_5.addWidget(self.delete_button, 0, 0, 1, 1)
 
         self.clear_button = QPushButton(self.delete_box)
         self.clear_button.setObjectName(u"clear_button")
         self.clear_button.setMinimumSize(QSize(80, 30))
+        self.clear_button.setMaximumSize(QSize(120, 16777215))
 
-        self.verticalLayout_12.addWidget(self.clear_button, 0, Qt.AlignHCenter)
+        self.gridLayout_5.addWidget(self.clear_button, 1, 0, 1, 1)
+
+        self.clear_edges_button = QPushButton(self.delete_box)
+        self.clear_edges_button.setObjectName(u"clear_edges_button")
+        self.clear_edges_button.setMinimumSize(QSize(80, 30))
+        self.clear_edges_button.setMaximumSize(QSize(120, 16777215))
+
+        self.gridLayout_5.addWidget(self.clear_edges_button, 2, 0, 1, 1)
 
 
         self.horizontalLayout.addWidget(self.delete_box)
@@ -125,11 +132,9 @@ class Ui_ControlPanel(QFrame):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.tabs.sizePolicy().hasHeightForWidth())
         self.tabs.setSizePolicy(sizePolicy1)
-        self.tabs.setMaximumSize(QSize(600, 16777215))
+        self.tabs.setMaximumSize(QSize(800, 16777215))
         self.tabs.setStyleSheet(u"QFrame { border-radius: 5px; background-color: #3b3b3d} QPushButton, QLineEdit {background-color: #2b2b2c; border-color: #70707c;} QPushButton:hover { background-color: #3b3b3d;}")
-        self.tabs.setTabsClosable(False)
         self.tabs.setMovable(True)
-        self.tabs.setTabBarAutoHide(False)
         self.directed_tab = QWidget()
         self.directed_tab.setObjectName(u"directed_tab")
         self.horizontalLayout_8 = QHBoxLayout(self.directed_tab)
@@ -191,12 +196,12 @@ class Ui_ControlPanel(QFrame):
         self.gridLayout.setObjectName(u"gridLayout")
         self.prim_radio = QRadioButton(self.ud_algorithm_box)
         self.prim_radio.setObjectName(u"prim_radio")
+        self.prim_radio.setChecked(True)
 
         self.gridLayout.addWidget(self.prim_radio, 0, 0, 1, 1)
 
         self.kruskal_radio = QRadioButton(self.ud_algorithm_box)
         self.kruskal_radio.setObjectName(u"kruskal_radio")
-        self.kruskal_radio.setChecked(True)
 
         self.gridLayout.addWidget(self.kruskal_radio, 1, 0, 1, 1)
 
@@ -265,46 +270,6 @@ class Ui_ControlPanel(QFrame):
 
         self.horizontalLayout.addWidget(self.tabs)
 
-        self.line_10 = QFrame(ControlPanel)
-        self.line_10.setObjectName(u"line_10")
-        self.line_10.setFrameShape(QFrame.VLine)
-        self.line_10.setFrameShadow(QFrame.Sunken)
-
-        self.horizontalLayout.addWidget(self.line_10)
-
-        self.simulate_box = QGroupBox(ControlPanel)
-        self.simulate_box.setObjectName(u"simulate_box")
-        self.verticalLayout_9 = QVBoxLayout(self.simulate_box)
-        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
-        self.play_button = QPushButton(self.simulate_box)
-        self.play_button.setObjectName(u"play_button")
-        sizePolicy3.setHeightForWidth(self.play_button.sizePolicy().hasHeightForWidth())
-        self.play_button.setSizePolicy(sizePolicy3)
-        self.play_button.setMinimumSize(QSize(60, 30))
-        self.play_button.setCheckable(True)
-
-        self.verticalLayout_9.addWidget(self.play_button, 0, Qt.AlignHCenter)
-
-        self.pause_button = QPushButton(self.simulate_box)
-        self.pause_button.setObjectName(u"pause_button")
-        sizePolicy3.setHeightForWidth(self.pause_button.sizePolicy().hasHeightForWidth())
-        self.pause_button.setSizePolicy(sizePolicy3)
-        self.pause_button.setMinimumSize(QSize(60, 30))
-        self.pause_button.setCheckable(True)
-
-        self.verticalLayout_9.addWidget(self.pause_button, 0, Qt.AlignHCenter)
-
-        self.stop_button = QPushButton(self.simulate_box)
-        self.stop_button.setObjectName(u"stop_button")
-        sizePolicy3.setHeightForWidth(self.stop_button.sizePolicy().hasHeightForWidth())
-        self.stop_button.setSizePolicy(sizePolicy3)
-        self.stop_button.setMinimumSize(QSize(60, 30))
-
-        self.verticalLayout_9.addWidget(self.stop_button, 0, Qt.AlignHCenter)
-
-
-        self.horizontalLayout.addWidget(self.simulate_box)
-
 
         self.retranslateUi(ControlPanel)
 
@@ -317,20 +282,21 @@ class Ui_ControlPanel(QFrame):
     def retranslateUi(self, ControlPanel):
         ControlPanel.setWindowTitle(QCoreApplication.translate("ControlPanel", u"Frame", None))
         self.add_box.setTitle(QCoreApplication.translate("ControlPanel", u"Add", None))
-        self.add_vertex_button.setText(QCoreApplication.translate("ControlPanel", u"Add Vertex", None))
         self.id_type_label.setText(QCoreApplication.translate("ControlPanel", u"Vertex ID type:", None))
-        self.add_edge_button.setText(QCoreApplication.translate("ControlPanel", u"Add Edge", None))
         self.id_type_combobox.setItemText(0, QCoreApplication.translate("ControlPanel", u"Integer", None))
         self.id_type_combobox.setItemText(1, QCoreApplication.translate("ControlPanel", u"Character", None))
 
 #if QT_CONFIG(whatsthis)
         self.id_type_combobox.setWhatsThis("")
 #endif // QT_CONFIG(whatsthis)
+        self.add_edge_button.setText(QCoreApplication.translate("ControlPanel", u"Add Edge", None))
+        self.add_vertex_button.setText(QCoreApplication.translate("ControlPanel", u"Add Vertex", None))
         self.edit_box.setTitle(QCoreApplication.translate("ControlPanel", u"Edit", None))
         self.edit_weight_button.setText(QCoreApplication.translate("ControlPanel", u"Edit Weight", None))
         self.delete_box.setTitle(QCoreApplication.translate("ControlPanel", u"Delete", None))
-        self.delete_button.setText(QCoreApplication.translate("ControlPanel", u"Delete one", None))
-        self.clear_button.setText(QCoreApplication.translate("ControlPanel", u"Clear graph", None))
+        self.delete_button.setText(QCoreApplication.translate("ControlPanel", u"Delete One", None))
+        self.clear_button.setText(QCoreApplication.translate("ControlPanel", u"Clear All", None))
+        self.clear_edges_button.setText(QCoreApplication.translate("ControlPanel", u"Clear Edges", None))
         self.d_algorithm_box.setTitle(QCoreApplication.translate("ControlPanel", u"Algorithms", None))
         self.dijkstra_radio.setText(QCoreApplication.translate("ControlPanel", u"Dijkstra", None))
         self.floyd_radio.setText(QCoreApplication.translate("ControlPanel", u"Floyd Warshal", None))
@@ -346,9 +312,5 @@ class Ui_ControlPanel(QFrame):
         self.complement_box.setTitle(QCoreApplication.translate("ControlPanel", u"Graph Complement", None))
         self.complement_button.setText(QCoreApplication.translate("ControlPanel", u"Show Complement", None))
         self.tabs.setTabText(self.tabs.indexOf(self.undirected_tab), QCoreApplication.translate("ControlPanel", u"Undirected Graph", None))
-        self.simulate_box.setTitle(QCoreApplication.translate("ControlPanel", u"Simulate", None))
-        self.play_button.setText(QCoreApplication.translate("ControlPanel", u"Play", None))
-        self.pause_button.setText(QCoreApplication.translate("ControlPanel", u"Pause", None))
-        self.stop_button.setText(QCoreApplication.translate("ControlPanel", u"Stop", None))
     # retranslateUi
 

@@ -2,7 +2,7 @@ import heapq
 import math
 
 class Prim():
-    def getMCST(self, adj_matrix, start=0):
+    def MCST(self, adj_matrix, start=0):
         """
         Prim's Algorithm for Minimum Spanning Tree using an adjacency matrix.
         
