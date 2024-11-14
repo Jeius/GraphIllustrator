@@ -1,8 +1,8 @@
 import math
 import string
-from typing import List, Union
-from PyQt5 import QtGui, QtWidgets, QtCore
-from PyQt5.QtCore import pyqtSignal
+from typing import List
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 from .vertex import Vertex
 from .edge import Edge
@@ -11,7 +11,7 @@ from ..algorithm.floyd import FloydWarshall
 from ..algorithm.prim import Prim
 from ..algorithm.kruskal import Kruskal
 
-class Graph(QtWidgets.QGraphicsScene):
+class Graph(QGraphicsScene):
     graphChanged = pyqtSignal()
 
     def __init__(self):
@@ -34,15 +34,16 @@ class Graph(QtWidgets.QGraphicsScene):
         self.is_deleting = False
         self.is_editing_weight = False
         self.is_id_int = True
+        self.is_setting_up = True
 
         self.selectionChanged.connect(self.onSelectionChanged)
 
 #------------------------------ Creators ----------------------------------------------------------#
-    def createVertex(self, scene_position: QtCore.QPointF):
+    def createVertex(self, scene_position: QPointF):
         # Define the diameter of the circle
         diameter = 30
         radius = diameter / 2
-        position = QtCore.QPointF(scene_position.x() - radius, scene_position.y() - radius)
+        position = QPointF(scene_position.x() - radius, scene_position.y() - radius)
         id = self.genIdIndex()
         vertex = Vertex(id, diameter, self)
         vertex.setPos(position) 
@@ -335,11 +336,11 @@ class Graph(QtWidgets.QGraphicsScene):
 
 #----------------------------- Local Functions --------------------------------------#
     def _showErrorDialog(self, title: string, message: str):
-        msg_box = QtWidgets.QMessageBox()
-        msg_box.setIcon(QtWidgets.QMessageBox.Warning)
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Warning)
         msg_box.setWindowTitle(title)
         msg_box.setText(message)
-        msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg_box.setStandardButtons(QMessageBox.Ok)
         msg_box.exec_()
 
     def showPath(self, start:Vertex = None, goal:Vertex = None):
@@ -350,10 +351,6 @@ class Graph(QtWidgets.QGraphicsScene):
         # Unhighlight all items first
         self.setHighlightItems(False)
         self.clearSelection()
-
-        # Highlight start and goal vertices
-        goal.setHighlight(True, "end")
-        start.setHighlight(True, "start")
 
         vertices = self.getVertices()
 
@@ -367,24 +364,47 @@ class Graph(QtWidgets.QGraphicsScene):
             if not paths:
                 return
 
+
             # Retrieve path from start to goal
             if self.is_using_floyd:
                 path = list(paths[(vertices.index(start), vertices.index(goal))])
             elif self.is_using_dijkstra:
                 path = list(paths[vertices.index(goal)])
 
-            # Highlight edges along the path
+            path_edges: list[Edge] = []
+
             while len(path) > 1:
                 section_start: Vertex = vertices[path.pop(0)]
                 section_end: Vertex = vertices[path[0]]
-                edge = self.getDuplicate(Edge(section_start, section_end, self))
+                edge = self.getDuplicate(Edge(section_start, section_end, self)) # Get the original edge
 
                 if edge is None:
                     continue
 
-                edge.setHighlight(True)
-                if section_start != start:
-                    section_start.setHighlight(True, "route")
+                path_edges.append(edge)
+            
+            def glow(vertex: Vertex):
+                if vertex == start:
+                    vertex.setHighlight(True, "start")
+                elif vertex == goal:
+                    vertex.setHighlight(True, "end")
+                else:
+                    vertex.setSelected(True)
+
+            def transform(vertex: Vertex):
+                for edge in vertex.edges:
+                    if edge in path_edges:
+                        path_edges.remove(edge)
+                        start_point = vertex.getPosition()
+                        end_point = edge.getOpposite(vertex).getPosition()
+                        edge.play(start_point, end_point)
+                        QTimer.singleShot(edge.anim_duration, lambda: animatePath(edge.getOpposite(vertex)))
+
+            def animatePath(vertex: Vertex):
+                glow(vertex)
+                QTimer.singleShot(0, lambda: transform(vertex))
+                        
+            animatePath(start)
 
         except Exception as e:
             self._showErrorDialog(title="Invalid Path", message="No path found.")

@@ -6,6 +6,12 @@ from PyQt5.QtWidgets import *
 class Edge(QGraphicsPathItem):
     from .vertex import Vertex
 
+    COLORS = {
+            "highlight": QColor("#92b6e7"),
+            "default": QColor("black"),
+            "selected": QColor("white")
+        }
+    
     def __init__(self, start: Vertex, end: Vertex, parent):
         super().__init__()
 
@@ -14,17 +20,32 @@ class Edge(QGraphicsPathItem):
         self.end_vertex = end
         self.weight = math.inf
         self.graph: Graph = parent
+        self.default_pen = QPen(self.COLORS['default'], 2) 
         self.label = Label(str(self.weight), self)
+        self.label.setZValue(2)
 
         self.setFlag(QGraphicsLineItem.ItemIsSelectable, True)  
         self.setCursor(Qt.PointingHandCursor)  
-        self.setPen(QPen(Qt.black, 2))  
+        self.setPen(self.default_pen)  
         self.setAcceptHoverEvents(True)
         self.setZValue(0)
+
+        self.anim_path = QGraphicsPathItem(self)
+        self.anim_path.setPen(QPen(QColor("#42ffd9"), 2))
+        self.anim_path.setZValue(1)
+        self.anim_path.hide()
         
+        self.anim_start_pt = None
+        self.anim_end_pt = None
+        self.anim_duration = 1000
+        self.timeline = QTimeLine(self.anim_duration, parent)
+        self.timeline.valueChanged.connect(self.animate)
+        self.timeline.finished.connect(self.onFinish)
+
         self.is_highlighted = False
         self.is_hovered = False
         self.is_curve = False
+        self.is_animating = False
         
         self._updatePath()
         if self.graph.is_directed_graph:
@@ -98,10 +119,11 @@ class Edge(QGraphicsPathItem):
         if start == end:
             return
 
-        # Define offset in pixels
-        offset = (self.start_vertex.rect().width() / 2) + 3
+        path = self.createPath(start, end, control_point)
+        self.setPath(path)
 
-        # Adjusted start and end points
+    def createPath(self, start, end, control_point,):
+        offset = (self.start_vertex.rect().width() / 2) + 3
         start_adjusted = self._shortenPoint(start, end, offset)
         end_adjusted = self._shortenPoint(end, start, offset)
 
@@ -110,9 +132,7 @@ class Edge(QGraphicsPathItem):
             path.quadTo(control_point, end_adjusted)
         else:
             path.lineTo(end_adjusted)
-
-        self.setPath(path)
-
+        return path
 
     def _shortenPoint(self, start, end, offset):
         # Calculate direction vector
@@ -175,7 +195,6 @@ class Edge(QGraphicsPathItem):
     def getStart(self):
         return self.start_vertex
 
-
     def showContextMenu(self, pos):
         # Create a context menu
         menu = QMenu()
@@ -205,12 +224,26 @@ class Edge(QGraphicsPathItem):
             self._updateLabel()
             self.graph.emitSignal()
 
-    def setHighlight(self, flag):
-        self.is_highlighted = flag
+    def setHighlight(self, is_highlight: bool):
+        if is_highlight:
+            self.default_pen = QPen(self.COLORS["highlight"], 2) 
+        else: 
+            self.default_pen = QPen(self.COLORS["default"], 2)
+
+        self.setPen(self.default_pen)
         self.update()
 
     def setCurved(self, flag):
         self.is_curve = flag
+
+    def on_selected(self):
+        pen = QPen(self.COLORS["selected"], 2) 
+        self.setPen(pen)
+
+    def on_deselected(self):
+        self.setPen(self.default_pen)
+        
+
 
 #---------------------- Event Listeners ---------------------------------------------#    
     def mousePressEvent(self, event):
@@ -226,42 +259,76 @@ class Edge(QGraphicsPathItem):
         super().mousePressEvent(event)
 
     def hoverEnterEvent(self, event):
-        self.is_hovered = True
+        self.on_selected()
         self.setZValue(1)
         return super().hoverEnterEvent(event)
         
     def hoverLeaveEvent(self, event):
-        self.is_hovered = False
+        self.on_deselected()
         self.setZValue(0)
         return super().hoverLeaveEvent(event)
+    
+    def focusInEvent(self, event):
+        self.on_selected()
+        return super().focusInEvent(event)
+    
+    def focusOutEvent(self, event):
+        self.on_deselected()
+        return super().focusOutEvent(event)
+
     
     def paint(self, painter, option, widget=None):
         self._updatePath()
         self._updateLabel()
-        self.label.setHighlight()
 
         if self.graph.is_directed_graph:
             self._updateArrowHead()
-
-        pen = QPen(Qt.black, 2)  # Default color and thickness
-        brush = QBrush(Qt.black)
-
-        # Check if the item is selected or highlighted
-        if self.isSelected() or self.is_hovered:
-            pen = QPen(Qt.white, 2)  
-            brush = QBrush(Qt.white)
-            self.label.setHighlight(QColor("white"))
-        elif self.is_highlighted:
-            pen = QPen(QColor("#42ffd9"), 3)  # Custom color when highlighted
-            brush = QBrush(QColor("#42ffd9"))
-            self.label.setHighlight(QColor("#42ffd9"))
-
         
-        self.arrow_head.setBrush(brush)
-        self.arrow_head.setPen(pen)
-        painter.setPen(pen)
-        painter.drawPath(self.path())
+        pen = self.pen()
+        path = self.path()
 
+        painter.setClipRect(self.boundingRect())
+        self.arrow_head.setBrush(pen.brush())
+        self.arrow_head.setPen(pen)
+        self.label.setHighlight(pen.color())
+        painter.setPen(pen)
+        painter.drawPath(path)
+       
+        
+
+#----------------------- Animation ------------------------------------------------#
+    def animate(self, progress: float):
+        ctrl_point = self.getControlPoint()
+        path = self.createPath(self.anim_start_pt, self.anim_end_pt, ctrl_point)
+
+        dash_length = path.length() 
+        dash_offset = dash_length * progress
+
+        pen = self.anim_path.pen()
+        pen.setDashPattern([dash_length, dash_length])
+        pen.setDashOffset(dash_length- dash_offset)
+        self.anim_path.setPen(pen)
+        self.anim_path.setPath(path)
+
+        if progress >= 0.5:
+            self.setHighlight(True)
+
+    def onFinish(self):
+        self.anim_path.hide()
+        self.setHighlight(True)
+
+    def play(self, start: QPointF, end: QPointF):
+        self.anim_path.show()
+        self.anim_start_pt = start
+        self.anim_end_pt = end
+        self.timeline.start()
+
+    def pause(self, is_paused: bool):
+        self.timeline.setPaused(is_paused)
+
+    def stop(self):
+        self.is_animating = False
+        self.timeline.stop()
 
 
 
@@ -291,3 +358,4 @@ class Label(QGraphicsEllipseItem):
         self.text.setDefaultTextColor(self.default_text_color)
         if color:
             self.text.setDefaultTextColor(color)
+    

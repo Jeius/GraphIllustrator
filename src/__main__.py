@@ -75,7 +75,7 @@ class MyApp(QMainWindow):
         path_table.setColumnCount(columns)
         path_table.setHorizontalHeaderLabels(horizontalHeaders)
         path_table.resizeColumnsToContents()
-        path_table.verticalHeader().sectionClicked.connect(self.onRowClicked)
+        path_table.verticalHeader().sectionClicked.connect(self.onTableRowClicked)
 
     def _setupConnections(self):
         control_panel = self.ui.control_panel
@@ -94,6 +94,7 @@ class MyApp(QMainWindow):
         control_panel.path_button.clicked.connect(self.onPathButtonClicked)
         control_panel.mcst_button.clicked.connect(self.onMCSTClicked)
 
+        self.ui.view.tool.revert_button.clicked.connect(self.onRevertButtonClicked)
         self.ui.view.tool.done_button.clicked.connect(self.onDoneClicked)
         
         self.graph.graphChanged.connect(self.updateGraphListeners)
@@ -151,7 +152,7 @@ class MyApp(QMainWindow):
         self._unCheckButtonGroup()
         self.graph.setKruskal(is_kruskal)
 
-    def onRowClicked(self, index: int):
+    def onTableRowClicked(self, index: int):
         path_table = self.ui.info_panel.path_table
         vertices = self.graph.getVertices()
         start_item = path_table.item(index, 0)
@@ -164,13 +165,14 @@ class MyApp(QMainWindow):
         goal_vertex = next((v for v in vertices if v.id[1] == goal_id), None)
 
         self.graph.showPath(start_vertex, goal_vertex)
+        self.ui.view.tool.revert_button.show()
 
     def onDoneClicked(self):
         self._unCheckButtonGroup()
-        self.ui.view.tool.done_button.hide()
     
     def onMCSTClicked(self):
         self._unCheckButtonGroup()
+        self.ui.view.tool.revert_button.show()
         self.graph.findMCST()
 
     def getComplement(self):
@@ -185,6 +187,10 @@ class MyApp(QMainWindow):
         self.graph.findPath()
         self._updatePathTable()
         self._unCheckButtonGroup()
+
+    def onRevertButtonClicked(self):
+        self.graph.setHighlightItems(False)
+        self.ui.view.tool.revert_button.hide()
 
     def updateGraphListeners(self):
         self.updateInfoPanel()
@@ -318,6 +324,7 @@ class MyApp(QMainWindow):
 
 
     def _unCheckButtonGroup(self):
+        self.ui.view.tool.done_button.hide()
         checked_button = self.button_group.checkedButton()
 
         if checked_button:

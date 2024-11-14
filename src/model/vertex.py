@@ -33,8 +33,8 @@ class Vertex(QGraphicsEllipseItem):
         font = QFont("Inter", 11, QFont.Bold) 
         self.label.setFont(font)  
 
-        self.colors = {
-            "route": QColor("#42ffd9"),
+        self.highlight_colors = {
+            "default": QColor("#42ffd9"),
             "end": QColor("#FF6E64"),
             "start": QColor("#86f986")
         }
@@ -66,8 +66,11 @@ class Vertex(QGraphicsEllipseItem):
 
     def setHighlight(self, is_highlight: bool, colorType:str = None):
         self.is_highlighted = is_highlight
-        if is_highlight and colorType is not None:
-            self.highlightColor = self.colors[colorType]
+        if is_highlight:
+            if colorType == None:
+                self.highlightColor = self.highlight_colors["default"]
+                return
+            self.highlightColor = self.highlight_colors[colorType]
 
         self.update()
 
@@ -93,30 +96,33 @@ class Vertex(QGraphicsEllipseItem):
         return super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
+        # Set a high z-index for visibility while dragging
         self.setZValue(6)
-         # Override the mouseMoveEvent to drag the vertex
+
         if self.is_moving:
-            # Get the bounding rect of the item and the scene's width and height
+            # Calculate the new position based on the mouse event
+            new_position = self.mapToScene(event.pos())
             item_rect = self.boundingRect()
             scene = self.scene()
             scene_width = scene.width()
             scene_height = scene.height()
 
-            # Constrain the item's position within the scene boundaries
-            x_pos = self.x()
-            y_pos = self.y()
+            # Calculate the allowed x and y positions within the scene boundaries
+            x_pos = max(0, min(new_position.x(), scene_width - item_rect.width()))
+            y_pos = max(0, min(new_position.y(), scene_height - item_rect.height()))
 
-            if x_pos < 0:
-                self.setPos(0, y_pos)
-            elif x_pos + item_rect.right() > scene_width:
-                self.setPos(scene_width - item_rect.width(), y_pos)
+            # Check if the new position is within the scene boundaries
+            if 0 <= new_position.x() <= scene_width - item_rect.width() and \
+            0 <= new_position.y() <= scene_height - item_rect.height():
+                # Update the position only if within bounds
+                self.setPos(x_pos, y_pos)
+            else:
+                # Do nothing to stop further dragging outside bounds
+                return
 
-            if y_pos < 0:
-                self.setPos(x_pos, 0)
-            elif y_pos + item_rect.bottom() > scene_height:
-                self.setPos(x_pos, scene_height - item_rect.height())
-            
-        return super().mouseMoveEvent(event)
+        # Call the parent method to ensure other mouse move functionality is retained
+        super().mouseMoveEvent(event)
+
 
     def mouseReleaseEvent(self, event):
         self.setZValue(5)
