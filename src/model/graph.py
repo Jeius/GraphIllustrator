@@ -4,6 +4,10 @@ from typing import List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
+
+
+from ..commands.model import Command
+
 from .vertex import Vertex
 from .edge import Edge
 from ..algorithm.djisktra import Djisktra
@@ -12,6 +16,7 @@ from ..algorithm.prim import Prim
 from ..algorithm.kruskal import Kruskal
 
 class Graph(QGraphicsScene):
+    DIAMETER = 30
     graphChanged = pyqtSignal()
 
     def __init__(self):
@@ -37,26 +42,31 @@ class Graph(QGraphicsScene):
         self.is_setting_up = True
         self.mcst: int = None
 
+        self.undo_stack: list[Command] = []
+        self.redo_stack: list[Command] = []
+
         self.selectionChanged.connect(self.onSelectionChanged)
 
-#------------------------------ Creators ----------------------------------------------------------#
-    def createVertex(self, scene_position: QPointF):
-        # Define the diameter of the circle
-        diameter = 30
-        radius = diameter / 2
-        position = QPointF(scene_position.x() - radius, scene_position.y() - radius)
-        id = self.genIdIndex()
-        vertex = Vertex(id, diameter, self)
-        vertex.setPos(position) 
-        self.addItem(vertex)
 
-        self.emitSignal()
+#------------------------------ Creators ----------------------------------------------------------#
+    def createVertex(self, position: QPointF):
+        diameter = self.DIAMETER
+        id = self.genIdIndex()  
+        vertex = Vertex(id, diameter, self)
+        radius = diameter / 2
+        adjusted_position = QPointF(position.x() - radius, position.y() - radius)
+        vertex.setPos(adjusted_position)
+
+        from ..commands.vertex import AddVertexCommand
+        command = AddVertexCommand(self, vertex)
+        self.perform_action(command)
     
     def createAdjMatrix(self):
         vertices = self.getVertices()
         # Terminate the execution if there are no vertices
         size = len(vertices)
-        if size == 0:
+        if not size:
+            self.adjacencyMatrix.clear()
             return
 
         # Intiallize matrix with infinities
@@ -65,8 +75,8 @@ class Graph(QGraphicsScene):
         for vertex in vertices:
             for edge in vertex.edges:
                 if vertex == edge.getStart():
-                    start_index = edge.start_vertex.id[0]
-                    end_index = edge.end_vertex.id[0]
+                    start_index = vertices.index(edge.start_vertex)
+                    end_index = vertices.index(edge.end_vertex)
                     
                     if edge.weight != math.inf:
                         if self.is_directed_graph:
@@ -82,36 +92,30 @@ class Graph(QGraphicsScene):
         selected_items = self.selectedItems()
         selected_vertices = self.selected_vertices
 
+        # Clear selected vertices if no items are selected
         if len(selected_items) == 0:
             selected_vertices.clear()
 
-        # Loop through all selected items in the scene
         for item in selected_items:
-            if not isinstance(item, Vertex):
-                continue
+            if isinstance(item, Vertex):
+                vertex = item
+                if len(selected_vertices) == 0:
+                    selected_vertices.append(vertex)
+                else:
+                    start = selected_vertices.pop()
+                    end = vertex
 
-            vertex = item
-            if len(selected_vertices) == 0:
-                selected_vertices.append(vertex)
-            else:
-                start = selected_vertices.pop()
-                end = vertex
-                edge = Edge(start, end, self)
+                    edge = Edge(start, end, self)
+                    duplicate_edge = self.getDuplicate(edge)
 
-                duplicate_edge = self.getDuplicate(edge)
+                    if duplicate_edge:
+                        return
 
-                if duplicate_edge: 
-                        continue
+                    from ..commands.edge import AddEdgeCommand
+                    command = AddEdgeCommand(self, edge)
+                    self.perform_action(command)
 
-                start.addEdge(edge)
-                end.addEdge(edge)
-                self.addItem(edge)
-
-                if self.is_directed_graph:
-                    self.setCurvedEdge(edge)   
-
-                selected_vertices.append(vertex) 
-        self.emitSignal()
+                    selected_vertices.append(end) 
 
     def genIdIndex(self):
         index = 0
@@ -176,6 +180,7 @@ class Graph(QGraphicsScene):
         items = self.items()
         vertices = [item for item in items if isinstance(item, Vertex)]
         vertices.reverse()
+        vertices.sort(key=lambda vertex: vertex.id[0])
         return vertices
     
     def getEdges(self):
@@ -188,7 +193,7 @@ class Graph(QGraphicsScene):
         vertices = self.getVertices()
         edges = self.getEdges()
         for edge in edges:
-            self.removeItem(edge)
+            self.removeEdge(edge)
 
         new_edges = []
 
@@ -226,40 +231,19 @@ class Graph(QGraphicsScene):
     
 
 #--------------------------- Delete ---------------------------------------------#
-    def removeItem(self, item):
+    def removeVertex(self, vertex: Vertex):
         self.dijkstra.reset()
         self.floyd.reset()
+        from ..commands.vertex import DeleteVertexCommand
+        command = DeleteVertexCommand(self, vertex)
+        self.perform_action(command)
 
-        edges = self.getEdges()
-
-        if isinstance(item, Vertex):
-            vertex = item
-            for vertex_edge in item.edges:
-                neighbor = vertex_edge.getOpposite(vertex)
-
-                for neighbor_edge in neighbor.edges.copy():
-                    # Get the opposite of the neighbor, this means that 
-                    # the opposite will most likely be the vertex
-                    neighbor_opposite = neighbor_edge.getOpposite(neighbor)
-
-                    # Check if it is true, 
-                    # then remove the edge in the neighbor's edges
-                    if neighbor_opposite == vertex:
-                        neighbor_edge in neighbor.edges and neighbor.edges.remove(neighbor_edge)
-                        neighbor_edge in edges and super().removeItem(neighbor_edge)
-            super().removeItem(vertex)
-
-        elif isinstance(item, Edge):
-            # Remove the edge in both endpoints
-            edge = item
-            start = edge.start_vertex
-            end = edge.end_vertex
-            
-            edge in start.edges and start.edges.remove(edge)
-            edge in end.edges and end.edges.remove(edge)
-            edge in edges and super().removeItem(edge)
-        
-        self.emitSignal()
+    def removeEdge(self, edge: Edge):
+        self.dijkstra.reset()
+        self.floyd.reset()
+        from ..commands.edge import DeleteEdgeCommand
+        command = DeleteEdgeCommand(self, edge)
+        self.perform_action(command)
 
     def revert(self):
         self.setHighlightItems(False)
@@ -279,7 +263,7 @@ class Graph(QGraphicsScene):
         for edge in edges:
             edge.start_vertex.clearEdges()
             edge.end_vertex.clearEdges()
-            self.removeItem(edge)
+            self.removeEdge(edge)
         self.dijkstra.reset()
         self.floyd.reset()
         self.emitSignal()
@@ -290,6 +274,7 @@ class Graph(QGraphicsScene):
 #----------------------------- Algorithms -------------------------------------------#
     def findPath(self):
         try:
+            self.undo_stack.clear()
             vertices = self.getVertices()
             matrix = self.adjacencyMatrix
 
@@ -308,6 +293,7 @@ class Graph(QGraphicsScene):
 
     def findMCST(self):
         try:
+            self.undo_stack.clear()
             vertices = self.getVertices()
             matrix = self.adjacencyMatrix
             selected_vertex = next((vertex for vertex in self.selectedItems() if isinstance(vertex, Vertex)), None)
@@ -433,8 +419,33 @@ class Graph(QGraphicsScene):
 
     def emitSignal(self):
         self.createAdjMatrix()
+        self._updateEdges()
         self.graphChanged.emit()
 
     def onSelectionChanged(self):
         if self.is_adding_edge:
             self.createEdge()
+
+    def _updateEdges(self):
+        edges = self.getEdges()
+        for edge in edges:
+            # Set as curved if the graph is directed
+            if self.is_directed_graph:
+                self.setCurvedEdge(edge)
+
+    def perform_action(self, command: Command):
+        command.execute()
+        self.undo_stack.append(command)
+        self.redo_stack.clear() 
+
+    def undo(self):
+        if self.undo_stack:
+            command = self.undo_stack.pop()
+            command.undo()
+            self.redo_stack.append(command)
+
+    def redo(self):
+        if self.redo_stack:
+            command = self.redo_stack.pop()
+            command.execute()
+            self.undo_stack.append(command)

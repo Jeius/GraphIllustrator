@@ -267,7 +267,7 @@ class Edge(QGraphicsPathItem):
 
         if event.button() == Qt.LeftButton:
             if self.graph.is_deleting: 
-                self.graph.removeItem(self)
+                self.graph.removeEdge(self)
             elif self.graph.is_editing_weight:
                 self.showEditDialog()
         super().mousePressEvent(event)

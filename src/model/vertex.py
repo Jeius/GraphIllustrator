@@ -61,6 +61,9 @@ class Vertex(QGraphicsEllipseItem):
     def addEdge(self, edge):
         self.edges.append(edge)
 
+    def removeEdge(self, edge):
+        self.edges.remove(edge)
+
     def clearEdges(self):
         self.edges.clear()
 
@@ -91,7 +94,7 @@ class Vertex(QGraphicsEllipseItem):
             self.itemPressPos = self.pos()  # Capture the initial position of the ellipse
 
             if self.graph.is_deleting: 
-                self.graph.removeItem(self)
+                self.graph.removeVertex(self)
 
         return super().mousePressEvent(event)
 
@@ -115,7 +118,7 @@ class Vertex(QGraphicsEllipseItem):
             if 0 <= new_position.x() <= scene_width - item_rect.width() and \
             0 <= new_position.y() <= scene_height - item_rect.height():
                 # Update the position only if within bounds
-                self.setPos(x_pos, y_pos)
+                self.setPos(x_pos - item_rect.width() / 2, y_pos - item_rect.height() / 2)
             else:
                 # Do nothing to stop further dragging outside bounds
                 return

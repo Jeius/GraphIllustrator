@@ -230,6 +230,7 @@ class MyApp(QMainWindow):
         vertices = self.graph.getVertices()
 
         vertex_set = [str(vertex.id[1]) for vertex in vertices]
+        vertex_set.sort()
         if vertex_set:
             info_panel.vertex_set_box.setPlainText("V(G) = {" + ', '.join(map(str, vertex_set)) + '}')
 
@@ -352,6 +353,12 @@ class MyApp(QMainWindow):
         if a0.key() == Qt.Key_Escape:
             self._unCheckButtonGroup()
             self.ui.view.tool.done_button.hide()
+        
+        elif a0.key() == Qt.Key_Z and a0.modifiers() & Qt.ControlModifier:
+            self.graph.undo()
+        
+        elif a0.key() == Qt.Key_Y and a0.modifiers() & Qt.ControlModifier:
+            self.graph.redo()
         return super().keyPressEvent(a0)
 
     def mousePressEvent(self, a0):
