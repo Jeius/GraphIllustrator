@@ -1,7 +1,7 @@
 import sys
 import os
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QButtonGroup, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QButtonGroup, QTableWidgetItem, QHeaderView
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 
@@ -55,7 +55,6 @@ class MyApp(QMainWindow):
         self._setupPathTable()
         self._setupConnections()
         
-
     def _setupButtonGroup(self):
         control_panel = self.ui.control_panel
 
@@ -75,7 +74,7 @@ class MyApp(QMainWindow):
 
         path_table.setColumnCount(columns)
         path_table.setHorizontalHeaderLabels(horizontalHeaders)
-        path_table.resizeColumnsToContents()
+        path_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         path_table.verticalHeader().sectionClicked.connect(self.onTableRowClicked)
 
     def _setupConnections(self):
@@ -99,32 +98,37 @@ class MyApp(QMainWindow):
         self.ui.view.tool.revert_button.clicked.connect(self.onRevertButtonClicked)
         self.ui.view.tool.done_button.clicked.connect(self.onDoneClicked)
         
-        self.graph.graphChanged.connect(self.updateGraphListeners)
+        self.graph.graphChanged.connect(self._updateGraphListeners)
 
+#-------------------------------- Slots ------------------------------------#
     def setAddingVertex(self, adding_vertex: bool):
         self.graph.clearSelection()
         self.graph.is_adding_vertex = adding_vertex
         if adding_vertex:
+            self.graph.resetPaths()
             self.ui.view.tool.done_button.show()
 
     def setAddingEdge(self, adding_edge: bool):
         self.graph.clearSelection()
         self.graph.is_adding_edge = adding_edge
         if adding_edge:
+            self.graph.resetPaths()
             self.ui.view.tool.done_button.show()
-        elif self.graph.adding_line in self.graph.items():
-            self.graph.removeItem(self.graph.adding_line)
+        elif self.graph.indicator_line in self.graph.items():
+            self.graph.removeItem(self.graph.indicator_line)
 
     def setDeleting(self, deleting: bool):
         self.graph.clearSelection()
         self.graph.is_deleting = deleting
         if deleting:
+            self.graph.resetPaths()
             self.ui.view.tool.done_button.show()
 
     def setEditWeight(self, editing: bool):
         self.graph.clearSelection()
         self.graph.is_editing_weight = editing
         if editing:
+            self.graph.resetPaths()
             self.ui.view.tool.done_button.show()
 
     def setIdType(self, index: int):
@@ -205,17 +209,19 @@ class MyApp(QMainWindow):
     def onClearEdgesClicked(self):
         self.graph.clearEdges()
 
-    def updateGraphListeners(self):
-        self.updateInfoPanel()
 
-    def updateControlPanel(self):
+#------------------- Signal Listeners ---------------------------------#
+    def _updateGraphListeners(self):
+        self._updateInfoPanel()
+
+    def _updateControlPanel(self):
         mcst = self.graph.mcst
         control_panel = self.ui.control_panel
         control_panel.mcst_textbox.clear()
         if mcst:
             control_panel.mcst_textbox.setText(mcst)
 
-    def updateInfoPanel(self):
+    def _updateInfoPanel(self):
         graph = self.graph
         order = len(graph.getVertices())
         size = len(graph.getEdges())
@@ -345,7 +351,6 @@ class MyApp(QMainWindow):
                 rowIndex += 1
         return rowIndex
 
-
     def _unCheckButtonGroup(self):
         self.ui.view.tool.done_button.hide()
         checked_button = self.button_group.checkedButton()
@@ -354,6 +359,8 @@ class MyApp(QMainWindow):
             self.button_group.setExclusive(False)
             checked_button.setChecked(False)
             self.button_group.setExclusive(True)
+
+
 
 #----------------- Event Listeners ---------------------------------#
     def keyPressEvent(self, a0):
@@ -368,11 +375,9 @@ class MyApp(QMainWindow):
             self.graph.redo()
         return super().keyPressEvent(a0)
 
-    def mousePressEvent(self, a0):
-        if a0.button() == Qt.RightButton:
-            pass
-        return super().mousePressEvent(a0)
 
+
+#----------------------- main ----------------------------------------#
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     myApp = MyApp()

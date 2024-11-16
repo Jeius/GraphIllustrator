@@ -62,12 +62,17 @@ class Workspace(QGraphicsView):
         elif event.button() == Qt.RightButton:  
             self.graph.clearSelection()
             if self.graph.is_adding_edge:
-                self.graph.removeItem(self.graph.adding_line)
+               self.graph.indicator_line in self.graph.items() and \
+                self.graph.removeItem(self.graph.indicator_line)
 
         return super().mousePressEvent(event)
     
     def mouseMoveEvent(self, event):
-        if self.graph.is_adding_edge and self.graph.selected_vertices:
+        if self.graph.is_dragging:
+            self.graph.indicator_line in self.graph.items() and \
+                self.graph.removeItem(self.graph.indicator_line)
+        
+        if self.graph.is_adding_edge:
             # Calculate the new position based on the mouse event
             new_position = self.mapToScene(event.pos())
             scene = self.graph
@@ -81,9 +86,9 @@ class Workspace(QGraphicsView):
             # Check if the new position is within the scene boundaries
             if 0 <= new_position.x() <= scene_width and 0 <= new_position.y() <= scene_height:
                 # Update the position only if within bounds
-                line = self.graph.adding_line.line()
+                line = self.graph.indicator_line.line()
                 line.setP2(QPointF(x_pos, y_pos))
-                self.graph.adding_line.setLine(line)
+                self.graph.indicator_line.setLine(line)
             else:
                 # Do nothing to stop further dragging outside bounds
                 return

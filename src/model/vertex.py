@@ -90,6 +90,7 @@ class Vertex(QGraphicsEllipseItem):
         if event.button() == Qt.LeftButton:
             self.setCursor(Qt.ClosedHandCursor)  # Change cursor to closed hand when dragging
             self.is_moving = True   # Set the dragging flag to true
+            self.graph.is_dragging = True
             self.mousePressPos = event.scenePos()  # Capture the initial mouse position
             self.itemPressPos = self.pos()  # Capture the initial position of the ellipse
 
@@ -119,6 +120,7 @@ class Vertex(QGraphicsEllipseItem):
             0 <= new_position.y() <= scene_height - item_rect.height():
                 # Update the position only if within bounds
                 self.setPos(x_pos - item_rect.width() / 2, y_pos - item_rect.height() / 2)
+                self.setSelected(False)
             else:
                 # Do nothing to stop further dragging outside bounds
                 return
@@ -134,6 +136,7 @@ class Vertex(QGraphicsEllipseItem):
             self.setCursor(Qt.PointingHandCursor)  
             # Set the dragging flag to false
             self.is_moving = False  
+            self.graph.is_dragging = False
         return super().mouseReleaseEvent(event)
 
     def hoverEnterEvent(self, event):

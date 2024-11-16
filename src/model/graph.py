@@ -32,8 +32,8 @@ class Graph(QGraphicsScene):
         self.floyd = FloydWarshall()
         self.prim = Prim()
         self.kruskal = Kruskal()
-        self.adding_line = QGraphicsLineItem()
-        self.adding_line.setPen(QPen(Qt.black, 2))
+        self.indicator_line = QGraphicsLineItem()
+        self.indicator_line.setPen(QPen(Qt.black, 2))
         self.complement_graph = ComplementGraph(self)
 
         self.is_adding_vertex = False 
@@ -48,6 +48,7 @@ class Graph(QGraphicsScene):
         self.is_id_int = True
         self.is_setting_up = True
         self.mcst: int = None
+        self.is_dragging = False
 
         self.undo_stack: list[Command] = []
         self.redo_stack: list[Command] = []
@@ -101,44 +102,39 @@ class Graph(QGraphicsScene):
                     self.adjacencyMatrix[end_index][end_index] = 0               
 
     def createEdge(self,):
-        selected_items = self.selectedItems()
-        selected_vertices = self.selected_vertices
+        line = self.indicator_line.line()
+        selected_vertex = next((vertex for vertex in self.selectedItems() if isinstance(vertex, Vertex)), None)
+        if not selected_vertex:
+            self.selected_vertices.clear()
+            if self.indicator_line in self.items():
+                self.removeItem(self.indicator_line)
+            return
+        
+        if self.indicator_line not in self.items():
+            self.addItem(self.indicator_line)
 
-        # Clear selected vertices if no items are selected
-        if len(selected_items) == 0:
-            selected_vertices.clear()
+        if not self.selected_vertices:
+            self.selected_vertices.append(selected_vertex)
+            line.setP1(selected_vertex.getPosition())
+            line.setP2(selected_vertex.getPosition())
+            self.indicator_line.setLine(line)
+        else:
+            start = self.selected_vertices.pop()
+            end = selected_vertex
+            
+            line.setP1(end.getPosition())
+            self.indicator_line.setLine(line)
 
-        for item in selected_items:
-            if isinstance(item, Vertex):
-                vertex = item
-                line = self.adding_line.line()
+            edge = Edge(start, end, self)
+            duplicate_edge = self.getDuplicate(edge)
+            if duplicate_edge:
+                self.clearSelection()
+                return
 
-                if len(selected_vertices) == 0:
-                    selected_vertices.append(vertex)
-                    line.setP1(vertex.getPosition())
-                    line.setP2(vertex.getPosition())
-                    self.adding_line.setLine(line)
-
-                    if self.adding_line not in self.items():
-                        self.addItem(self.adding_line)
-                else:
-                    start = selected_vertices.pop()
-                    end = vertex
-
-                    line.setP1(end.getPosition())
-                    self.adding_line.setLine(line)
-
-                    edge = Edge(start, end, self)
-                    duplicate_edge = self.getDuplicate(edge)
-
-                    if duplicate_edge:
-                        self.clearSelection()
-                        return
-
-                    from ..commands.edge import AddEdgeCommand
-                    command = AddEdgeCommand(self, edge)
-                    self.perform_action(command)
-                    selected_vertices.append(end) 
+            from ..commands.edge import AddEdgeCommand
+            command = AddEdgeCommand(self, edge)
+            self.perform_action(command)
+            self.selected_vertices.append(end) 
                     
     def genIdIndex(self):
         index = 0
@@ -175,7 +171,7 @@ class Graph(QGraphicsScene):
             edge.setCurved(False) 
 
     def setFloyd(self, is_floyd: bool):
-        self.floyd.reset()
+        self.resetPaths()
         self.clearSelection()
         self.setHighlightItems(False)
         self.is_using_floyd = is_floyd
@@ -227,18 +223,17 @@ class Graph(QGraphicsScene):
                 return edge 
     
 
+
+
 #--------------------------- Delete ---------------------------------------------#
     def removeVertex(self, vertex: Vertex):
-        self.dijkstra.reset()
-        self.floyd.reset()
+        self.resetPaths()
         from ..commands.vertex import DeleteVertexCommand
         command = DeleteVertexCommand(self, vertex)
         self.perform_action(command)
 
     def removeEdge(self, edge: Edge):
-        self.dijkstra.reset()
-        self.floyd.reset()
-
+        self.resetPaths()
         from ..commands.edge import DeleteEdgeCommand
         command = DeleteEdgeCommand(self, edge)
         self.perform_action(command)
@@ -248,18 +243,18 @@ class Graph(QGraphicsScene):
         for edge in self.getEdges():
             edge.setTransparent(False)
         self.mcst = None
+        self.emitSignal()
 
     def clear(self):
         confirmation = self._showConfirmDialog("Confirm Clear", "This action is irreversable, do you want to proceed?")
         if confirmation == QMessageBox.Yes:
-            self.dijkstra.reset()
-            self.floyd.reset()
+            self.resetPaths()
+            self.undo_stack.clear()
             super().clear()
             self.emitSignal()
         
     def clearEdges(self):
-        self.dijkstra.reset()
-        self.floyd.reset()
+        self.resetPaths()
         from ..commands.edge import ClearEdgesCommand
         edges = self.getEdges()
         command = ClearEdgesCommand(self, edges)
@@ -421,6 +416,10 @@ class Graph(QGraphicsScene):
 
         except Exception as e:
             self._showErrorDialog(title="Invalid Path", message="No path found.")
+
+    def resetPaths(self):
+        self.floyd.reset()
+        self.dijkstra.reset()
 
     def emitSignal(self):
         self.createAdjMatrix()
