@@ -115,6 +115,9 @@ class Ui_ControlPanel(QFrame):
 
         self.gridLayout_5.addWidget(self.clear_edges_button, 1, 0, 1, 1)
 
+        self.clear_button.raise_()
+        self.delete_button.raise_()
+        self.clear_edges_button.raise_()
 
         self.horizontalLayout.addWidget(self.delete_box)
 
@@ -224,6 +227,7 @@ class Ui_ControlPanel(QFrame):
         sizePolicy3.setHeightForWidth(self.mcst_button.sizePolicy().hasHeightForWidth())
         self.mcst_button.setSizePolicy(sizePolicy3)
         self.mcst_button.setMinimumSize(QSize(0, 30))
+        self.mcst_button.setCheckable(True)
 
         self.gridLayout_2.addWidget(self.mcst_button, 1, 0, 1, 1, Qt.AlignVCenter)
 

@@ -220,10 +220,14 @@ class Edge(QGraphicsPathItem):
         input_dialog.setWindowFlags(input_dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
         if input_dialog.exec_() == QDialog.Accepted:
-            weight = input_dialog.textValue()
-            self.weight = int(weight) if weight.isdigit() and int(weight) >= 0 else math.inf
-            self._updateLabel()
-            self.graph.emitSignal()
+            result = input_dialog.textValue()
+            weight = int(result) if result.isdigit() and int(result) >= 0 else math.inf
+            self.setWeight(weight)
+
+    def setWeight(self, weight: int):
+        self.weight = weight
+        self._updateLabel()
+        self.graph.emitSignal()
 
     def setHighlight(self, is_highlight: bool):
         if is_highlight:
@@ -235,6 +239,7 @@ class Edge(QGraphicsPathItem):
 
         self.setPen(self.default_pen)
         self.update()
+  
 
     def setCurved(self, is_curve):
         self.is_curve = is_curve

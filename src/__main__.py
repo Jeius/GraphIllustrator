@@ -64,6 +64,7 @@ class MyApp(QMainWindow):
         self.button_group.addButton(control_panel.delete_button)
         self.button_group.addButton(control_panel.edit_weight_button)
         self.button_group.addButton(control_panel.complement_button)
+        self.button_group.addButton(control_panel.mcst_button)
         self.button_group.setExclusive(True)
     
     def _setupPathTable(self):
@@ -93,7 +94,7 @@ class MyApp(QMainWindow):
         control_panel.prim_radio.toggled.connect(self.setPrim)
         control_panel.kruskal_radio.toggled.connect(self.setKruskal)
         control_panel.path_button.clicked.connect(self.onPathButtonClicked)
-        control_panel.mcst_button.clicked.connect(self.onMCSTClicked)
+        control_panel.mcst_button.toggled.connect(self.onMCSTToggled)
 
         self.ui.view.tool.revert_button.clicked.connect(self.onRevertButtonClicked)
         self.ui.view.tool.done_button.clicked.connect(self.onDoneClicked)
@@ -165,28 +166,37 @@ class MyApp(QMainWindow):
         self.graph.setKruskal(is_kruskal)
 
     def onTableRowClicked(self, index: int):
-        path_table = self.ui.info_panel.path_table
-        vertices = self.graph.getVertices()
-        start_item = path_table.item(index, 0)
-        goal_item = path_table.item(index, 1)
+        try:
+            path_table = self.ui.info_panel.path_table
+            vertices = self.graph.getVertices()
+            start_item = path_table.item(index, 0)
+            goal_item = path_table.item(index, 1)
 
-        start_id = start_item.text()
-        goal_id = goal_item.text()
+            start_id = start_item.text()
+            goal_id = goal_item.text()
 
-        start_vertex = next((v for v in vertices if v.id[1] == start_id), None)
-        goal_vertex = next((v for v in vertices if v.id[1] == goal_id), None)
+            start_vertex = next((v for v in vertices if v.id[1] == start_id), None)
+            goal_vertex = next((v for v in vertices if v.id[1] == goal_id), None)
 
-        self.graph.showPath(start_vertex, goal_vertex)
-        self.ui.view.tool.revert_button.show()
+            self.graph.showPath(start_vertex, goal_vertex)
+            self.ui.view.tool.revert_button.show()
+        except Exception as e:
+            self.graph._showErrorDialog(title="Invalid Path", message="No path found.")
 
     def onDoneClicked(self):
         self._unCheckButtonGroup()
     
-    def onMCSTClicked(self):
-        self._unCheckButtonGroup()
-        self.ui.view.tool.revert_button.show()
-        self.graph.findMCST()
-        self.graph.emitSignal()
+    def onMCSTToggled(self, is_toggled):
+        try:
+            self.graph.findMCST(is_toggled)
+            if is_toggled:
+                self.ui.view.tool.revert_button.show()
+            else:
+                self.ui.view.tool.revert_button.hide()
+                self.graph.revert()
+        except Exception as e:
+            self._unCheckButtonGroup()
+            self.graph._showErrorDialog("Invalid Action", str(e))
 
     def onComplementToggled(self, is_toggled):
         self.graph.getComplement(is_toggled)
@@ -203,8 +213,10 @@ class MyApp(QMainWindow):
 
     def onRevertButtonClicked(self):
         self.graph.revert()
+        self._unCheckButtonGroup()
         self.ui.view.tool.revert_button.hide()
-        self.ui.info_panel.path_table.clearSelection()
+        if self.graph.is_directed_graph:
+            self.ui.info_panel.path_table.clearSelection()
 
     def onClearEdgesClicked(self):
         self.graph.clearEdges()
@@ -213,13 +225,14 @@ class MyApp(QMainWindow):
 #------------------- Signal Listeners ---------------------------------#
     def _updateGraphListeners(self):
         self._updateInfoPanel()
+        self._updateControlPanel()
 
     def _updateControlPanel(self):
-        mcst = self.graph.mcst
+        mcst = self.graph.mcst_total_cost
         control_panel = self.ui.control_panel
         control_panel.mcst_textbox.clear()
         if mcst:
-            control_panel.mcst_textbox.setText(mcst)
+            control_panel.mcst_textbox.setText(str(mcst))
 
     def _updateInfoPanel(self):
         graph = self.graph

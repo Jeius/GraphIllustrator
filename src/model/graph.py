@@ -13,8 +13,6 @@ from .vertex import Vertex
 from .edge import Edge
 from ..algorithm.djisktra import Djisktra
 from ..algorithm.floyd import FloydWarshall
-from ..algorithm.prim import Prim
-from ..algorithm.kruskal import Kruskal
 
 class Graph(QGraphicsScene):
     DIAMETER = 30
@@ -24,17 +22,17 @@ class Graph(QGraphicsScene):
         super().__init__()
 
         from .complement import ComplementGraph
+        from .mcst import MinimumCostSpanningTree
 
         self.selected_vertices: List[Vertex] = []   # List of the selected vertices
         self.adjacencyMatrix: list[list[float]] = []     # Adjacency matrix
         
         self.dijkstra = Djisktra()
         self.floyd = FloydWarshall()
-        self.prim = Prim()
-        self.kruskal = Kruskal()
         self.indicator_line = QGraphicsLineItem()
         self.indicator_line.setPen(QPen(Qt.black, 2))
         self.complement_graph = ComplementGraph(self)
+        self.mcst_graph = MinimumCostSpanningTree(self)
 
         self.is_adding_vertex = False 
         self.is_adding_edge = False   
@@ -47,7 +45,7 @@ class Graph(QGraphicsScene):
         self.is_editing_weight = False
         self.is_id_int = True
         self.is_setting_up = True
-        self.mcst: int = None
+        self.mcst_total_cost: int = None
         self.is_dragging = False
 
         self.undo_stack: list[Command] = []
@@ -78,12 +76,8 @@ class Graph(QGraphicsScene):
             return
 
         n = len(vertices)
-        if self.is_directed_graph:
-            # Intiallize matrix with infinities
-            self.adjacencyMatrix = [[math.inf for _ in range(n)] for _ in range(n)]  
-        else: 
-            # Intiallize matrix with zeroes
-            self.adjacencyMatrix = [[0 for _ in range(n)] for _ in range(n)]  
+        # Intiallize matrix with infinities
+        self.adjacencyMatrix = [[math.inf for _ in range(n)] for _ in range(n)]  
 
         for vertex in vertices:
             for edge in vertex.edges:
@@ -240,9 +234,7 @@ class Graph(QGraphicsScene):
 
     def revert(self):
         self.setHighlightItems(False)
-        for edge in self.getEdges():
-            edge.setTransparent(False)
-        self.mcst = None
+        self.mcst_total_cost = None
         self.emitSignal()
 
     def clear(self):
@@ -287,55 +279,14 @@ class Graph(QGraphicsScene):
         except Exception as e:
             self._showErrorDialog("Invalid Action", str(e))
 
-    def findMCST(self):
-        try:
-            self.undo_stack.clear()
-            vertices = self.getVertices()
-            matrix = self.adjacencyMatrix
-            selected_vertex = next((vertex for vertex in self.selectedItems() if isinstance(vertex, Vertex)), None)
-
-            if not selected_vertex:
-                raise Exception("No starting vertex selected")
-            
-            start = vertices.index(selected_vertex)
-
-            if self.is_using_prim:
-                result = self.prim.MCST(matrix)
-            elif self.is_using_kruskal:
-                result = self.kruskal.MCST(matrix)
-
-            for edge in self.getEdges():
-                edge.setTransparent(True)
-
-            self.mcst = 0
-            mcst_edges: list[Edge] = []
-
-            for result_edge in result:
-                start, end, weight = result_edge
-                start_vertex = vertices[start]
-                end_vertex = vertices[end]
-                edge = self.getDuplicate(Edge(start_vertex, end_vertex, self))
-                if edge:
-                    mcst_edges.append(edge)
-                    self.mcst += weight
-
-            def animate(vertex: Vertex):
-                for edge in vertex.edges:
-                    if edge in mcst_edges:
-                        mcst_edges.remove(edge)
-                        start_point = vertex.getPosition()
-                        end_point = edge.getOpposite(vertex).getPosition()
-                        edge.play(start_point, end_point)
-                        QTimer.singleShot(edge.anim_duration, lambda: animate(edge.getOpposite(vertex)))
-                        return
-                vertex.setHighlight(True, "end")
-            
-            selected_vertex.setHighlight(True, "start")
-            animate(selected_vertex)
-
-
-        except Exception as e:
-            self._showErrorDialog("Invalid Action", str(e))
+    def findMCST(self, is_finding_mcst):
+        self.undo_stack.clear()
+        if is_finding_mcst:
+            self.mcst_graph.show()
+        else:
+            self.mcst_graph.revert()
+        self.emitSignal()
+        
 
 
 
@@ -367,55 +318,51 @@ class Graph(QGraphicsScene):
 
         vertices = self.getVertices()
 
-        try:
-            # Get paths based on algorithm choice
-            if self.is_using_floyd:
-                paths = self.floyd.paths
-            elif self.is_using_dijkstra:
-                paths = self.dijkstra.paths
+        # Get paths based on algorithm choice
+        if self.is_using_floyd:
+            paths = self.floyd.paths
+        elif self.is_using_dijkstra:
+            paths = self.dijkstra.paths
 
-            if not paths:
-                return
+        if not paths:
+            return
 
-            # Retrieve path from start to goal
-            if self.is_using_floyd:
-                path = list(paths[(vertices.index(start), vertices.index(goal))])
-            elif self.is_using_dijkstra:
-                path = list(paths[vertices.index(goal)])
+        # Retrieve path from start to goal
+        if self.is_using_floyd:
+            path = list(paths[(vertices.index(start), vertices.index(goal))])
+        elif self.is_using_dijkstra:
+            path = list(paths[vertices.index(goal)])
 
-            path_edges: list[Edge] = []
+        path_edges: list[Edge] = []
 
-            while len(path) > 1:
-                section_start: Vertex = vertices[path.pop(0)]
-                section_end: Vertex = vertices[path[0]]
-                edge = self.getDuplicate(Edge(section_start, section_end, self)) # Get the original edge
+        while len(path) > 1:
+            section_start: Vertex = vertices[path.pop(0)]
+            section_end: Vertex = vertices[path[0]]
+            edge = self.getDuplicate(Edge(section_start, section_end, self)) # Get the original edge
+            if edge is None:
+                continue
 
-                if edge is None:
-                    continue
+            path_edges.append(edge)
+        
+        def animatePath(vertex: Vertex):
+            if vertex == start:
+                vertex.setHighlight(True, "start")
+            elif vertex == goal:
+                vertex.setHighlight(True, "end")
+            else:
+                vertex.setSelected(True)
 
-                path_edges.append(edge)
-            
-            def animatePath(vertex: Vertex):
-                if vertex == start:
-                    vertex.setHighlight(True, "start")
-                elif vertex == goal:
-                    vertex.setHighlight(True, "end")
-                else:
-                    vertex.setSelected(True)
+            for edge in vertex.edges:
+                if edge in path_edges:
+                    path_edges.remove(edge)
+                    start_point = vertex.getPosition()
+                    end_point = edge.getOpposite(vertex).getPosition()
+                    edge.play(start_point, end_point)
+                    next = edge.getOpposite(vertex)
+                    QTimer.singleShot(edge.anim_duration, lambda: animatePath(next))
+                    
+        animatePath(start)
 
-                for edge in vertex.edges:
-                    if edge in path_edges:
-                        path_edges.remove(edge)
-                        start_point = vertex.getPosition()
-                        end_point = edge.getOpposite(vertex).getPosition()
-                        edge.play(start_point, end_point)
-                        next = edge.getOpposite(vertex)
-                        QTimer.singleShot(edge.anim_duration, lambda: animatePath(next))
-                        
-            animatePath(start)
-
-        except Exception as e:
-            self._showErrorDialog(title="Invalid Path", message="No path found.")
 
     def resetPaths(self):
         self.floyd.reset()
@@ -424,6 +371,7 @@ class Graph(QGraphicsScene):
     def emitSignal(self):
         self.createAdjMatrix()
         self._updateEdges()
+        self.mcst_total_cost = self.mcst_graph.total_cost
         self.graphChanged.emit()
 
     def onSelectionChanged(self):
