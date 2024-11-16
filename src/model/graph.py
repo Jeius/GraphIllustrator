@@ -22,6 +22,9 @@ class Graph(QGraphicsScene):
 
     def __init__(self):
         super().__init__()
+
+        from .complement import ComplementGraph
+
         self.selected_vertices: List[Vertex] = []   # List of the selected vertices
         self.adjacencyMatrix: list[list[float]] = []     # Adjacency matrix
         
@@ -31,6 +34,7 @@ class Graph(QGraphicsScene):
         self.kruskal = Kruskal()
         self.adding_line = QGraphicsLineItem()
         self.adding_line.setPen(QPen(Qt.black, 2))
+        self.complement_graph = ComplementGraph(self)
 
         self.is_adding_vertex = False 
         self.is_adding_edge = False   
@@ -136,7 +140,6 @@ class Graph(QGraphicsScene):
                     self.perform_action(command)
                     selected_vertices.append(end) 
                     
-
     def genIdIndex(self):
         index = 0
         vertices = self.getVertices()
@@ -209,38 +212,12 @@ class Graph(QGraphicsScene):
         edges.reverse()
         return edges
     
-    def getComplement(self):
-        vertices = self.getVertices()
-        edges = self.getEdges()
-        for edge in edges:
-            self.removeEdge(edge)
-
-        new_edges = []
-
-        for vertex in vertices:
-            neighbors = []
-            for edge in vertex.edges:
-                neighbor = edge.getOpposite(vertex)
-                neighbors.append(neighbor)
-            
-            complement_vertices = [v for v in vertices if v not in neighbors and v != vertex]
-            vertex.edges.clear()
-
-            for complement_vertex in complement_vertices:
-                complement_edge = Edge(vertex, complement_vertex, self)
-                duplicate_edge = self.getDuplicate(complement_edge)
-
-                if not duplicate_edge:
-                    new_edges.append(complement_edge)
-                    vertex.addEdge(complement_edge)
-                else:
-                    vertex.addEdge(duplicate_edge)
-        
-        for edge in new_edges:
-            duplicate_edge = self.getDuplicate(edge)
-            if not duplicate_edge:
-                self.addItem(edge)
-        
+    def getComplement(self, is_complement):
+        if is_complement:
+            self.complement_graph.show()
+        else:
+            self.complement_graph.revert()
+        self.undo_stack.clear()
         self.emitSignal()
 
     def getDuplicate(self, new_edge: Edge):
@@ -273,15 +250,16 @@ class Graph(QGraphicsScene):
         self.mcst = None
 
     def clear(self):
-        self.dijkstra.reset()
-        self.floyd.reset()
-        super().clear()
-        self.emitSignal()
+        confirmation = self._showConfirmDialog("Confirm Clear", "This action is irreversable, do you want to proceed?")
+        if confirmation == QMessageBox.Yes:
+            self.dijkstra.reset()
+            self.floyd.reset()
+            super().clear()
+            self.emitSignal()
         
     def clearEdges(self):
         self.dijkstra.reset()
         self.floyd.reset()
-
         from ..commands.edge import ClearEdgesCommand
         edges = self.getEdges()
         command = ClearEdgesCommand(self, edges)
@@ -367,13 +345,21 @@ class Graph(QGraphicsScene):
 
 
 #----------------------------- Local Functions --------------------------------------#
-    def _showErrorDialog(self, title: string, message: str):
+    def _showErrorDialog(self, title: str, message: str):
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Warning)
         msg_box.setWindowTitle(title)
         msg_box.setText(message)
         msg_box.setStandardButtons(QMessageBox.Ok)
         msg_box.exec_()
+
+    def _showConfirmDialog(self, title: str, message: str):
+        confirm_box = QMessageBox()
+        confirm_box.setIcon(QMessageBox.Warning)
+        confirm_box.setWindowTitle(title)
+        confirm_box.setText(message)
+        confirm_box.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
+        return confirm_box.exec_()
 
     def showPath(self, start:Vertex = None, goal:Vertex = None):
         # Ensure start and goal are valid

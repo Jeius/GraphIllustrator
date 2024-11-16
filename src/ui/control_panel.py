@@ -7,7 +7,7 @@ class Ui_ControlPanel(QFrame):
     def __init__(self, parent):
         super().__init__(parent)
         self.setupUi(self)
-        
+
     def setupUi(self, ControlPanel):
         if not ControlPanel.objectName():
             ControlPanel.setObjectName(u"ControlPanel")
@@ -17,7 +17,6 @@ class Ui_ControlPanel(QFrame):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(ControlPanel.sizePolicy().hasHeightForWidth())
         ControlPanel.setSizePolicy(sizePolicy)
-        ControlPanel.setStyleSheet(u"")
         self.horizontalLayout = QHBoxLayout(ControlPanel)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
@@ -105,15 +104,16 @@ class Ui_ControlPanel(QFrame):
         self.clear_button.setObjectName(u"clear_button")
         self.clear_button.setMinimumSize(QSize(80, 30))
         self.clear_button.setMaximumSize(QSize(120, 16777215))
+        self.clear_button.setStyleSheet(u"QPushButton {background-color: #bf3434; color: white; border: 1px solid #70707c; padding: 5px 12px; border-radius: 5px;} QPushButton:hover {background-color: #d44b4b;}")
 
-        self.gridLayout_5.addWidget(self.clear_button, 1, 0, 1, 1)
+        self.gridLayout_5.addWidget(self.clear_button, 2, 0, 1, 1)
 
         self.clear_edges_button = QPushButton(self.delete_box)
         self.clear_edges_button.setObjectName(u"clear_edges_button")
         self.clear_edges_button.setMinimumSize(QSize(80, 30))
         self.clear_edges_button.setMaximumSize(QSize(120, 16777215))
 
-        self.gridLayout_5.addWidget(self.clear_edges_button, 2, 0, 1, 1)
+        self.gridLayout_5.addWidget(self.clear_edges_button, 1, 0, 1, 1)
 
 
         self.horizontalLayout.addWidget(self.delete_box)
@@ -133,7 +133,7 @@ class Ui_ControlPanel(QFrame):
         sizePolicy1.setHeightForWidth(self.tabs.sizePolicy().hasHeightForWidth())
         self.tabs.setSizePolicy(sizePolicy1)
         self.tabs.setMaximumSize(QSize(800, 16777215))
-        self.tabs.setStyleSheet(u"QFrame { border-radius: 5px; background-color: #3b3b3d} QPushButton, QLineEdit {background-color: #2b2b2c; border-color: #70707c;} QPushButton:hover { background-color: #3b3b3d;}")
+        self.tabs.setStyleSheet(u"QFrame { border-radius: 5px; background-color: #3b3b3d} QPushButton, QLineEdit {background-color: #2b2b2c; border-color: #70707c;} QPushButton:hover, QPushButton:checked { background-color: #545454;}")
         self.tabs.setMovable(True)
         self.directed_tab = QWidget()
         self.directed_tab.setObjectName(u"directed_tab")
@@ -259,7 +259,7 @@ class Ui_ControlPanel(QFrame):
         self.complement_button = QPushButton(self.complement_box)
         self.complement_button.setObjectName(u"complement_button")
         self.complement_button.setMinimumSize(QSize(0, 30))
-        self.complement_button.setChecked(False)
+        self.complement_button.setCheckable(True)
 
         self.verticalLayout.addWidget(self.complement_button)
 
@@ -280,7 +280,7 @@ class Ui_ControlPanel(QFrame):
     # setupUi
 
     def retranslateUi(self, ControlPanel):
-        ControlPanel.setWindowTitle(QCoreApplication.translate("ControlPanel", u"Frame", None))
+        ControlPanel.setWindowTitle(QCoreApplication.translate("ControlPanel", u"ControlPanel", None))
         self.add_box.setTitle(QCoreApplication.translate("ControlPanel", u"Add", None))
         self.id_type_label.setText(QCoreApplication.translate("ControlPanel", u"Vertex ID type:", None))
         self.id_type_combobox.setItemText(0, QCoreApplication.translate("ControlPanel", u"Integer", None))

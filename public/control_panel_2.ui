@@ -198,7 +198,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QPushButton" name="clear_button">
         <property name="minimumSize">
          <size>
@@ -212,12 +212,15 @@
           <height>16777215</height>
          </size>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {background-color: #bf3434; color: white; border: 1px solid #70707c; padding: 5px 12px; border-radius: 5px;} QPushButton:hover {background-color: #d44b4b;}</string>
+        </property>
         <property name="text">
          <string>Clear All</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="1" column="0">
        <widget class="QPushButton" name="clear_edges_button">
         <property name="minimumSize">
          <size>
@@ -261,7 +264,7 @@
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">QFrame { border-radius: 5px; background-color: #3b3b3d} QPushButton, QLineEdit {background-color: #2b2b2c; border-color: #70707c;} QPushButton:hover { background-color: #3b3b3d;}</string>
+      <string notr="true">QFrame { border-radius: 5px; background-color: #3b3b3d} QPushButton, QLineEdit {background-color: #2b2b2c; border-color: #70707c;} QPushButton:hover, QPushButton:checked { background-color: #545454;}</string>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -507,8 +510,8 @@
             <property name="text">
              <string>Show Complement</string>
             </property>
-            <property name="checked">
-             <bool>false</bool>
+            <property name="checkable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>

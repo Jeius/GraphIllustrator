@@ -64,6 +64,7 @@ class MyApp(QMainWindow):
         self.button_group.addButton(control_panel.add_edge_button)
         self.button_group.addButton(control_panel.delete_button)
         self.button_group.addButton(control_panel.edit_weight_button)
+        self.button_group.addButton(control_panel.complement_button)
         self.button_group.setExclusive(True)
     
     def _setupPathTable(self):
@@ -87,7 +88,7 @@ class MyApp(QMainWindow):
         control_panel.clear_button.clicked.connect(self.clearGraph)
         control_panel.clear_edges_button.clicked.connect(self.onClearEdgesClicked)
         control_panel.tabs.currentChanged.connect(self.setGraphType)
-        control_panel.complement_button.clicked.connect(self.getComplement)
+        control_panel.complement_button.toggled.connect(self.onComplementToggled)
         control_panel.floyd_radio.toggled.connect(self.setFloyd)
         control_panel.dijkstra_radio.toggled.connect(self.setDijkstra)
         control_panel.prim_radio.toggled.connect(self.setPrim)
@@ -183,9 +184,10 @@ class MyApp(QMainWindow):
         self.graph.findMCST()
         self.graph.emitSignal()
 
-    def getComplement(self):
-        self._unCheckButtonGroup()
-        self.graph.getComplement()
+    def onComplementToggled(self, is_toggled):
+        self.graph.getComplement(is_toggled)
+        if is_toggled:
+            self.ui.view.tool.done_button.show()
 
     def clearGraph(self):
         self.graph.clear()
