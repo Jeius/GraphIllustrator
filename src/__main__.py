@@ -111,6 +111,8 @@ class MyApp(QMainWindow):
         self.graph.is_adding_edge = adding_edge
         if adding_edge:
             self.ui.view.tool.done_button.show()
+        elif self.graph.adding_line in self.graph.items():
+            self.graph.removeItem(self.graph.adding_line)
 
     def setDeleting(self, deleting: bool):
         self.graph.clearSelection()

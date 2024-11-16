@@ -12,19 +12,17 @@ class AddEdgeCommand(Command):
         self.edge = edge
 
     def execute(self):
-        # Add the edge to the vertices
-        self.start_vertex.addEdge(self.edge)
-        self.end_vertex.addEdge(self.edge)
-        self.graph.addItem(self.edge)
-        
+        self.edge not in self.start_vertex.edges and self.start_vertex.addEdge(self.edge)
+        self.edge not in self.end_vertex.edges and self.end_vertex.addEdge(self.edge)
+        self.edge not in self.graph.items() and self.graph.addItem(self.edge)
         self.graph.emitSignal()
 
     def undo(self):
         self.edge.setHighlight(False)
         self.edge.setSelected(False)
-        self.start_vertex.removeEdge(self.edge)
-        self.end_vertex.removeEdge(self.edge)
-        self.graph.removeItem(self.edge)
+        self.edge in self.start_vertex.edges and self.start_vertex.removeEdge(self.edge)
+        self.edge in self.end_vertex.edges and self.end_vertex.removeEdge(self.edge)
+        self.edge in self.graph.items() and self.graph.removeItem(self.edge)
         self.graph.emitSignal()
 
 
@@ -44,13 +42,13 @@ class DeleteEdgeCommand(Command):
         self.edge.setSelected(False)
         self.edge in self.start_vertex.edges and self.start_vertex.removeEdge(self.edge)
         self.edge in self.end_vertex.edges and self.end_vertex.removeEdge(self.edge)
-        self.edge in self.graph.getEdges() and self.graph.removeItem(self.edge)
+        self.edge in self.graph.items() and self.graph.removeItem(self.edge)
         self.graph.emitSignal()
 
     def undo(self):
         self.edge not in self.start_vertex.edges and self.start_vertex.addEdge(self.edge)
         self.edge not in self.end_vertex.edges and self.end_vertex.addEdge(self.edge)
-        self.edge not in self.graph.getEdges() and self.graph.addItem(self.edge)
+        self.edge not in self.graph.items() and self.graph.addItem(self.edge)
         self.graph.emitSignal()
 
 
@@ -78,9 +76,9 @@ class ClearEdgesCommand(Command):
             edge.setSelected(False)
             
             # Remove the edge from both vertices and the graph
-            start_vertex.removeEdge(edge)
-            end_vertex.removeEdge(edge)
-            self.graph.removeItem(edge)
+            edge in start_vertex.edges and start_vertex.removeEdge(edge)
+            edge in end_vertex.edges and end_vertex.removeEdge(edge)
+            edge in self.graph.items() and self.graph.removeItem(edge)
         
         self.graph.emitSignal()
 
@@ -88,10 +86,10 @@ class ClearEdgesCommand(Command):
         # Re-add the edges and connect them back to their vertices
         for edge, start_vertex, end_vertex in self.removed_edges:
             # Add edge back to each vertex
-            start_vertex.addEdge(edge)
-            end_vertex.addEdge(edge)
+            edge not in start_vertex.edges and start_vertex.addEdge(edge)
+            edge not in end_vertex.edges and end_vertex.addEdge(edge)
             
             # Add the edge back to the scene/graph
-            self.graph.addItem(edge)
+            edge not in self.graph.items() and self.graph.addItem(edge)
         
         self.graph.emitSignal()

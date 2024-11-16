@@ -3,6 +3,7 @@ import string
 from typing import List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QPen
 
 
 
@@ -28,6 +29,8 @@ class Graph(QGraphicsScene):
         self.floyd = FloydWarshall()
         self.prim = Prim()
         self.kruskal = Kruskal()
+        self.adding_line = QGraphicsLineItem()
+        self.adding_line.setPen(QPen(Qt.black, 2))
 
         self.is_adding_vertex = False 
         self.is_adding_edge = False   
@@ -104,23 +107,35 @@ class Graph(QGraphicsScene):
         for item in selected_items:
             if isinstance(item, Vertex):
                 vertex = item
+                line = self.adding_line.line()
+
                 if len(selected_vertices) == 0:
                     selected_vertices.append(vertex)
+                    line.setP1(vertex.getPosition())
+                    line.setP2(vertex.getPosition())
+                    self.adding_line.setLine(line)
+
+                    if self.adding_line not in self.items():
+                        self.addItem(self.adding_line)
                 else:
                     start = selected_vertices.pop()
                     end = vertex
+
+                    line.setP1(end.getPosition())
+                    self.adding_line.setLine(line)
 
                     edge = Edge(start, end, self)
                     duplicate_edge = self.getDuplicate(edge)
 
                     if duplicate_edge:
+                        self.clearSelection()
                         return
 
                     from ..commands.edge import AddEdgeCommand
                     command = AddEdgeCommand(self, edge)
                     self.perform_action(command)
-
                     selected_vertices.append(end) 
+                    
 
     def genIdIndex(self):
         index = 0

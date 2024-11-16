@@ -11,14 +11,12 @@ class AddVertexCommand(Command):
         self.vertex = vertex
 
     def execute(self):
-        if self.vertex not in self.graph.getVertices():
-            self.graph.addItem(self.vertex)
-            self.graph.clearSelection()
+        self.vertex not in self.graph.items() and self.graph.addItem(self.vertex)
+        self.graph.clearSelection()
         self.graph.emitSignal()
 
     def undo(self):
-        if self.vertex in self.graph.getVertices():
-            self.graph.removeItem(self.vertex)
+        self.vertex in self.graph.items() and self.graph.removeItem(self.vertex)
         self.graph.emitSignal()
 
 
@@ -66,18 +64,14 @@ class DeleteVertexCommand(Command):
 
     def undo(self):
         # Re-add the vertex to the graph
-        if self.vertex not in self.graph.getVertices():
-            self.graph.addItem(self.vertex)
+        self.vertex not in self.graph.items() and self.graph.addItem(self.vertex)
 
         # Restore each previously removed edge
         for neighbor, edges in self.removed_edges:
             for edge in edges:
-                if edge not in neighbor.edges:
-                    neighbor.addEdge(edge)
-                if edge not in self.vertex.edges:
-                    self.vertex.addEdge(edge)
-                if edge not in self.graph.getEdges():
-                    self.graph.addItem(edge)
+                edge not in neighbor.edges and neighbor.addEdge(edge)
+                edge not in self.vertex.edges and self.vertex.addEdge(edge)
+                edge not in self.graph.items() and self.graph.addItem(edge)
 
         # Signal that the scene has reverted
         self.graph.emitSignal()
