@@ -64,19 +64,24 @@ class Graph(QGraphicsScene):
     def createAdjMatrix(self):
         vertices = self.getVertices()
         # Terminate the execution if there are no vertices
-        size = len(vertices)
-        if not size:
+        
+        if not self.getEdges():
             self.adjacencyMatrix.clear()
             return
 
-        # Intiallize matrix with infinities
-        self.adjacencyMatrix = [[math.inf for _ in range(size)] for _ in range(size)]  
+        n = len(vertices)
+        if self.is_directed_graph:
+            # Intiallize matrix with infinities
+            self.adjacencyMatrix = [[math.inf for _ in range(n)] for _ in range(n)]  
+        else: 
+            # Intiallize matrix with zeroes
+            self.adjacencyMatrix = [[0 for _ in range(n)] for _ in range(n)]  
 
         for vertex in vertices:
             for edge in vertex.edges:
                 if vertex == edge.getStart():
-                    start_index = vertices.index(edge.start_vertex)
-                    end_index = vertices.index(edge.end_vertex)
+                    start_index = vertices.index(vertex)
+                    end_index = vertices.index(edge.getOpposite(vertex))
                     
                     if edge.weight != math.inf:
                         if self.is_directed_graph:
@@ -241,6 +246,7 @@ class Graph(QGraphicsScene):
     def removeEdge(self, edge: Edge):
         self.dijkstra.reset()
         self.floyd.reset()
+
         from ..commands.edge import DeleteEdgeCommand
         command = DeleteEdgeCommand(self, edge)
         self.perform_action(command)
@@ -252,21 +258,19 @@ class Graph(QGraphicsScene):
         self.mcst = None
 
     def clear(self):
-        self.adjacencyMatrix.clear()
         self.dijkstra.reset()
         self.floyd.reset()
         super().clear()
         self.emitSignal()
         
     def clearEdges(self):
-        edges = self.getEdges()
-        for edge in edges:
-            edge.start_vertex.clearEdges()
-            edge.end_vertex.clearEdges()
-            self.removeEdge(edge)
         self.dijkstra.reset()
         self.floyd.reset()
-        self.emitSignal()
+
+        from ..commands.edge import ClearEdgesCommand
+        edges = self.getEdges()
+        command = ClearEdgesCommand(self, edges)
+        self.perform_action(command)
 
 
 
@@ -275,19 +279,23 @@ class Graph(QGraphicsScene):
     def findPath(self):
         try:
             self.undo_stack.clear()
-            vertices = self.getVertices()
+            
             matrix = self.adjacencyMatrix
 
             if self.is_using_floyd:
-                self.floyd.findPath(matrix, vertices)
+                self.floyd.findPath(matrix)
                 self.clearSelection()
 
             elif self.is_using_dijkstra:
+                vertices = self.getVertices()
                 selected_vertex = next((vertex for vertex in self.selectedItems() if isinstance(vertex, Vertex)), None)
+
                 if not selected_vertex:
                     raise Exception("No starting vertex selected")
                 
-                self.dijkstra.findPath(selected_vertex, matrix, vertices)
+                start_index = vertices.index(selected_vertex)
+                self.dijkstra.findPath(matrix, start_index)
+                
         except Exception as e:
             self._showErrorDialog("Invalid Action", str(e))
 
@@ -391,7 +399,7 @@ class Graph(QGraphicsScene):
 
                 path_edges.append(edge)
             
-            def glow(vertex: Vertex):
+            def animatePath(vertex: Vertex):
                 if vertex == start:
                     vertex.setHighlight(True, "start")
                 elif vertex == goal:
@@ -399,18 +407,14 @@ class Graph(QGraphicsScene):
                 else:
                     vertex.setSelected(True)
 
-            def transform(vertex: Vertex):
                 for edge in vertex.edges:
                     if edge in path_edges:
                         path_edges.remove(edge)
                         start_point = vertex.getPosition()
                         end_point = edge.getOpposite(vertex).getPosition()
                         edge.play(start_point, end_point)
-                        QTimer.singleShot(edge.anim_duration, lambda: animatePath(edge.getOpposite(vertex)))
-
-            def animatePath(vertex: Vertex):
-                glow(vertex)
-                QTimer.singleShot(0, lambda: transform(vertex))
+                        next = edge.getOpposite(vertex)
+                        QTimer.singleShot(edge.anim_duration, lambda: animatePath(next))
                         
             animatePath(start)
 

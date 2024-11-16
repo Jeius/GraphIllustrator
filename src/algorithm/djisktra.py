@@ -8,35 +8,27 @@ class Djisktra():
         from ..model.vertex import Vertex
         self.paths = {}
         self.distances = []
-        self.start_vertex = None
+        self.start_index = 0
 
-    def findPath(self, start: Union[Vertex, None], adjacencyMatrix: list[list[float]], vertices: list[Vertex]):
-        if not start:
-            raise Exception("Invalid or no starting vertex is specified.")
-        
+    def findPath(self, adjacencyMatrix: list[list[float]], start_index: int):
         if len(adjacencyMatrix) == 0:
             raise Exception("No edges found. Please add edges!")
         
-        if len(vertices) == 0:
-            raise Exception("Graph is empty. Please add vertices!")
+        self.start_index = start_index
 
-
-        self.start_vertex = start
-        startIndex = vertices.index(start)
-
-        n = len(vertices)
+        n = len(adjacencyMatrix)
         s = set()  # Processed vertices
         d = [math.inf] * n  # Distance array, initialize to infinity
-        d[startIndex] = 0  # Distance to the start vertex is 0
+        d[start_index] = 0  # Distance to the start vertex is 0
         predecessors = [None] * n  # Track predecessors to reconstruct paths
 
         # Step 2: Initialize D array with distances from start
         for i in range(n):
-            d[i] = adjacencyMatrix[startIndex][i] if i != startIndex else 0
-            if adjacencyMatrix[startIndex][i] < math.inf:
-                predecessors[i] = startIndex  # Direct connection to start
+            d[i] = adjacencyMatrix[start_index][i] if i != start_index else 0
+            if adjacencyMatrix[start_index][i] < math.inf:
+                predecessors[i] = start_index  # Direct connection to start
 
-        s.add(startIndex)  # Step 7: Add start vertex to S
+        s.add(start_index)  # Step 7: Add start vertex to S
 
         # Repeat for all vertices
         for _ in range(n - 1):
@@ -57,7 +49,7 @@ class Djisktra():
                         predecessors[v] = w  # Update predecessor of v
 
         # Build paths from predecessors array
-        self.paths = self._buildPath(predecessors, startIndex)
+        self.paths = self._buildPath(predecessors, start_index)
         self.distances = d
         return self.paths
 

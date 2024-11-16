@@ -7,15 +7,12 @@ class FloydWarshall:
         self.paths = {}
         self.distances = []
 
-    def findPath(self, adjacencyMatrix: list[list[float]], vertices: list[Vertex]):
-        if len(adjacencyMatrix) == 0:
+    def findPath(self, adjacencyMatrix: list[list[float]]):
+        if not adjacencyMatrix:
             raise Exception("No edges found. Please add edges!")
-        
-        if len(vertices) == 0:
-            raise Exception("Graph is empty. Please add vertices!")
-        
 
-        n = len(vertices)
+
+        n = len(adjacencyMatrix)
         # Initialize the distance and predecessor matrices
         d = [[math.inf] * n for _ in range(n)]
         predecessors = [[None] * n for _ in range(n)]
@@ -38,14 +35,13 @@ class FloydWarshall:
                         predecessors[i][j] = predecessors[k][j]
 
         # Step 3: Build paths from predecessor matrix
-        self.paths = self._buildPaths(predecessors, vertices)
+        self.paths = self._buildPaths(predecessors, n)
         self.distances = d
         return self.paths
 
-    def _buildPaths(self, predecessors: list[list[int]], vertices: list[Vertex]):
+    def _buildPaths(self, predecessors: list[list[int]], n: int):
         paths = {}
-        n = len(vertices)
-
+        
         for i in range(n):
             for j in range(n):
                 if i != j and predecessors[i][j] is not None:

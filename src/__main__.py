@@ -269,17 +269,20 @@ class MyApp(QMainWindow):
             self.ui.info_panel.path_table_widget.show()
         else:
             self.ui.info_panel.path_table_widget.hide()
-
-        vertices = self.graph.getVertices()
     
         # Clear the table first
         path_table.setRowCount(0)
+
+        if not self.graph.getEdges():
+            return
+
+        vertices = self.graph.getVertices()
 
         # Get paths, distances, and vertices based on the algorithm
         if self.graph.is_using_dijkstra:
             paths = self.graph.dijkstra.paths
             distances = self.graph.dijkstra.distances
-            start_vertex = self.graph.dijkstra.start_vertex
+            start_vertex = vertices[self.graph.dijkstra.start_index]
             rows = len(vertices) - 1 if vertices else 0
 
         elif self.graph.is_using_floyd:

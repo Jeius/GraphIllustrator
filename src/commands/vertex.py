@@ -13,6 +13,7 @@ class AddVertexCommand(Command):
     def execute(self):
         if self.vertex not in self.graph.getVertices():
             self.graph.addItem(self.vertex)
+            self.graph.clearSelection()
         self.graph.emitSignal()
 
     def undo(self):
@@ -44,6 +45,10 @@ class DeleteVertexCommand(Command):
             for neighbor_edge in neighbor.edges.copy():
                 if neighbor_edge.getOpposite(neighbor) == self.vertex:
                     edges_to_be_removed.append(neighbor_edge)
+                    
+                    neighbor_edge.setHighlight(False)
+                    neighbor_edge.setSelected(False)
+
                     neighbor.removeEdge(neighbor_edge)
                     self.graph.removeItem(neighbor_edge)
 
@@ -52,6 +57,8 @@ class DeleteVertexCommand(Command):
 
         # Remove the vertex itself from the graph
         if self.vertex in self.graph.getVertices():
+            self.vertex.setHighlight(False)
+            self.vertex.setSelected(False)
             self.graph.removeItem(self.vertex)
 
         # Signal that the scene has changed
