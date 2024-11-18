@@ -1,15 +1,19 @@
 from .model import Command
 
-class AddEdgeCommand(Command):
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
     from ..model.vertex import Vertex
     from ..model.edge import Edge
     from ..model.graph import Graph
 
-    def __init__(self, graph: Graph, edge: Edge):
-        self.graph = graph
-        self.start_vertex = edge.start_vertex
-        self.end_vertex = edge.end_vertex
-        self.edge = edge
+
+class AddEdgeCommand(Command):
+    def __init__(self, graph, edge):
+        self.graph: Graph = graph
+        self.edge: Edge = edge
+        self.start_vertex = self.edge.start_vertex
+        self.end_vertex = self.edge.end_vertex
+        
 
     def execute(self):
         self.edge not in self.start_vertex.edges and self.start_vertex.addEdge(self.edge)
@@ -27,15 +31,11 @@ class AddEdgeCommand(Command):
 
 
 class DeleteEdgeCommand(Command):
-    from ..model.vertex import Vertex
-    from ..model.edge import Edge
-    from ..model.graph import Graph
-
-    def __init__(self, graph: Graph, edge: Edge):
-        self.graph = graph
-        self.start_vertex = edge.start_vertex
-        self.end_vertex = edge.end_vertex
-        self.edge = edge
+    def __init__(self, graph, edge):
+        self.graph: Graph = graph
+        self.edge: Edge = edge
+        self.start_vertex = self.edge.start_vertex
+        self.end_vertex = self.edge.end_vertex
 
     def execute(self):
         self.edge.setHighlight(False)
@@ -53,15 +53,9 @@ class DeleteEdgeCommand(Command):
 
 
 class ClearEdgesCommand(Command):
-    from ..model.edge import Edge
-    from ..model.graph import Graph
-
-    def __init__(self, graph: Graph, edges: list[Edge]):
-        from ..model.vertex import Vertex
-        from ..model.edge import Edge
-
-        self.graph = graph
-        self.edges = edges
+    def __init__(self, graph, edges):
+        self.graph: Graph = graph
+        self.edges: list[Edge] = edges
         # Store the removed edges along with their start and end vertices
         self.removed_edges: list[tuple[Edge, Vertex, Vertex]] = []
 

@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QButtonGroup, QTableWidge
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 
-from .ui.main_window import Ui_MainWindow
-from .model.graph import Graph
+from src.ui import Ui_MainWindow
+from src.model import Graph
 
 def getFilePath(path):
     """Constructs the file path based on the running environment."""

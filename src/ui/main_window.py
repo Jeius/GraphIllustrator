@@ -2,9 +2,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from .workspace import Workspace
-from .info_panel import Ui_InfoPanel
-from .control_panel import Ui_ControlPanel
+from src.ui import Ui_ControlPanel, Ui_InfoPanel, Workspace
 
 
 class Ui_MainWindow():

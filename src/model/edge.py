@@ -4,6 +4,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.model import Graph, Vertex 
+
 def getFilePath(path):
     """Constructs the file path based on the running environment."""
     if getattr(sys, 'frozen', False):  # PyInstaller bundled executable
@@ -22,8 +26,6 @@ def loadIcon(path):
     return QIcon(file_path)
 
 class Edge(QGraphicsPathItem):
-    from .vertex import Vertex
-
     COLORS = {
             "highlight": QColor("#42ffd9"),
             "default": QColor("black"),
@@ -31,12 +33,10 @@ class Edge(QGraphicsPathItem):
             "transparent": QColor("transparent")
         }
     
-    def __init__(self, start: Vertex, end: Vertex, parent):
+    def __init__(self, start, end, parent):
         super().__init__()
-
-        from .graph import Graph
-        self.start_vertex = start
-        self.end_vertex = end
+        self.start_vertex: Vertex = start
+        self.end_vertex: Vertex = end
         self.weight = math.inf
         self.graph: Graph = parent
         self.default_pen = QPen(self.COLORS['default'], 2) 

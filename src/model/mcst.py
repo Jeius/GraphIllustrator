@@ -1,15 +1,18 @@
 import math
 from PyQt5.QtCore import QTimer
 
-from ..algorithm.prim import Prim
-from ..algorithm.kruskal import Kruskal
+from src.algorithm import Prim, Kruskal
 
-class MinimumCostSpanningTree():
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
     from .graph import Graph
+    from .edge import Edge    
     from .vertex import Vertex
 
-    def __init__(self, graph: Graph):
-        self.graph = graph
+
+class MinimumCostSpanningTree():
+    def __init__(self, graph):
+        self.graph: Graph = graph
         self.prim = Prim()
         self.kruskal = Kruskal()
         self.vertices = []
@@ -19,9 +22,6 @@ class MinimumCostSpanningTree():
         self.total_cost = None
 
     def show(self):
-        from ..model.vertex import Vertex
-        from ..model.edge import Edge
-
         self.vertices = self.graph.getVertices()
         self.vertex_edges_backup = {vertex: list(vertex.edges) for vertex in self.vertices}
         self.original_edges = list(self.graph.getEdges())
@@ -97,13 +97,11 @@ class MinimumCostSpanningTree():
 
         self.vertex_edges_backup.clear()
     
-    def animate(self, vertex: Vertex):
-        from ..model.vertex import Vertex
-        from ..model.edge import Edge
+    def animate(self, vertex):
         edge_queue: list[tuple[Vertex, Edge]] = []
         visited_vertices = set()
         
-        def enqueue_edges(vertex: Vertex):
+        def enqueue_edges(vertex):
             # Check if edge is already part of any tuple in edge_queue
             queued_edges = [queued_edge for _, queued_edge in edge_queue]
             for edge in vertex.edges:

@@ -1,16 +1,16 @@
-class ComplementGraph():
-    from .graph import Graph
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.model import Graph, Edge    
 
-    def __init__(self, graph: Graph):
-        self.graph = graph
+class ComplementGraph():
+    def __init__(self, graph):
+        self.graph: Graph = graph
         self.vertices = []
         self.original_edges = []          # All original edges in the graph
         self.vertex_edges_backup = {}      # Dictionary to store original edges per vertex
         self.complement_edges = []         # New edges created for the complement
 
-    def show(self):
-        from .edge import Edge       
-
+    def show(self):   
         self.vertices = self.graph.getVertices()
         self.original_edges  = self.graph.getEdges() 
         self.vertex_edges_backup = {vertex: list(vertex.edges) for vertex in self.vertices}

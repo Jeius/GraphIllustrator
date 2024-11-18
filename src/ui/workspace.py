@@ -2,8 +2,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import QGraphicsView, QWidget, QGraphicsLineItem
 
-from ..model.graph import Graph
 from ..ui.tool import Ui_Tool
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.model import Graph
+
 
 class Workspace(QGraphicsView):
     def __init__(self, parent: QWidget):
@@ -40,8 +43,8 @@ class Workspace(QGraphicsView):
         """)
         
 
-    def setScene(self, scene: Graph):
-        self.graph = scene
+    def setScene(self, scene):
+        self.graph: Graph = scene
         self.graph.setSceneRect(0, 0, 1280, 840)
         return super().setScene(scene)
     

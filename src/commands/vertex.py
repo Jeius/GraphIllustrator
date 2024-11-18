@@ -1,14 +1,15 @@
-from PyQt5.QtCore import QPointF
-
 from .model import Command
 
-class AddVertexCommand(Command):
-    from ..model.graph import Graph
-    from ..model.vertex import Vertex
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.model import Graph, Edge, Vertex
 
-    def __init__(self, graph: Graph, vertex: Vertex):
-        self.graph = graph
-        self.vertex = vertex
+
+
+class AddVertexCommand(Command):
+    def __init__(self, graph, vertex):
+        self.graph: Graph = graph
+        self.vertex: Vertex = vertex
 
     def execute(self):
         self.vertex not in self.graph.items() and self.graph.addItem(self.vertex)
@@ -21,15 +22,9 @@ class AddVertexCommand(Command):
 
 
 class DeleteVertexCommand(Command):
-    from ..model.graph import Graph
-    from ..model.vertex import Vertex
-
-    def __init__(self, graph: Graph, vertex: Vertex):
-        from ..model.edge import Edge
-        from ..model.vertex import Vertex
-
-        self.graph = graph
-        self.vertex = vertex
+    def __init__(self, graph, vertex):
+        self.graph: Graph = graph
+        self.vertex: Vertex = vertex
         # Store each neighbor and their edges that connect to the vertex being removed
         self.removed_edges: list[tuple[Vertex, list[Edge]]] = []
 
