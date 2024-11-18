@@ -1,7 +1,7 @@
 # Graph Illustrator
-## An activity of
-## Julius P. Pahama in
-## ITE112 - Algorithmic Graph Theory
+### An activity of
+### Julius P. Pahama in
+### ITE112 - Algorithmic Graph Theory
 
 Graph Illustrator is a Python-based tool that allows you to visually explore and interact with graph algorithms, including Prim's, Kruskal's, Dijkstra's, and Floyd's algorithms. 
 It supports directed and undirected graphs, and provides functionality for displaying the complement of a graph. 
