@@ -5,7 +5,6 @@ if TYPE_CHECKING:
     from src.model import Graph, Edge, Vertex
 
 
-
 class AddVertexCommand(Command):
     def __init__(self, graph, vertex):
         self.graph: Graph = graph

@@ -1,18 +1,16 @@
 import math
 import sys, os
-from typing import List
+from typing import List, TYPE_CHECKING
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPen, QIcon
 
 
+from src.algorithm import Djisktra, FloydWarshall
+from src.commands import *
 
-from ..commands.model import Command
-
-from .vertex import Vertex
-from .edge import Edge
-from ..algorithm.djisktra import Djisktra
-from ..algorithm.floyd import FloydWarshall
+if TYPE_CHECKING:
+    from src.model import Vertex, Edge
 
 def getFilePath(path):
     """Constructs the file path based on the running environment."""
@@ -37,12 +35,10 @@ class Graph(QGraphicsScene):
     graphChanged = pyqtSignal()
 
     def __init__(self):
+        from src.model import ComplementGraph, MinimumCostSpanningTree
+
         super().__init__()
-
-        from .complement import ComplementGraph
-        from .mcst import MinimumCostSpanningTree
-
-        self.selected_vertices: List[Vertex] = []   # List of the selected vertices
+        self.selected_vertices: List['Vertex'] = []   # List of the selected vertices
         self.adj_matrix: list[list[float]] = []     # Adjacency matrix
         
         self.dijkstra = Djisktra()
@@ -81,7 +77,6 @@ class Graph(QGraphicsScene):
         adjusted_position = QPointF(position.x() - radius, position.y() - radius)
         vertex.setPos(adjusted_position)
 
-        from ..commands.vertex import AddVertexCommand
         command = AddVertexCommand(self, vertex)
         self.perform_action(command)
     
@@ -144,7 +139,7 @@ class Graph(QGraphicsScene):
         self.is_directed_graph = is_directed
         self.emitSignal()
 
-    def setCurvedEdge(self, edge:Edge):
+    def setCurvedEdge(self, edge:'Edge'):
         start = edge.getStart()
         end = edge.getOpposite(start)
         opposite_edge = Edge(end, start, self)
@@ -202,7 +197,7 @@ class Graph(QGraphicsScene):
         self.undo_stack.clear()
         self.emitSignal()
 
-    def getDuplicate(self, new_edge: Edge):
+    def getDuplicate(self, new_edge: 'Edge'):
         edges = self.getEdges()
         for edge in edges:
             if new_edge == edge:
@@ -212,15 +207,13 @@ class Graph(QGraphicsScene):
 
 
 #--------------------------- Delete ---------------------------------------------#
-    def removeVertex(self, vertex: Vertex):
+    def removeVertex(self, vertex: 'Vertex'):
         self.resetPaths()
-        from ..commands.vertex import DeleteVertexCommand
         command = DeleteVertexCommand(self, vertex)
         self.perform_action(command)
 
-    def removeEdge(self, edge: Edge):
+    def removeEdge(self, edge: 'Edge'):
         self.resetPaths()
-        from ..commands.edge import DeleteEdgeCommand
         command = DeleteEdgeCommand(self, edge)
         self.perform_action(command)
 
@@ -239,7 +232,6 @@ class Graph(QGraphicsScene):
         
     def clearEdges(self):
         self.resetPaths()
-        from ..commands.edge import ClearEdgesCommand
         edges = self.getEdges()
         command = ClearEdgesCommand(self, edges)
         self.perform_action(command)
@@ -319,7 +311,7 @@ class Graph(QGraphicsScene):
         if self.indicator_line in self.items():
             self.removeItem(self.indicator_line)
 
-    def _initializeEdgeLine(self, selected_vertex: Vertex):
+    def _initializeEdgeLine(self, selected_vertex: 'Vertex'):
         """Initialize the edge line with the starting vertex."""
         line = self.indicator_line.line()
         self.selected_vertices.append(selected_vertex)
@@ -327,7 +319,7 @@ class Graph(QGraphicsScene):
         line.setP2(selected_vertex.getPosition())
         self.indicator_line.setLine(line)
 
-    def _finalizeEdge(self, selected_vertex: Vertex):
+    def _finalizeEdge(self, selected_vertex: 'Vertex'):
         """Finalize edge creation and add it to the scene."""
         start = self.selected_vertices.pop()
         end = selected_vertex
@@ -340,13 +332,12 @@ class Graph(QGraphicsScene):
             self.clearSelection()
             return
 
-        from ..commands.edge import AddEdgeCommand
         command = AddEdgeCommand(self, edge)
         self.perform_action(command)
         self.selected_vertices.append(end)
 
 
-    def showPath(self, start:Vertex = None, goal:Vertex = None):
+    def showPath(self, start:'Vertex' = None, goal:'Vertex' = None):
         # Ensure start and goal are valid
         if not start or not goal:
             return
@@ -372,18 +363,18 @@ class Graph(QGraphicsScene):
         elif self.is_using_dijkstra:
             path = list(paths[vertices.index(goal)])
 
-        path_edges: list[Edge] = []
+        path_edges: list['Edge'] = []
 
         while len(path) > 1:
-            section_start: Vertex = vertices[path.pop(0)]
-            section_end: Vertex = vertices[path[0]]
+            section_start: 'Vertex' = vertices[path.pop(0)]
+            section_end: 'Vertex' = vertices[path[0]]
             edge = self.getDuplicate(Edge(section_start, section_end, self))
             if edge is None:
                 continue
 
             path_edges.append(edge)
         
-        def animatePath(vertex: Vertex):
+        def animatePath(vertex: 'Vertex'):
             if vertex == start:
                 vertex.setHighlight(True, "start")
             elif vertex == goal:
@@ -424,7 +415,7 @@ class Graph(QGraphicsScene):
             if self.is_directed_graph:
                 self.setCurvedEdge(edge)
 
-    def perform_action(self, command: Command):
+    def perform_action(self, command: 'Command'):
         command.execute()
         self.undo_stack.append(command)
         self.redo_stack.clear() 

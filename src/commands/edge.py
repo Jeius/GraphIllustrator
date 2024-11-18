@@ -2,9 +2,7 @@ from .model import Command
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from ..model.vertex import Vertex
-    from ..model.edge import Edge
-    from ..model.graph import Graph
+    from src.model import Graph, Edge, Vertex
 
 
 class AddEdgeCommand(Command):

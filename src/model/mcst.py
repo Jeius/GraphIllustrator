@@ -3,15 +3,10 @@ from PyQt5.QtCore import QTimer
 
 from src.algorithm import Prim, Kruskal
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from .graph import Graph
-    from .edge import Edge    
-    from .vertex import Vertex
-
-
 class MinimumCostSpanningTree():
     def __init__(self, graph):
+        from src.model import Graph
+
         self.graph: Graph = graph
         self.prim = Prim()
         self.kruskal = Kruskal()
@@ -22,6 +17,8 @@ class MinimumCostSpanningTree():
         self.total_cost = None
 
     def show(self):
+        from src.model import Edge, Vertex
+
         self.vertices = self.graph.getVertices()
         self.vertex_edges_backup = {vertex: list(vertex.edges) for vertex in self.vertices}
         self.original_edges = list(self.graph.getEdges())
@@ -98,6 +95,8 @@ class MinimumCostSpanningTree():
         self.vertex_edges_backup.clear()
     
     def animate(self, vertex):
+        from src.model import Edge, Vertex
+
         edge_queue: list[tuple[Vertex, Edge]] = []
         visited_vertices = set()
         

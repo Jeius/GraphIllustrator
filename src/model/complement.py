@@ -1,10 +1,12 @@
+from src.model import Edge
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from src.model import Graph, Edge    
+    from src.model import Graph
+
 
 class ComplementGraph():
-    def __init__(self, graph):
-        self.graph: Graph = graph
+    def __init__(self, graph: 'Graph'):
+        self.graph = graph
         self.vertices = []
         self.original_edges = []          # All original edges in the graph
         self.vertex_edges_backup = {}      # Dictionary to store original edges per vertex
