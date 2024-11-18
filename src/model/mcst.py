@@ -1,3 +1,4 @@
+import math
 from PyQt5.QtCore import QTimer
 
 from ..algorithm.prim import Prim
@@ -28,7 +29,18 @@ class MinimumCostSpanningTree():
         selected_vertex = next((vertex for vertex in self.graph.selectedItems() if isinstance(vertex, Vertex)), None)
 
         if not selected_vertex:
-            raise Exception("No starting vertex selected")
+            raise Exception("No starting vertex selected.")
+        
+        for vertex in self.vertices:
+            if not vertex.edges:
+                raise Exception("MCST cannot be formed. Not all vertices are connected.")
+            
+        for edge in self.original_edges:
+            if edge.weight == math.inf:
+                raise Exception("MCST cannot be formed. Not all edges have weight.")
+            
+        if len(self.original_edges) < len(self.vertices):
+            raise Exception("Graph is already a spanning tree.")
         
         start = self.vertices.index(selected_vertex)
 
@@ -38,7 +50,7 @@ class MinimumCostSpanningTree():
             result: list[tuple[int, int, int]] = self.kruskal.MCST(matrix)
 
         if not result:
-            raise Exception("MCST cannot be formed if not all nodes are connected.")
+            raise Exception("MCST cannot be formed. Invalid graph.")
 
         self.total_cost = 0
 

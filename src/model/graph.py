@@ -261,13 +261,21 @@ class Graph(QGraphicsScene):
             self.undo_stack.clear()
             
             matrix = self.adjacencyMatrix
+            vertices = self.getVertices()
+
+            for vertex in vertices:
+                if not vertex.edges:
+                    raise Exception("Not all vertices are connected.")
+            
+            for edge in self.getEdges():
+                if edge.weight == math.inf:
+                    raise Exception("Not all edges have weight.")
 
             if self.is_using_floyd:
                 self.floyd.findPath(matrix)
                 self.clearSelection()
 
             elif self.is_using_dijkstra:
-                vertices = self.getVertices()
                 selected_vertex = next((vertex for vertex in self.selectedItems() if isinstance(vertex, Vertex)), None)
 
                 if not selected_vertex:
@@ -277,7 +285,7 @@ class Graph(QGraphicsScene):
                 self.dijkstra.findPath(matrix, start_index)
                 
         except Exception as e:
-            self._showErrorDialog("Invalid Action", str(e))
+            self._showErrorDialog("Path Finding Failed", str(e))
 
     def findMCST(self, is_finding_mcst):
         self.undo_stack.clear()
@@ -312,10 +320,6 @@ class Graph(QGraphicsScene):
         if not start or not goal:
             return
         
-        # Unhighlight all items first
-        self.setHighlightItems(False)
-        self.clearSelection()
-
         vertices = self.getVertices()
 
         # Get paths based on algorithm choice
@@ -326,6 +330,10 @@ class Graph(QGraphicsScene):
 
         if not paths:
             return
+
+        # Unhighlight all items first
+        self.setHighlightItems(False)
+        self.clearSelection()
 
         # Retrieve path from start to goal
         if self.is_using_floyd:
@@ -338,7 +346,7 @@ class Graph(QGraphicsScene):
         while len(path) > 1:
             section_start: Vertex = vertices[path.pop(0)]
             section_end: Vertex = vertices[path[0]]
-            edge = self.getDuplicate(Edge(section_start, section_end, self)) # Get the original edge
+            edge = self.getDuplicate(Edge(section_start, section_end, self))
             if edge is None:
                 continue
 
