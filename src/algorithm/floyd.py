@@ -1,8 +1,6 @@
 import math
 
 class FloydWarshall:
-    from ..model.vertex import Vertex
-
     def __init__(self) -> None:
         self.paths = {}
         self.distances = []

@@ -1,11 +1,7 @@
 import math
-from typing import Union
 
 class Djisktra():
-    from ..model.vertex import Vertex
-
     def __init__(self) -> None:
-        from ..model.vertex import Vertex
         self.paths = {}
         self.distances = []
         self.start_index = 0
