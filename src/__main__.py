@@ -39,7 +39,14 @@ def loadStylesheet(path):
 
 
 class MyApp(QMainWindow):
+    """
+    Main application class for the Graph Illustrator GUI.
+
+    This class initializes the main window, sets up UI components, and manages interactions
+    with the graphical view and control panels for manipulating a graph visualization.
+    """
     def __init__(self):
+        """Initializes the main window and configures its UI elements, styles, and icon."""
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -56,6 +63,11 @@ class MyApp(QMainWindow):
         self._setupConnections()
         
     def _setupButtonGroup(self):
+        """
+        Sets up a button group for mutually exclusive tool selection in the control panel.
+        
+        This ensures that only one action (e.g., add vertex, add edge) can be active at a time.
+        """
         control_panel = self.ui.control_panel
 
         self.button_group = QButtonGroup(self)
@@ -68,6 +80,11 @@ class MyApp(QMainWindow):
         self.button_group.setExclusive(True)
     
     def _setupPathTable(self):
+        """
+        Configures the path table in the info panel to display graph path information.
+
+        Sets column headers, enables column resizing, and connects row click events for path display.
+        """
         path_table = self.ui.info_panel.path_table
 
         horizontalHeaders = ["Start", "Goal", "Distance"]
@@ -79,6 +96,12 @@ class MyApp(QMainWindow):
         path_table.verticalHeader().sectionClicked.connect(self.onTableRowClicked)
 
     def _setupConnections(self):
+        """
+        Establishes signal-slot connections between UI controls and relevant functions.
+
+        Connects UI buttons and controls to methods that perform graph-related actions,
+        such as toggling vertex/edge addition, deleting, changing graph algorithms, and clearing graph data.
+        """
         control_panel = self.ui.control_panel
         control_panel.add_vertex_button.toggled.connect(self.setAddingVertex)
         control_panel.add_edge_button.toggled.connect(self.setAddingEdge)
@@ -104,6 +127,12 @@ class MyApp(QMainWindow):
 
 #-------------------------------- Slots ------------------------------------#
     def setAddingVertex(self, adding_vertex: bool):
+        """
+        Activates or deactivates vertex addition mode in the graph.
+
+        Parameters:
+            adding_vertex (bool): Whether to enable vertex addition mode.
+        """
         self.graph.clearSelection()
         self.graph.is_adding_vertex = adding_vertex
         if adding_vertex:
@@ -111,6 +140,12 @@ class MyApp(QMainWindow):
             self.ui.view.tool.done_button.show()
 
     def setAddingEdge(self, adding_edge: bool):
+        """
+        Activates or deactivates edge addition mode in the graph.
+
+        Parameters:
+            adding_edge (bool): Whether to enable edge addition mode.
+        """
         self.graph.clearSelection()
         self.graph.is_adding_edge = adding_edge
         if adding_edge:
@@ -120,6 +155,7 @@ class MyApp(QMainWindow):
             self.graph.removeItem(self.graph.indicator_line)
 
     def setDeleting(self, deleting: bool):
+        """Enables or disables deletion mode for vertices or edges in the graph."""
         self.graph.clearSelection()
         self.graph.is_deleting = deleting
         if deleting:
@@ -127,6 +163,7 @@ class MyApp(QMainWindow):
             self.ui.view.tool.done_button.show()
 
     def setEditWeight(self, editing: bool):
+        """Enables or disables edge weight editing mode in the graph."""
         self.graph.clearSelection()
         self.graph.is_editing_weight = editing
         if editing:
@@ -134,6 +171,12 @@ class MyApp(QMainWindow):
             self.ui.view.tool.done_button.show()
 
     def setIdType(self, index: int):
+        """
+        Sets the ID type (integer or string) for vertices in the graph.
+
+        Parameters:
+            index (int): Index of the ID type selection (0 for integer, other for string).
+        """
         self.graph.clearSelection()
         if index == 0:
             self.graph.is_id_int = True
@@ -142,6 +185,12 @@ class MyApp(QMainWindow):
         self.graph.emitSignal()
     
     def setGraphType(self, index: int):
+        """
+        Configures the graph as directed or undirected based on the selected tab.
+
+        Parameters:
+            index (int): Index of the selected tab (0 for directed, other for undirected).
+        """
         self._unCheckButtonGroup()
         self.graph.clearEdges()
 
@@ -151,6 +200,12 @@ class MyApp(QMainWindow):
             self.graph.setDirectedGraph(False)
 
     def onTableRowClicked(self, index: int):
+        """
+        Handles path table row clicks to display paths between selected vertices.
+
+        Parameters:
+            index (int): Index of the clicked row in the path table.
+        """
         try:
             path_table = self.ui.info_panel.path_table
             vertices = self.graph.getVertices()
@@ -169,6 +224,7 @@ class MyApp(QMainWindow):
             self.graph._showErrorDialog(title="Invalid Path", message="No path found.")
     
     def onMCSTToggled(self, is_toggled):
+        """Finds and displays the Minimum Cost Spanning Tree (MCST) based on the toggle state."""
         try:
             self.graph.findMCST(is_toggled)
             if is_toggled:
@@ -181,19 +237,23 @@ class MyApp(QMainWindow):
             self.graph._showErrorDialog("Invalid Action", str(e))
 
     def onComplementToggled(self, is_toggled):
+        """Displays or hides the complement of the graph based on toggle state."""
         self.graph.getComplement(is_toggled)
         if is_toggled:
             self.ui.view.tool.done_button.show()
 
     def clearGraph(self):
+        """Clears all vertices and edges from the graph."""
         self.graph.clear()
 
     def onPathButtonClicked(self):
+        """Finds and displays paths in the graph."""
         self.graph.findPath()
         self._updatePathTable()
         self._unCheckButtonGroup()
 
     def onRevertButtonClicked(self):
+        """Reverts the graph to the previous state."""
         self.graph.revert()
         self._unCheckButtonGroup()
         self.ui.view.tool.revert_button.hide()
@@ -201,6 +261,7 @@ class MyApp(QMainWindow):
             self.ui.info_panel.path_table.clearSelection()
 
     def onClearEdgesClicked(self):
+        """Removes all edges from the graph."""
         self.graph.clearEdges()
 
 
