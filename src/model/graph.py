@@ -1,9 +1,9 @@
 import math
-import string
+import sys, os
 from typing import List
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QPen
+from PyQt5.QtGui import QPen, QIcon
 
 
 
@@ -13,6 +13,24 @@ from .vertex import Vertex
 from .edge import Edge
 from ..algorithm.djisktra import Djisktra
 from ..algorithm.floyd import FloydWarshall
+
+def getFilePath(path):
+    """Constructs the file path based on the running environment."""
+    if getattr(sys, 'frozen', False):  # PyInstaller bundled executable
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # Move up one level
+    return os.path.join(base_path, path)
+
+def loadIcon(path):
+    file_path = getFilePath(path)
+
+    if not os.path.exists(file_path):
+        print(f"Icon file not found: {file_path}")
+        return QIcon()
+
+    return QIcon(file_path)
+
 
 class Graph(QGraphicsScene):
     DIAMETER = 30
@@ -25,7 +43,7 @@ class Graph(QGraphicsScene):
         from .mcst import MinimumCostSpanningTree
 
         self.selected_vertices: List[Vertex] = []   # List of the selected vertices
-        self.adjacencyMatrix: list[list[float]] = []     # Adjacency matrix
+        self.adj_matrix: list[list[float]] = []     # Adjacency matrix
         
         self.dijkstra = Djisktra()
         self.floyd = FloydWarshall()
@@ -57,7 +75,7 @@ class Graph(QGraphicsScene):
 #------------------------------ Creators ----------------------------------------------------------#
     def createVertex(self, position: QPointF):
         diameter = self.DIAMETER
-        id = self.genIdIndex()  
+        id = self.genNextId()  
         vertex = Vertex(id, diameter, self)
         radius = diameter / 2
         adjusted_position = QPointF(position.x() - radius, position.y() - radius)
@@ -69,15 +87,14 @@ class Graph(QGraphicsScene):
     
     def createAdjMatrix(self):
         vertices = self.getVertices()
-        # Terminate the execution if there are no vertices
         
         if not self.getEdges():
-            self.adjacencyMatrix.clear()
+            self.adj_matrix.clear()
             return
 
-        n = len(vertices)
+        number_of_vertices = len(vertices)
         # Intiallize matrix with infinities
-        self.adjacencyMatrix = [[math.inf for _ in range(n)] for _ in range(n)]  
+        self.adj_matrix = [[math.inf for _ in range(number_of_vertices)] for _ in range(number_of_vertices)]  
 
         for vertex in vertices:
             for edge in vertex.edges:
@@ -87,57 +104,32 @@ class Graph(QGraphicsScene):
                     
                     if edge.weight != math.inf:
                         if self.is_directed_graph:
-                            self.adjacencyMatrix[start_index][end_index] = edge.weight
+                            self.adj_matrix[start_index][end_index] = edge.weight
                         else:
-                            self.adjacencyMatrix[start_index][end_index] = edge.weight
-                            self.adjacencyMatrix[end_index][start_index] = edge.weight
+                            self.adj_matrix[start_index][end_index] = edge.weight
+                            self.adj_matrix[end_index][start_index] = edge.weight
             
-                    self.adjacencyMatrix[start_index][start_index] = 0
-                    self.adjacencyMatrix[end_index][end_index] = 0               
+                    self.adj_matrix[start_index][start_index] = 0
+                    self.adj_matrix[end_index][end_index] = 0               
 
-    def createEdge(self,):
-        line = self.indicator_line.line()
-        selected_vertex = next((vertex for vertex in self.selectedItems() if isinstance(vertex, Vertex)), None)
+    def createEdge(self):
+        selected_vertex = self._getSelectedVertex()
         if not selected_vertex:
-            self.selected_vertices.clear()
-            if self.indicator_line in self.items():
-                self.removeItem(self.indicator_line)
+            self._clearIndicatorLine()
             return
         
         if self.indicator_line not in self.items():
             self.addItem(self.indicator_line)
 
         if not self.selected_vertices:
-            self.selected_vertices.append(selected_vertex)
-            line.setP1(selected_vertex.getPosition())
-            line.setP2(selected_vertex.getPosition())
-            self.indicator_line.setLine(line)
+            self._initializeEdgeLine(selected_vertex)
         else:
-            start = self.selected_vertices.pop()
-            end = selected_vertex
-            
-            line.setP1(end.getPosition())
-            self.indicator_line.setLine(line)
-
-            edge = Edge(start, end, self)
-            duplicate_edge = self.getDuplicate(edge)
-            if duplicate_edge:
-                self.clearSelection()
-                return
-
-            from ..commands.edge import AddEdgeCommand
-            command = AddEdgeCommand(self, edge)
-            self.perform_action(command)
-            self.selected_vertices.append(end) 
-                    
-    def genIdIndex(self):
-        index = 0
+            self._finalizeEdge(selected_vertex)
+                
+    def genNextId(self):
+        """Generate the next ID index for a new vertex."""
         vertices = self.getVertices()
-
-        if len(vertices) != 0:
-            index = vertices[-1].id_index + 1
-
-        return index
+        return vertices[-1].id_index + 1 if vertices else 0
 
 
                 
@@ -164,27 +156,27 @@ class Graph(QGraphicsScene):
         else:
             edge.setCurved(False) 
 
-    def setFloyd(self, is_floyd: bool):
+    def setAlgorithm(self, algorithm_name: str, enable: bool):
+        """Generic method to set the algorithm mode by name."""
         self.resetPaths()
         self.clearSelection()
         self.setHighlightItems(False)
-        self.is_using_floyd = is_floyd
-        self.emitSignal()
 
-    def setDijkstra(self, is_dijkstra: bool):
-        self.dijkstra.reset()
-        self.clearSelection()
-        self.setHighlightItems(False)
-        self.is_using_dijkstra = is_dijkstra
-        self.emitSignal()
-
-    def setPrim(self, is_prim: bool):
-        self.is_using_prim = is_prim
-        self.emitSignal()
-
-    def setKruskal(self, is_kruskal: bool):
-        self.is_using_kruskal = is_kruskal
-        self.emitSignal()
+        algorithms = {
+            "floyd": "is_using_floyd",
+            "dijkstra": "is_using_dijkstra",
+            "prim": "is_using_prim",
+            "kruskal": "is_using_kruskal",
+        }
+        
+        # Disable all algorithms
+        for alg in algorithms.values():
+            setattr(self, alg, False)
+        
+        # Enable the specified algorithm
+        if algorithm_name in algorithms:
+            setattr(self, algorithms[algorithm_name], enable)
+            self.emitSignal()
 
 
 
@@ -260,7 +252,7 @@ class Graph(QGraphicsScene):
         try:
             self.undo_stack.clear()
             
-            matrix = self.adjacencyMatrix
+            matrix = self.adj_matrix
             vertices = self.getVertices()
 
             for vertex in vertices:
@@ -276,7 +268,7 @@ class Graph(QGraphicsScene):
                 self.clearSelection()
 
             elif self.is_using_dijkstra:
-                selected_vertex = next((vertex for vertex in self.selectedItems() if isinstance(vertex, Vertex)), None)
+                selected_vertex = self._getSelectedVertex()
 
                 if not selected_vertex:
                     raise Exception("No starting vertex selected")
@@ -303,6 +295,7 @@ class Graph(QGraphicsScene):
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Warning)
         msg_box.setWindowTitle(title)
+        msg_box.setWindowIcon(loadIcon("../public/images/icon.webp"))
         msg_box.setText(message)
         msg_box.setStandardButtons(QMessageBox.Ok)
         msg_box.exec_()
@@ -311,9 +304,47 @@ class Graph(QGraphicsScene):
         confirm_box = QMessageBox()
         confirm_box.setIcon(QMessageBox.Warning)
         confirm_box.setWindowTitle(title)
+        confirm_box.setWindowIcon(loadIcon("../public/images/icon.webp"))
         confirm_box.setText(message)
         confirm_box.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
         return confirm_box.exec_()
+    
+    def _getSelectedVertex(self):
+        """Retrieve the selected vertex if available."""
+        return next((vertex for vertex in self.selectedItems() if isinstance(vertex, Vertex)), None)
+
+    def _clearIndicatorLine(self):
+        """Clear selected vertices and indicator line."""
+        self.selected_vertices.clear()
+        if self.indicator_line in self.items():
+            self.removeItem(self.indicator_line)
+
+    def _initializeEdgeLine(self, selected_vertex: Vertex):
+        """Initialize the edge line with the starting vertex."""
+        line = self.indicator_line.line()
+        self.selected_vertices.append(selected_vertex)
+        line.setP1(selected_vertex.getPosition())
+        line.setP2(selected_vertex.getPosition())
+        self.indicator_line.setLine(line)
+
+    def _finalizeEdge(self, selected_vertex: Vertex):
+        """Finalize edge creation and add it to the scene."""
+        start = self.selected_vertices.pop()
+        end = selected_vertex
+        line = self.indicator_line.line()
+        line.setP1(end.getPosition())
+        self.indicator_line.setLine(line)
+
+        edge = Edge(start, end, self)
+        if self.getDuplicate(edge):
+            self.clearSelection()
+            return
+
+        from ..commands.edge import AddEdgeCommand
+        command = AddEdgeCommand(self, edge)
+        self.perform_action(command)
+        self.selected_vertices.append(end)
+
 
     def showPath(self, start:Vertex = None, goal:Vertex = None):
         # Ensure start and goal are valid

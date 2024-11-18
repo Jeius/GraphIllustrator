@@ -89,15 +89,16 @@ class MyApp(QMainWindow):
         control_panel.clear_edges_button.clicked.connect(self.onClearEdgesClicked)
         control_panel.tabs.currentChanged.connect(self.setGraphType)
         control_panel.complement_button.toggled.connect(self.onComplementToggled)
-        control_panel.floyd_radio.toggled.connect(self.setFloyd)
-        control_panel.dijkstra_radio.toggled.connect(self.setDijkstra)
-        control_panel.prim_radio.toggled.connect(self.setPrim)
-        control_panel.kruskal_radio.toggled.connect(self.setKruskal)
+        control_panel.floyd_radio.toggled.connect(lambda checked: self.graph.setAlgorithm("floyd", checked))
+        control_panel.dijkstra_radio.toggled.connect(lambda checked: self.graph.setAlgorithm("dijkstra", checked))
+        control_panel.prim_radio.toggled.connect(lambda checked: self.graph.setAlgorithm("prim", checked))
+        control_panel.kruskal_radio.toggled.connect(lambda checked: self.graph.setAlgorithm("kruskal", checked))
+
         control_panel.path_button.clicked.connect(self.onPathButtonClicked)
         control_panel.mcst_button.toggled.connect(self.onMCSTToggled)
 
         self.ui.view.tool.revert_button.clicked.connect(self.onRevertButtonClicked)
-        self.ui.view.tool.done_button.clicked.connect(self.onDoneClicked)
+        self.ui.view.tool.done_button.clicked.connect(self._unCheckButtonGroup)
         
         self.graph.graphChanged.connect(self._updateGraphListeners)
 
@@ -149,22 +150,6 @@ class MyApp(QMainWindow):
         else:
             self.graph.setDirectedGraph(False)
 
-    def setFloyd(self, is_floyd: bool):
-        self._unCheckButtonGroup()
-        self.graph.setFloyd(is_floyd)
-
-    def setDijkstra(self, is_dijsktra: bool):
-        self._unCheckButtonGroup()
-        self.graph.setDijkstra(is_dijsktra)
-
-    def setPrim(self, is_prim: bool):
-        self._unCheckButtonGroup()
-        self.graph.setPrim(is_prim)
-
-    def setKruskal(self, is_kruskal: bool):
-        self._unCheckButtonGroup()
-        self.graph.setKruskal(is_kruskal)
-
     def onTableRowClicked(self, index: int):
         try:
             path_table = self.ui.info_panel.path_table
@@ -182,9 +167,6 @@ class MyApp(QMainWindow):
             self.ui.view.tool.revert_button.show()
         except Exception as e:
             self.graph._showErrorDialog(title="Invalid Path", message="No path found.")
-
-    def onDoneClicked(self):
-        self._unCheckButtonGroup()
     
     def onMCSTToggled(self, is_toggled):
         try:
@@ -274,7 +256,7 @@ class MyApp(QMainWindow):
     def _updateMatrix(self):
         table = self.ui.info_panel.adj_matrix_table
         table.clear()
-        matrix = self.graph.adjacencyMatrix
+        matrix = self.graph.adj_matrix
 
         table.setRowCount(len(matrix))
         table.setColumnCount(len(matrix[0]) if matrix else 0)

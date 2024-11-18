@@ -1,7 +1,25 @@
 import math
+import os, sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+
+def getFilePath(path):
+    """Constructs the file path based on the running environment."""
+    if getattr(sys, 'frozen', False):  # PyInstaller bundled executable
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # Move up one level
+    return os.path.join(base_path, path)
+
+def loadIcon(path):
+    file_path = getFilePath(path)
+
+    if not os.path.exists(file_path):
+        print(f"Icon file not found: {file_path}")
+        return QIcon()
+
+    return QIcon(file_path)
 
 class Edge(QGraphicsPathItem):
     from .vertex import Vertex
@@ -213,10 +231,9 @@ class Edge(QGraphicsPathItem):
 #-------------------------- Setters -----------------------------------------------------------#
     def showEditDialog(self):
         input_dialog = QInputDialog()
-        input_dialog.setWindowTitle("Edge")
+        input_dialog.setWindowTitle("Edit Weight")
+        input_dialog.setWindowIcon(loadIcon("../public/images/icon.webp"))
         input_dialog.setLabelText("Enter the new weight:")
-
-        # Remove the question mark by disabling the ContextHelpButtonHint flag
         input_dialog.setWindowFlags(input_dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
         if input_dialog.exec_() == QDialog.Accepted:

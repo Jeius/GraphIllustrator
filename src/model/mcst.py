@@ -25,7 +25,7 @@ class MinimumCostSpanningTree():
         self.vertices = self.graph.getVertices()
         self.vertex_edges_backup = {vertex: list(vertex.edges) for vertex in self.vertices}
         self.original_edges = list(self.graph.getEdges())
-        matrix = self.graph.adjacencyMatrix
+        matrix = self.graph.adj_matrix
         selected_vertex = next((vertex for vertex in self.graph.selectedItems() if isinstance(vertex, Vertex)), None)
 
         if not selected_vertex:
