@@ -232,7 +232,7 @@ class Edge(QGraphicsPathItem):
     def showEditDialog(self):
         input_dialog = QInputDialog()
         input_dialog.setWindowTitle("Edit Weight")
-        input_dialog.setWindowIcon(loadIcon("../public/images/icon.webp"))
+        input_dialog.setWindowIcon(loadIcon("favicon.ico"))
         input_dialog.setLabelText("Enter the new weight:")
         input_dialog.setWindowFlags(input_dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 

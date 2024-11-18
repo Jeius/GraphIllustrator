@@ -52,7 +52,7 @@ class MyApp(QMainWindow):
         self.ui.setupUi(self)
         self.resize(1400, 820)
         self.setStyleSheet(loadStylesheet("style/globals.css"))
-        self.setWindowIcon(loadIcon("public/images/icon.webp"))
+        self.setWindowIcon(loadIcon("favicon.ico"))
         self.setWindowTitle("Graph Illustrator by Julius Pahama")
 
         self.graph = Graph()
