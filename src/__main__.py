@@ -309,7 +309,10 @@ class MyApp(QMainWindow):
         for edge in edges:
             start_id = edge.start_vertex.id[1]
             end_id = edge.end_vertex.id[1]
-            edge_set.append(f"({start_id}, {end_id})")
+            if self.graph.is_directed_graph:
+                edge_set.append(f"[{start_id}, {end_id}]")
+            else:
+                edge_set.append(f"({start_id}, {end_id})")
         
         if edge_set:
             info_panel.edge_set_box.setPlainText("E(G) = {" + ', '.join(map(str, edge_set)) + '}')

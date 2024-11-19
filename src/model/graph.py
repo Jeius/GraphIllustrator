@@ -1,8 +1,8 @@
 import math
 import sys, os
 from typing import List, TYPE_CHECKING
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+from PyQt5.QtCore import pyqtSignal, Qt, QPointF, QTimer
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QMessageBox
 from PyQt5.QtGui import QPen, QIcon
 
 

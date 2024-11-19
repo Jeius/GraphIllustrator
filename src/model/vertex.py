@@ -1,6 +1,6 @@
 import string
 from typing import List
-from PyQt5.QtWidgets import QGraphicsEllipseItem, QGraphicsTextItem, QGraphicsSceneMouseEvent
+from PyQt5.QtWidgets import QGraphicsEllipseItem, QGraphicsTextItem
 from PyQt5.QtCore import Qt, QPointF
 from PyQt5.QtGui import QFont, QPen, QColor, QBrush
 
@@ -9,11 +9,11 @@ if TYPE_CHECKING:
     from src.model import Graph, Edge
 
 class Vertex(QGraphicsEllipseItem):
-    def __init__(self, id_index: int, diameter, parent):
+    def __init__(self, id_index: int, diameter, parent: 'Graph'):
         super().__init__(0, 0, diameter, diameter)
-        self.edges: List[Edge] = []  # Stores the edges of this vertex
+        self.edges: List['Edge'] = []  # Stores the edges of this vertex
         self.id_index = id_index
-        self.graph: Graph = parent
+        self.graph = parent
         
         self.setFlag(Vertex.ItemIsMovable, True)  # Make the item movable
         self.setFlag(Vertex.ItemIsSelectable, True)  # Allow the item to be selectable

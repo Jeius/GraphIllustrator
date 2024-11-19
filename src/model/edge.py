@@ -1,8 +1,8 @@
 import math
 import os, sys
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt, QPointF, QTimeLine
+from PyQt5.QtGui import QIcon, QColor, QPen, QPolygonF, QPainterPath, QFont
+from PyQt5.QtWidgets import QGraphicsPathItem, QGraphicsLineItem, QInputDialog, QDialog, QGraphicsEllipseItem, QGraphicsTextItem, QGraphicsPolygonItem, QMenu
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -33,12 +33,12 @@ class Edge(QGraphicsPathItem):
             "transparent": QColor("transparent")
         }
     
-    def __init__(self, start, end, parent):
+    def __init__(self, start: 'Vertex', end: 'Vertex', parent: 'Graph'):
         super().__init__()
-        self.start_vertex: Vertex = start
-        self.end_vertex: Vertex = end
+        self.start_vertex = start
+        self.end_vertex= end
         self.weight = math.inf
-        self.graph: Graph = parent
+        self.graph = parent
         self.default_pen = QPen(self.COLORS['default'], 2) 
         self.label = Label(str(self.weight), self)
         self.label.setZValue(2)
@@ -204,7 +204,7 @@ class Edge(QGraphicsPathItem):
 
 
 #------------------------------- Getters -----------------------------------#
-    def getOpposite(self, vertex):
+    def getOpposite(self, vertex: 'Vertex'):
         # Return the neighbor of the vertex
         if vertex == self.start_vertex:
             return self.end_vertex
@@ -258,7 +258,7 @@ class Edge(QGraphicsPathItem):
         self.update()
   
 
-    def setCurved(self, is_curve):
+    def setCurved(self, is_curve: bool):
         self.is_curve = is_curve
 
     def setTransparent(self, is_transparent: bool):

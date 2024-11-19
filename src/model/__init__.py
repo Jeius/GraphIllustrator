@@ -3,7 +3,7 @@ from .vertex import Vertex
 from .edge import Edge 
 from ..algorithm.djisktra import Djisktra
 from ..algorithm.floyd import FloydWarshall
-from ..commands.model import Command
+from ..commands.command import Command
 from ..commands.vertex import *
 from ..commands.edge import *
 from .complement import ComplementGraph
