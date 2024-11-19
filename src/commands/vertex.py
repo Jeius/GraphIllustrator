@@ -6,9 +6,9 @@ if TYPE_CHECKING:
 
 
 class AddVertexCommand(Command):
-    def __init__(self, graph, vertex):
-        self.graph: Graph = graph
-        self.vertex: Vertex = vertex
+    def __init__(self, graph: 'Graph', vertex: 'Vertex'):
+        self.graph = graph
+        self.vertex = vertex
 
     def execute(self):
         self.vertex not in self.graph.items() and self.graph.addItem(self.vertex)
@@ -21,11 +21,11 @@ class AddVertexCommand(Command):
 
 
 class DeleteVertexCommand(Command):
-    def __init__(self, graph, vertex):
-        self.graph: Graph = graph
-        self.vertex: Vertex = vertex
+    def __init__(self, graph: 'Graph', vertex: 'Vertex'):
+        self.graph = graph
+        self.vertex = vertex
         # Store each neighbor and their edges that connect to the vertex being removed
-        self.removed_edges: list[tuple[Vertex, list[Edge]]] = []
+        self.removed_edges: list[tuple['Vertex', list['Edge']]] = []
 
     def execute(self):
         # Collect all edges connected to this vertex and remove them from the graph

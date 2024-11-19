@@ -1,5 +1,5 @@
 import string
-from typing import List, Union
+from typing import List
 from PyQt5.QtWidgets import QGraphicsEllipseItem, QGraphicsTextItem, QGraphicsSceneMouseEvent
 from PyQt5.QtCore import Qt, QPointF
 from PyQt5.QtGui import QFont, QPen, QColor, QBrush

@@ -1,13 +1,14 @@
 import math
+from typing import TYPE_CHECKING
 from PyQt5.QtCore import QTimer
 
 from src.algorithm import Prim, Kruskal
+if TYPE_CHECKING:
+    from src.model import Graph, Vertex
 
 class MinimumCostSpanningTree():
-    def __init__(self, graph):
-        from src.model import Graph
-
-        self.graph: Graph = graph
+    def __init__(self, graph: 'Graph'):
+        self.graph = graph
         self.prim = Prim()
         self.kruskal = Kruskal()
         self.vertices = []
@@ -45,6 +46,8 @@ class MinimumCostSpanningTree():
             result: list[tuple[int, int, int]] = self.prim.MCST(matrix)
         elif self.graph.is_using_kruskal:
             result: list[tuple[int, int, int]] = self.kruskal.MCST(matrix)
+        else:
+            result = None
 
         if not result:
             raise Exception("MCST cannot be formed. Invalid graph.")
@@ -100,7 +103,7 @@ class MinimumCostSpanningTree():
         edge_queue: list[tuple[Vertex, Edge]] = []
         visited_vertices = set()
         
-        def enqueue_edges(vertex):
+        def enqueue_edges(vertex: 'Vertex'):
             # Check if edge is already part of any tuple in edge_queue
             queued_edges = [queued_edge for _, queued_edge in edge_queue]
             for edge in vertex.edges:

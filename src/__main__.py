@@ -221,7 +221,7 @@ class MyApp(QMainWindow):
             self.graph.showPath(start_vertex, goal_vertex)
             self.ui.view.tool.revert_button.show()
         except Exception as e:
-            self.graph._showErrorDialog(title="Invalid Path", message="No path found.")
+            self.graph._showErrorDialog(title="Invalid Path", message=str(e))
     
     def onMCSTToggled(self, is_toggled):
         """Finds and displays the Minimum Cost Spanning Tree (MCST) based on the toggle state."""

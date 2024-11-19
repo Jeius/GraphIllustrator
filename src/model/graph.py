@@ -7,10 +7,11 @@ from PyQt5.QtGui import QPen, QIcon
 
 
 from src.algorithm import Djisktra, FloydWarshall
-from src.commands import *
+from src.commands import AddEdgeCommand, AddVertexCommand, ClearEdgesCommand, DeleteEdgeCommand, DeleteVertexCommand
 
 if TYPE_CHECKING:
     from src.model import Vertex, Edge
+    from src.commands import Command
 
 def getFilePath(path):
     """Constructs the file path based on the running environment."""
@@ -62,14 +63,15 @@ class Graph(QGraphicsScene):
         self.mcst_total_cost: int = None
         self.is_dragging = False
 
-        self.undo_stack: list[Command] = []
-        self.redo_stack: list[Command] = []
+        self.undo_stack: list['Command'] = []
+        self.redo_stack: list['Command'] = []
 
         self.selectionChanged.connect(self.onSelectionChanged)
 
 
 #------------------------------ Creators ----------------------------------------------------------#
     def createVertex(self, position: QPointF):
+        from src.model import Vertex
         diameter = self.DIAMETER
         id = self.genNextId()  
         vertex = Vertex(id, diameter, self)
@@ -140,6 +142,7 @@ class Graph(QGraphicsScene):
         self.emitSignal()
 
     def setCurvedEdge(self, edge:'Edge'):
+        from src.model import Edge
         start = edge.getStart()
         end = edge.getOpposite(start)
         opposite_edge = Edge(end, start, self)
@@ -165,8 +168,12 @@ class Graph(QGraphicsScene):
         }
         
         # Disable all algorithms
-        for alg in algorithms.values():
-            setattr(self, alg, False)
+        if self.is_directed_graph:
+            setattr(self, algorithms['floyd'], False)
+            setattr(self, algorithms['dijkstra'], False)
+        else:
+            setattr(self, algorithms['prim'], False)
+            setattr(self, algorithms['kruskal'], False)
         
         # Enable the specified algorithm
         if algorithm_name in algorithms:
@@ -177,6 +184,7 @@ class Graph(QGraphicsScene):
 
 #--------------------------- Getters ------------------------------------------#
     def getVertices(self):
+        from src.model import Vertex
         items = self.items()
         vertices = [item for item in items if isinstance(item, Vertex)]
         vertices.reverse()
@@ -184,6 +192,7 @@ class Graph(QGraphicsScene):
         return vertices
     
     def getEdges(self):
+        from src.model import Edge
         items = self.items()
         edges = [item for item in items if isinstance(item, Edge)]
         edges.reverse()
@@ -218,6 +227,7 @@ class Graph(QGraphicsScene):
         self.perform_action(command)
 
     def revert(self):
+        self.clearSelection()
         self.setHighlightItems(False)
         self.mcst_total_cost = None
         self.emitSignal()
@@ -303,6 +313,7 @@ class Graph(QGraphicsScene):
     
     def _getSelectedVertex(self):
         """Retrieve the selected vertex if available."""
+        from src.model import Vertex
         return next((vertex for vertex in self.selectedItems() if isinstance(vertex, Vertex)), None)
 
     def _clearIndicatorLine(self):
@@ -321,6 +332,8 @@ class Graph(QGraphicsScene):
 
     def _finalizeEdge(self, selected_vertex: 'Vertex'):
         """Finalize edge creation and add it to the scene."""
+        from src.model import Edge
+
         start = self.selected_vertices.pop()
         end = selected_vertex
         line = self.indicator_line.line()
@@ -338,6 +351,7 @@ class Graph(QGraphicsScene):
 
 
     def showPath(self, start:'Vertex' = None, goal:'Vertex' = None):
+        from src.model import Edge
         # Ensure start and goal are valid
         if not start or not goal:
             return
@@ -358,10 +372,13 @@ class Graph(QGraphicsScene):
         self.clearSelection()
 
         # Retrieve path from start to goal
-        if self.is_using_floyd:
-            path = list(paths[(vertices.index(start), vertices.index(goal))])
-        elif self.is_using_dijkstra:
-            path = list(paths[vertices.index(goal)])
+        try:
+            if self.is_using_floyd:
+                path = list(paths[(vertices.index(start), vertices.index(goal))])
+            elif self.is_using_dijkstra:
+                path = list(paths[vertices.index(goal)])
+        except:
+            raise Exception("No path found.")
 
         path_edges: list['Edge'] = []
 

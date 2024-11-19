@@ -1,4 +1,3 @@
-from src.model import Edge
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.model import Graph
@@ -13,6 +12,8 @@ class ComplementGraph():
         self.complement_edges = []         # New edges created for the complement
 
     def show(self):   
+        from src.model import Edge
+        
         self.vertices = self.graph.getVertices()
         self.original_edges  = self.graph.getEdges() 
         self.vertex_edges_backup = {vertex: list(vertex.edges) for vertex in self.vertices}

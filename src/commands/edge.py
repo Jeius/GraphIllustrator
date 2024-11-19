@@ -6,9 +6,9 @@ if TYPE_CHECKING:
 
 
 class AddEdgeCommand(Command):
-    def __init__(self, graph, edge):
-        self.graph: Graph = graph
-        self.edge: Edge = edge
+    def __init__(self, graph: 'Graph', edge: 'Edge'):
+        self.graph = graph
+        self.edge = edge
         self.start_vertex = self.edge.start_vertex
         self.end_vertex = self.edge.end_vertex
         
@@ -29,9 +29,9 @@ class AddEdgeCommand(Command):
 
 
 class DeleteEdgeCommand(Command):
-    def __init__(self, graph, edge):
-        self.graph: Graph = graph
-        self.edge: Edge = edge
+    def __init__(self, graph: 'Graph', edge: 'Edge'):
+        self.graph = graph
+        self.edge = edge
         self.start_vertex = self.edge.start_vertex
         self.end_vertex = self.edge.end_vertex
 
@@ -51,9 +51,9 @@ class DeleteEdgeCommand(Command):
 
 
 class ClearEdgesCommand(Command):
-    def __init__(self, graph, edges):
-        self.graph: Graph = graph
-        self.edges: list[Edge] = edges
+    def __init__(self, graph: 'Graph', edges: list['Edge']):
+        self.graph = graph
+        self.edges = edges
         # Store the removed edges along with their start and end vertices
         self.removed_edges: list[tuple[Edge, Vertex, Vertex]] = []
 
