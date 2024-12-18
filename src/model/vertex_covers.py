@@ -12,6 +12,7 @@ class VertexCovers:
         self.adj_matrix = adjacency_matrix
         self.num_vertices = len(adjacency_matrix)
         self.edges = self._extract_edges()
+        self.connected_vertices = self._extract_connected_vertices()
 
     def _extract_edges(self):
         """
@@ -25,6 +26,18 @@ class VertexCovers:
                 if not isinf(self.adj_matrix[i][j]):  # Edge exists if not `inf`
                     edges.append((i, j))
         return edges
+
+    def _extract_connected_vertices(self):
+        """
+        Identifies all vertices that are connected to at least one other vertex.
+        
+        :return: A set of connected vertex indices.
+        """
+        connected_vertices = set()
+        for u, v in self.edges:
+            connected_vertices.add(u)
+            connected_vertices.add(v)
+        return connected_vertices
 
     def is_vertex_cover(self, subset):
         """
@@ -42,33 +55,19 @@ class VertexCovers:
 
     def get(self):
         """
-        Finds all vertex covers of the graph.
+        Finds all vertex covers of the graph, excluding disconnected vertices.
         
         :return: List of vertex covers (each represented as a list of vertices)
         """
         vertex_covers = []
-        vertices = range(self.num_vertices)
+        # Only consider subsets of connected vertices
+        connected_vertices = list(self.connected_vertices)
 
-        # Check subsets of vertices of increasing size
-        for size in range(1, self.num_vertices + 1):
-            for subset in combinations(vertices, size):
+        # Check subsets of connected vertices of increasing size
+        for size in range(1, len(connected_vertices) + 1):
+            for subset in combinations(connected_vertices, size):
                 if self.is_vertex_cover(subset):
                     vertex_covers.append(list(subset))
 
         return vertex_covers
 
-
-# Example usage
-if __name__ == "__main__":
-    adj_matrix = [
-        [0, 1, 1, float('inf')],
-        [1, 0, 1, 1],
-        [1, 1, 0, 1],
-        [float('inf'), 1, 1, 0],
-    ]
-
-    graph = VertexCovers(adj_matrix)
-    all_covers = graph.get()
-    print("All Vertex Covers:")
-    for cover in all_covers:
-        print(cover)

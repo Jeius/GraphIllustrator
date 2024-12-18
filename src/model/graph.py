@@ -257,6 +257,9 @@ class Graph(QGraphicsScene):
             matrix = self.adj_matrix
             vertices = self.getVertices()
 
+            if len(vertices) == 1:
+                raise Exception('Add atleast 3 vertices with edges')
+
             for vertex in vertices:
                 if not vertex.edges:
                     raise Exception("Not all vertices are connected.")
@@ -279,7 +282,7 @@ class Graph(QGraphicsScene):
                 self.dijkstra.run(matrix, start_index)
                 
         except Exception as e:
-            self._showErrorDialog("Path Finding Failed", str(e))
+            self._showErrorDialog("Operation Failed", str(e))
 
     def findMCST(self, is_finding_mcst):
         self.undo_stack.clear()
@@ -326,7 +329,6 @@ class Graph(QGraphicsScene):
             independent_set = IndependentSets(self.adj_matrix)
             result = independent_set.get()
             vertices = self.getVertices()
-            print(str(result))
             IS_vertices: list[list['Vertex']] = []
             independence_num = len(vertices)
             for set in result:
@@ -348,10 +350,13 @@ class Graph(QGraphicsScene):
     def findVertexCovers(self):
         from src.model import VertexCovers
         try:
+            vertices = self.getVertices()
+
+            if len(vertices) == 1:
+                raise Exception('Add atleast 3 vertices with edges')
+                
             vertex_covers = VertexCovers(self.adj_matrix)
             result = vertex_covers.get()
-            vertices = self.getVertices()
-            print(str(result))
             covers: list[list['Vertex']] = []
             covering_number = 0
 
