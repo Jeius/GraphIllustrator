@@ -98,7 +98,7 @@ class MyApp(QMainWindow):
         table.setHorizontalHeaderLabels(horizontalHeaders)
         table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         try:
-            table.verticalHeader().sectionClicked.disconnect(self.onCenterTRowClicked)
+            table.verticalHeader().sectionClicked.disconnect()
             table.verticalHeader().sectionClicked.connect(self.onPathTRowClicked)
         except TypeError:
             table.verticalHeader().sectionClicked.connect(self.onPathTRowClicked)
@@ -117,7 +117,7 @@ class MyApp(QMainWindow):
         table.setHorizontalHeaderLabels(horizontalHeaders)
         table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         try:
-            table.verticalHeader().sectionClicked.disconnect(self.onPathTRowClicked)
+            table.verticalHeader().sectionClicked.disconnect()
             table.verticalHeader().sectionClicked.connect(self.onCenterTRowClicked)
         except TypeError:
             table.verticalHeader().sectionClicked.connect(self.onCenterTRowClicked)
@@ -136,7 +136,23 @@ class MyApp(QMainWindow):
         table.setHorizontalHeaderLabels(horizontalHeaders)
         table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         table.verticalHeader().show()
-        table.verticalHeader().sectionClicked.connect(self.onIndependenceTRowClicked)
+        table.verticalHeader().sectionClicked.connect(self.onUndirectedTRowClicked)
+
+    def _setupCoverTable(self):
+        table = self.ui.info_panel.table
+        table_label = self.ui.info_panel.table_label
+        table_label.setText('Vertex Covers Table')
+
+        table.setRowCount(0)
+
+        horizontalHeaders = ["Minimum", "Vertex Covers"]
+        columns = len(horizontalHeaders)
+
+        table.setColumnCount(columns)
+        table.setHorizontalHeaderLabels(horizontalHeaders)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        table.verticalHeader().show()
+        table.verticalHeader().sectionClicked.connect(self.onUndirectedTRowClicked)
 
     def _setupConnections(self):
         """
@@ -164,6 +180,7 @@ class MyApp(QMainWindow):
         control_panel.find_center_button.clicked.connect(self.onCenterButtonClicked)
         control_panel.mcst_button.toggled.connect(self.onMCSTToggled)
         control_panel.show_IS_button.clicked.connect(self.onISButtonClicked)
+        control_panel.v_cover_button.clicked.connect(self.onCoverButtonClicked)
 
         self.ui.view.tool.revert_button.clicked.connect(self.onRevertButtonClicked)
         self.ui.view.tool.done_button.clicked.connect(self._unCheckButtonGroup)
@@ -294,13 +311,15 @@ class MyApp(QMainWindow):
     def clearGraph(self):
         """Clears all vertices and edges from the graph."""
         self.graph.clear()
+        self._unCheckButtonGroup()
+        self.ui.view.tool.revert_button.hide()
 
     def onPathButtonClicked(self):
         """Finds and displays paths in the graph."""
-        self.onRevertButtonClicked()
         self._setupPathTable()
         self.graph.findPath()
         self._updatePathTable()
+        self._unCheckButtonGroup()
 
     def onCenterButtonClicked(self):
         result = self.graph.findGraphCenter()
@@ -333,38 +352,48 @@ class MyApp(QMainWindow):
 
             row_index += 1
 
+    def onCoverButtonClicked(self):
+        result = self.graph.findVertexCovers()
+        if (not result):
+           return
+       
+        self._setupCoverTable()
+        self.ui.control_panel.v_cover_field.setText(str(result[1]))
+        self._seedUndirectedInfoTable(result)
+
     def onISButtonClicked(self):
        result = self.graph.findIndependentSets()
-
        if (not result):
            return
        
-       self.onRevertButtonClicked()
-
-       sets, max_number = result
-       table = self.ui.info_panel.table
        self._setupIndependenceTable()
+       self.ui.control_panel.independence_num_field.setText(str(result[1]))
+       self._seedUndirectedInfoTable(result)
 
-       rows = len(sets)
-       table.setRowCount(rows)
-       vertical_headers = ["Show"] * rows
-       table.setVerticalHeaderLabels(vertical_headers)
-       self.ui.control_panel.independence_num_field.setText(str(max_number))
+    def _seedUndirectedInfoTable(self, result):
+        table = self.ui.info_panel.table
+        self.graph.revert()
 
-       row_index = 0
+        sets, number = result
+        rows = len(sets)
+        table.setRowCount(rows)
+        vertical_headers = ["Show"] * rows
+        table.setVerticalHeaderLabels(vertical_headers)
 
-       for i_set in sets:
-           isMaximal = len(i_set) == max_number
-           maximal_item = QTableWidgetItem(str(isMaximal))
-           maximal_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        row_index = 0
 
-           set_string = '{ ' + ', '.join([v.id[1] for v in i_set]) + ' }'
-           set_item = QTableWidgetItem(set_string)
-           set_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        for v_set in sets:
+            isMaximal = len(v_set) == number
+            maximal_item = QTableWidgetItem(str(isMaximal))
+            maximal_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
 
-           table.setItem(row_index, 0, maximal_item)
-           table.setItem(row_index, 1, set_item)
-           row_index += 1
+            v_set_string = '{ ' + ', '.join([v.id[1] for v in v_set]) + ' }'
+            v_set_item = QTableWidgetItem(v_set_string)
+            v_set_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+
+            table.setItem(row_index, 0, maximal_item)
+            table.setItem(row_index, 1, v_set_item)
+            row_index += 1
 
     def onCenterTRowClicked(self, i: int):
         try:
@@ -380,7 +409,7 @@ class MyApp(QMainWindow):
         except Exception as e:
             self.graph._showErrorDialog(title="Action Failed", message=str(e))
 
-    def onIndependenceTRowClicked(self, i: int):
+    def onUndirectedTRowClicked(self, i: int):
         try:
             table = self.ui.info_panel.table
             i_set = table.item(i,1).text()
@@ -403,11 +432,17 @@ class MyApp(QMainWindow):
         self._unCheckButtonGroup()
         self.ui.view.tool.revert_button.hide()
         if self.graph.is_directed_graph:
-            self.ui.info_panel.table.clearSelection()
+            self.ui.info_panel.table.setColumnCount(0)
+            self.ui.info_panel.table.setRowCount(0)
+        else:
+            self.ui.control_panel.v_cover_field.clear()
+            self.ui.control_panel.independence_num_field.clear()
 
     def onClearEdgesClicked(self):
         """Removes all edges from the graph."""
         self.graph.clearEdges()
+        self._unCheckButtonGroup()
+        self.ui.view.tool.revert_button.hide()
 
 
 #------------------- Signal Listeners ---------------------------------#

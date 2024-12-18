@@ -90,7 +90,7 @@ class Graph(QGraphicsScene):
             return
 
         number_of_vertices = len(vertices)
-        # Intiallize matrix with infinities
+        # Intiallize matrix with infinities if directed and 0 if undirected
         self.adj_matrix = [[math.inf for _ in range(number_of_vertices)] for _ in range(number_of_vertices)]  
 
         for vertex in vertices:
@@ -325,8 +325,8 @@ class Graph(QGraphicsScene):
         try:
             independent_set = IndependentSets(self.adj_matrix)
             result = independent_set.get()
-            print(result)
             vertices = self.getVertices()
+            print(str(result))
             IS_vertices: list[list['Vertex']] = []
             independence_num = len(vertices)
             for set in result:
@@ -341,6 +341,26 @@ class Graph(QGraphicsScene):
                 IS_vertices.append(vertices)
             
             return (IS_vertices, independence_num)
+
+        except Exception as e:
+            self._showErrorDialog("Operation Failed", str(e))
+
+    def findVertexCovers(self):
+        from src.model import VertexCovers
+        try:
+            vertex_covers = VertexCovers(self.adj_matrix)
+            result = vertex_covers.get()
+            vertices = self.getVertices()
+            print(str(result))
+            covers: list[list['Vertex']] = []
+            covering_number = 0
+
+            for set in result:
+                converted = [vertices[i] for i in set]
+                covers.append(converted)
+                covering_number = min(len(ind_set) for ind_set in covers)
+            
+            return (covers, covering_number)
 
         except Exception as e:
             self._showErrorDialog("Operation Failed", str(e))

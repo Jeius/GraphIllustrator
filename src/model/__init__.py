@@ -9,3 +9,4 @@ from ..commands.edge import *
 from .complement import ComplementGraph
 from .mcst import MinimumCostSpanningTree
 from .independent_sets import IndependentSets
+from .vertex_covers import VertexCovers
