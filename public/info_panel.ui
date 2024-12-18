@@ -269,7 +269,7 @@
     </widget>
    </item>
    <item row="5" column="0">
-    <widget class="QWidget" name="path_table_widget" native="true">
+    <widget class="QWidget" name="table_widget" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_8">
       <property name="leftMargin">
        <number>0</number>
@@ -284,14 +284,14 @@
        <number>6</number>
       </property>
       <item>
-       <widget class="QLabel" name="path_table_label">
+       <widget class="QLabel" name="table_label">
         <property name="text">
          <string>Path Table</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QTableWidget" name="path_table">
+       <widget class="QTableWidget" name="table">
         <property name="minimumSize">
          <size>
           <width>0</width>

@@ -6,7 +6,7 @@ class Djisktra():
         self.distances = []
         self.start_index = 0
 
-    def findPath(self, adjacencyMatrix: list[list[float]], start_index: int):
+    def run(self, adjacencyMatrix: list[list[float]], start_index: int):
         if len(adjacencyMatrix) == 0:
             raise Exception("No edges found. Please add edges!")
         

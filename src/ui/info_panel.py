@@ -142,24 +142,24 @@ class Ui_InfoPanel(QFrame):
 
         self.gridLayout.addWidget(self.line_3, 4, 0, 1, 1)
 
-        self.path_table_widget = QWidget(InfoPanel)
-        self.path_table_widget.setObjectName(u"path_table_widget")
-        self.verticalLayout_8 = QVBoxLayout(self.path_table_widget)
+        self.table_widget = QWidget(InfoPanel)
+        self.table_widget.setObjectName(u"table_widget")
+        self.verticalLayout_8 = QVBoxLayout(self.table_widget)
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
         self.verticalLayout_8.setContentsMargins(0, 0, 0, 6)
-        self.path_table_label = QLabel(self.path_table_widget)
-        self.path_table_label.setObjectName(u"path_table_label")
+        self.table_label = QLabel(self.table_widget)
+        self.table_label.setObjectName(u"table_label")
 
-        self.verticalLayout_8.addWidget(self.path_table_label)
+        self.verticalLayout_8.addWidget(self.table_label)
 
-        self.path_table = QTableWidget(self.path_table_widget)
-        self.path_table.setObjectName(u"path_table")
-        self.path_table.setMinimumSize(QSize(0, 180))
+        self.table = QTableWidget(self.table_widget)
+        self.table.setObjectName(u"table")
+        self.table.setMinimumSize(QSize(0, 180))
 
-        self.verticalLayout_8.addWidget(self.path_table)
+        self.verticalLayout_8.addWidget(self.table)
 
 
-        self.gridLayout.addWidget(self.path_table_widget, 5, 0, 1, 1)
+        self.gridLayout.addWidget(self.table_widget, 5, 0, 1, 1)
 
 
         self.retranslateUi(InfoPanel)
@@ -174,6 +174,6 @@ class Ui_InfoPanel(QFrame):
         self.edge_set_label.setText(QCoreApplication.translate("InfoPanel", u"Edge Set", None))
         self.vertex_set_label.setText(QCoreApplication.translate("InfoPanel", u"Vertex Set", None))
         self.adj_matrix_label.setText(QCoreApplication.translate("InfoPanel", u"Adjacency Matrix", None))
-        self.path_table_label.setText(QCoreApplication.translate("InfoPanel", u"Path Table", None))
+        self.table_label.setText(QCoreApplication.translate("InfoPanel", u"Path Table", None))
     # retranslateUi
 

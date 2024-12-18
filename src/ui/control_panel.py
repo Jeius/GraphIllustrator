@@ -7,11 +7,11 @@ class Ui_ControlPanel(QFrame):
     def __init__(self, parent):
         super().__init__(parent)
         self.setupUi(self)
-
+        
     def setupUi(self, ControlPanel):
         if not ControlPanel.objectName():
             ControlPanel.setObjectName(u"ControlPanel")
-        ControlPanel.resize(965, 180)
+        ControlPanel.resize(1133, 165)
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -144,7 +144,8 @@ class Ui_ControlPanel(QFrame):
         self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
         self.d_algorithm_box = QGroupBox(self.directed_tab)
         self.d_algorithm_box.setObjectName(u"d_algorithm_box")
-        self.d_algorithm_box.setMinimumSize(QSize(200, 0))
+        self.d_algorithm_box.setMinimumSize(QSize(100, 0))
+        self.d_algorithm_box.setMaximumSize(QSize(288, 16777215))
         self.d_algorithm_box.setStyleSheet(u"")
         self.d_algorithm_box.setFlat(False)
         self.gridLayout_4 = QGridLayout(self.d_algorithm_box)
@@ -178,12 +179,47 @@ class Ui_ControlPanel(QFrame):
         self.path_button.setObjectName(u"path_button")
         sizePolicy.setHeightForWidth(self.path_button.sizePolicy().hasHeightForWidth())
         self.path_button.setSizePolicy(sizePolicy)
-        self.path_button.setMinimumSize(QSize(0, 25))
+        self.path_button.setMinimumSize(QSize(0, 30))
 
         self.verticalLayout_2.addWidget(self.path_button)
 
 
         self.horizontalLayout_8.addWidget(self.path_finding_box)
+
+        self.center_group = QGroupBox(self.directed_tab)
+        self.center_group.setObjectName(u"center_group")
+        self.center_group.setMaximumSize(QSize(160, 16777215))
+        self.gridLayout_8 = QGridLayout(self.center_group)
+        self.gridLayout_8.setObjectName(u"gridLayout_8")
+        self.center_label = QLabel(self.center_group)
+        self.center_label.setObjectName(u"center_label")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.center_label.sizePolicy().hasHeightForWidth())
+        self.center_label.setSizePolicy(sizePolicy3)
+        self.center_label.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+
+        self.gridLayout_8.addWidget(self.center_label, 0, 0, 1, 1)
+
+        self.center_field = QLineEdit(self.center_group)
+        self.center_field.setObjectName(u"center_field")
+        sizePolicy.setHeightForWidth(self.center_field.sizePolicy().hasHeightForWidth())
+        self.center_field.setSizePolicy(sizePolicy)
+        self.center_field.setMinimumSize(QSize(0, 32))
+        self.center_field.setMaximumSize(QSize(16777215, 16777215))
+        self.center_field.setReadOnly(True)
+
+        self.gridLayout_8.addWidget(self.center_field, 0, 1, 1, 1)
+
+        self.find_center_button = QPushButton(self.center_group)
+        self.find_center_button.setObjectName(u"find_center_button")
+        self.find_center_button.setMinimumSize(QSize(0, 30))
+
+        self.gridLayout_8.addWidget(self.find_center_button, 1, 0, 1, 2)
+
+
+        self.horizontalLayout_8.addWidget(self.center_group)
 
         self.tabs.addTab(self.directed_tab, "")
         self.undirected_tab = QWidget()
@@ -195,6 +231,7 @@ class Ui_ControlPanel(QFrame):
         self.ud_algorithm_box = QGroupBox(self.undirected_tab)
         self.ud_algorithm_box.setObjectName(u"ud_algorithm_box")
         self.ud_algorithm_box.setMinimumSize(QSize(100, 0))
+        self.ud_algorithm_box.setMaximumSize(QSize(288, 16777215))
         self.gridLayout = QGridLayout(self.ud_algorithm_box)
         self.gridLayout.setObjectName(u"gridLayout")
         self.prim_radio = QRadioButton(self.ud_algorithm_box)
@@ -215,17 +252,17 @@ class Ui_ControlPanel(QFrame):
         self.mcst_box.setObjectName(u"mcst_box")
         sizePolicy2.setHeightForWidth(self.mcst_box.sizePolicy().hasHeightForWidth())
         self.mcst_box.setSizePolicy(sizePolicy2)
-        self.mcst_box.setMaximumSize(QSize(180, 16777215))
+        self.mcst_box.setMaximumSize(QSize(160, 16777215))
         self.gridLayout_2 = QGridLayout(self.mcst_box)
         self.gridLayout_2.setSpacing(6)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.mcst_button = QPushButton(self.mcst_box)
         self.mcst_button.setObjectName(u"mcst_button")
-        sizePolicy3 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.mcst_button.sizePolicy().hasHeightForWidth())
-        self.mcst_button.setSizePolicy(sizePolicy3)
+        sizePolicy4 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        sizePolicy4.setHorizontalStretch(0)
+        sizePolicy4.setVerticalStretch(0)
+        sizePolicy4.setHeightForWidth(self.mcst_button.sizePolicy().hasHeightForWidth())
+        self.mcst_button.setSizePolicy(sizePolicy4)
         self.mcst_button.setMinimumSize(QSize(0, 30))
         self.mcst_button.setCheckable(True)
 
@@ -238,6 +275,7 @@ class Ui_ControlPanel(QFrame):
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.label = QLabel(self.mcst_form)
         self.label.setObjectName(u"label")
+        self.label.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
 
         self.horizontalLayout_2.addWidget(self.label)
 
@@ -253,19 +291,76 @@ class Ui_ControlPanel(QFrame):
 
         self.horizontalLayout_3.addWidget(self.mcst_box)
 
+        self.independent_group = QGroupBox(self.undirected_tab)
+        self.independent_group.setObjectName(u"independent_group")
+        self.independent_group.setMaximumSize(QSize(160, 16777215))
+        self.gridLayout_7 = QGridLayout(self.independent_group)
+        self.gridLayout_7.setObjectName(u"gridLayout_7")
+        self.independence_num_label = QLabel(self.independent_group)
+        self.independence_num_label.setObjectName(u"independence_num_label")
+        self.independence_num_label.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+
+        self.gridLayout_7.addWidget(self.independence_num_label, 0, 0, 1, 1)
+
+        self.independence_num_field = QLineEdit(self.independent_group)
+        self.independence_num_field.setObjectName(u"independence_num_field")
+        self.independence_num_field.setMinimumSize(QSize(0, 32))
+
+        self.gridLayout_7.addWidget(self.independence_num_field, 0, 1, 1, 1)
+
+        self.show_IS_button = QPushButton(self.independent_group)
+        self.show_IS_button.setObjectName(u"show_IS_button")
+        self.show_IS_button.setMinimumSize(QSize(0, 30))
+
+        self.gridLayout_7.addWidget(self.show_IS_button, 1, 0, 1, 2)
+
+
+        self.horizontalLayout_3.addWidget(self.independent_group)
+
+        self.cover_group = QGroupBox(self.undirected_tab)
+        self.cover_group.setObjectName(u"cover_group")
+        self.cover_group.setMaximumSize(QSize(160, 16777215))
+        self.gridLayout_9 = QGridLayout(self.cover_group)
+        self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.v_cover_button = QPushButton(self.cover_group)
+        self.v_cover_button.setObjectName(u"v_cover_button")
+        self.v_cover_button.setMinimumSize(QSize(0, 30))
+
+        self.gridLayout_9.addWidget(self.v_cover_button, 1, 0, 1, 2)
+
+        self.v_cover_field = QLineEdit(self.cover_group)
+        self.v_cover_field.setObjectName(u"v_cover_field")
+        self.v_cover_field.setMinimumSize(QSize(0, 32))
+
+        self.gridLayout_9.addWidget(self.v_cover_field, 0, 1, 1, 1)
+
+        self.v_cover_label = QLabel(self.cover_group)
+        self.v_cover_label.setObjectName(u"v_cover_label")
+        self.v_cover_label.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+
+        self.gridLayout_9.addWidget(self.v_cover_label, 0, 0, 1, 1)
+
+
+        self.horizontalLayout_3.addWidget(self.cover_group)
+
         self.complement_box = QGroupBox(self.undirected_tab)
         self.complement_box.setObjectName(u"complement_box")
         sizePolicy2.setHeightForWidth(self.complement_box.sizePolicy().hasHeightForWidth())
         self.complement_box.setSizePolicy(sizePolicy2)
-        self.complement_box.setMaximumSize(QSize(150, 16777215))
+        self.complement_box.setMaximumSize(QSize(160, 16777215))
         self.verticalLayout = QVBoxLayout(self.complement_box)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.complement_button = QPushButton(self.complement_box)
         self.complement_button.setObjectName(u"complement_button")
+        sizePolicy5 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.complement_button.sizePolicy().hasHeightForWidth())
+        self.complement_button.setSizePolicy(sizePolicy5)
         self.complement_button.setMinimumSize(QSize(0, 30))
         self.complement_button.setCheckable(True)
 
-        self.verticalLayout.addWidget(self.complement_button)
+        self.verticalLayout.addWidget(self.complement_button, 0, Qt.AlignHCenter)
 
 
         self.horizontalLayout_3.addWidget(self.complement_box)
@@ -306,6 +401,9 @@ class Ui_ControlPanel(QFrame):
         self.floyd_radio.setText(QCoreApplication.translate("ControlPanel", u"Floyd Warshal", None))
         self.path_finding_box.setTitle(QCoreApplication.translate("ControlPanel", u"Path Finding", None))
         self.path_button.setText(QCoreApplication.translate("ControlPanel", u"Find Path", None))
+        self.center_group.setTitle(QCoreApplication.translate("ControlPanel", u"Graph Center", None))
+        self.center_label.setText(QCoreApplication.translate("ControlPanel", u"Center", None))
+        self.find_center_button.setText(QCoreApplication.translate("ControlPanel", u"Find Center", None))
         self.tabs.setTabText(self.tabs.indexOf(self.directed_tab), QCoreApplication.translate("ControlPanel", u"Directed Graph", None))
         self.ud_algorithm_box.setTitle(QCoreApplication.translate("ControlPanel", u"Algorithms", None))
         self.prim_radio.setText(QCoreApplication.translate("ControlPanel", u"Prim", None))
@@ -313,6 +411,12 @@ class Ui_ControlPanel(QFrame):
         self.mcst_box.setTitle(QCoreApplication.translate("ControlPanel", u"Minimum Cost Spanning Tree", None))
         self.mcst_button.setText(QCoreApplication.translate("ControlPanel", u"Find MCST", None))
         self.label.setText(QCoreApplication.translate("ControlPanel", u"Minimum Cost", None))
+        self.independent_group.setTitle(QCoreApplication.translate("ControlPanel", u"Independent Set (IS)", None))
+        self.independence_num_label.setText(QCoreApplication.translate("ControlPanel", u"	\u03b1(G)", None))
+        self.show_IS_button.setText(QCoreApplication.translate("ControlPanel", u"Find IS", None))
+        self.cover_group.setTitle(QCoreApplication.translate("ControlPanel", u"Vertex Cover", None))
+        self.v_cover_button.setText(QCoreApplication.translate("ControlPanel", u"Find Vertex Cover", None))
+        self.v_cover_label.setText(QCoreApplication.translate("ControlPanel", u"	\u03b2(G)", None))
         self.complement_box.setTitle(QCoreApplication.translate("ControlPanel", u"Graph Complement", None))
         self.complement_button.setText(QCoreApplication.translate("ControlPanel", u"Show Complement", None))
         self.tabs.setTabText(self.tabs.indexOf(self.undirected_tab), QCoreApplication.translate("ControlPanel", u"Undirected Graph", None))

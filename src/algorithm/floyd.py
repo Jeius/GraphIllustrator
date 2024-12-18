@@ -5,7 +5,7 @@ class FloydWarshall:
         self.paths = {}
         self.distances = []
 
-    def findPath(self, adjacencyMatrix: list[list[float]]):
+    def run(self, adjacencyMatrix: list[list[float]]):
         if not adjacencyMatrix:
             raise Exception("No edges found. Please add edges!")
 

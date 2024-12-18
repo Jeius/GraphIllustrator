@@ -58,8 +58,8 @@ class MyApp(QMainWindow):
         self.graph = Graph()
         self.ui.view.setScene(self.graph)
 
+        self.ui.info_panel.table_label.setText('Information Table')
         self._setupButtonGroup()
-        self._setupPathTable()
         self._setupConnections()
         
     def _setupButtonGroup(self):
@@ -85,15 +85,31 @@ class MyApp(QMainWindow):
 
         Sets column headers, enables column resizing, and connects row click events for path display.
         """
-        path_table = self.ui.info_panel.path_table
+        table = self.ui.info_panel.table
+        table_label = self.ui.info_panel.table_label
+        table_label.setText('Path Table')
+
 
         horizontalHeaders = ["Start", "Goal", "Distance"]
         columns = len(horizontalHeaders)
 
-        path_table.setColumnCount(columns)
-        path_table.setHorizontalHeaderLabels(horizontalHeaders)
-        path_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        path_table.verticalHeader().sectionClicked.connect(self.onTableRowClicked)
+        table.setColumnCount(columns)
+        table.setHorizontalHeaderLabels(horizontalHeaders)
+        table.verticalHeader().show()
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        table.verticalHeader().sectionClicked.connect(self.onPathTRowClicked)
+
+    def _setupEccentricityTable(self):
+        table = self.ui.info_panel.table
+        table_label = self.ui.info_panel.table_label
+        table_label.setText('Eccentricity Table')
+
+        horizontalHeaders = ["Vertex", "Eccentricity"]
+        columns = len(horizontalHeaders)
+
+        table.setColumnCount(columns)
+        table.setHorizontalHeaderLabels(horizontalHeaders)
+        table.verticalHeader().hide()
 
     def _setupConnections(self):
         """
@@ -110,7 +126,7 @@ class MyApp(QMainWindow):
         control_panel.id_type_combobox.currentIndexChanged.connect(self.setIdType)
         control_panel.clear_button.clicked.connect(self.clearGraph)
         control_panel.clear_edges_button.clicked.connect(self.onClearEdgesClicked)
-        control_panel.tabs.currentChanged.connect(self.setGraphType)
+        control_panel.tabs.currentChanged.connect(self.onTabChange)
         control_panel.complement_button.toggled.connect(self.onComplementToggled)
         control_panel.floyd_radio.toggled.connect(lambda checked: self.graph.setAlgorithm("floyd", checked))
         control_panel.dijkstra_radio.toggled.connect(lambda checked: self.graph.setAlgorithm("dijkstra", checked))
@@ -118,6 +134,7 @@ class MyApp(QMainWindow):
         control_panel.kruskal_radio.toggled.connect(lambda checked: self.graph.setAlgorithm("kruskal", checked))
 
         control_panel.path_button.clicked.connect(self.onPathButtonClicked)
+        control_panel.find_center_button.clicked.connect(self.onCenterButtonClicked)
         control_panel.mcst_button.toggled.connect(self.onMCSTToggled)
 
         self.ui.view.tool.revert_button.clicked.connect(self.onRevertButtonClicked)
@@ -184,7 +201,7 @@ class MyApp(QMainWindow):
             self.graph.is_id_int = False
         self.graph.emitSignal()
     
-    def setGraphType(self, index: int):
+    def onTabChange(self, index: int):
         """
         Configures the graph as directed or undirected based on the selected tab.
 
@@ -194,12 +211,15 @@ class MyApp(QMainWindow):
         self._unCheckButtonGroup()
         self.graph.clearEdges()
 
+        self.ui.info_panel.table_label.setText('Information Table')
+        self.ui.info_panel.table.setColumnCount(0)
+
         if index == 0:
             self.graph.setDirectedGraph(True)
         else:
             self.graph.setDirectedGraph(False)
 
-    def onTableRowClicked(self, index: int):
+    def onPathTRowClicked(self, index: int):
         """
         Handles path table row clicks to display paths between selected vertices.
 
@@ -207,7 +227,7 @@ class MyApp(QMainWindow):
             index (int): Index of the clicked row in the path table.
         """
         try:
-            path_table = self.ui.info_panel.path_table
+            path_table = self.ui.info_panel.table
             vertices = self.graph.getVertices()
             start_item = path_table.item(index, 0)
             goal_item = path_table.item(index, 1)
@@ -222,6 +242,7 @@ class MyApp(QMainWindow):
             self.ui.view.tool.revert_button.show()
         except Exception as e:
             self.graph._showErrorDialog(title="Invalid Path", message=str(e))
+
     
     def onMCSTToggled(self, is_toggled):
         """Finds and displays the Minimum Cost Spanning Tree (MCST) based on the toggle state."""
@@ -248,9 +269,38 @@ class MyApp(QMainWindow):
 
     def onPathButtonClicked(self):
         """Finds and displays paths in the graph."""
+        self._setupPathTable()
         self.graph.findPath()
         self._updatePathTable()
         self._unCheckButtonGroup()
+
+    def onCenterButtonClicked(self):
+        ecc = self.graph.findEccentricity()
+        center = min(ecc)
+
+        vertices = self.graph.getVertices()
+        center_vertex = vertices[ecc.index(center)]
+        
+        self.ui.control_panel.center_field.setText(center_vertex.id[1])
+
+        table = self.ui.info_panel.table
+        rows = len(ecc)
+
+        self._setupEccentricityTable()
+        table.setRowCount(rows)
+
+        for i in range(rows):
+            _, vertex_id = vertices[i].id
+            vertex_item = QTableWidgetItem(vertex_id)
+            vertex_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+
+            cost_item = QTableWidgetItem(str(ecc[i]))
+            cost_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+
+            table.setItem(i,0,vertex_item)
+            table.setItem(i, 1, cost_item)
+
+
 
     def onRevertButtonClicked(self):
         """Reverts the graph to the previous state."""
@@ -258,7 +308,7 @@ class MyApp(QMainWindow):
         self._unCheckButtonGroup()
         self.ui.view.tool.revert_button.hide()
         if self.graph.is_directed_graph:
-            self.ui.info_panel.path_table.clearSelection()
+            self.ui.info_panel.table.clearSelection()
 
     def onClearEdgesClicked(self):
         """Removes all edges from the graph."""
@@ -332,12 +382,7 @@ class MyApp(QMainWindow):
                 table.setColumnWidth(columnIndex, 1)
 
     def _updatePathTable(self):
-        path_table = self.ui.info_panel.path_table
-        
-        if self.graph.is_directed_graph:
-            self.ui.info_panel.path_table_widget.show()
-        else:
-            self.ui.info_panel.path_table_widget.hide()
+        path_table = self.ui.info_panel.table
     
         # Clear the table first
         path_table.setRowCount(0)
@@ -381,7 +426,7 @@ class MyApp(QMainWindow):
 
     def _seedPathTable(self, distances, rowIndex, start_vertex):
         vertices = self.graph.getVertices()
-        path_table = self.ui.info_panel.path_table
+        path_table = self.ui.info_panel.table
 
         for goal_vertex in vertices:
             if start_vertex != goal_vertex:

@@ -266,7 +266,7 @@ class Graph(QGraphicsScene):
                     raise Exception("Not all edges have weight.")
 
             if self.is_using_floyd:
-                self.floyd.findPath(matrix)
+                self.floyd.run(matrix)
                 self.clearSelection()
 
             elif self.is_using_dijkstra:
@@ -276,7 +276,7 @@ class Graph(QGraphicsScene):
                     raise Exception("No starting vertex selected")
                 
                 start_index = vertices.index(selected_vertex)
-                self.dijkstra.findPath(matrix, start_index)
+                self.dijkstra.run(matrix, start_index)
                 
         except Exception as e:
             self._showErrorDialog("Path Finding Failed", str(e))
@@ -289,6 +289,17 @@ class Graph(QGraphicsScene):
             self.mcst_graph.revert()
         self.emitSignal()
         
+    def findEccentricity(self) -> list[int]:
+        self.floyd.run(self.adj_matrix)
+        dist = self.floyd.distances
+
+        eccentricities = []
+        size = len(dist)
+        for j in range(size):
+            ecc = max([dist[i][j] for i in range(size)])
+            eccentricities.append(ecc)
+        
+        return eccentricities
 
 
 
