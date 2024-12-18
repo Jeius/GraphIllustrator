@@ -89,27 +89,54 @@ class MyApp(QMainWindow):
         table_label = self.ui.info_panel.table_label
         table_label.setText('Path Table')
 
+        table.setRowCount(0)
 
         horizontalHeaders = ["Start", "Goal", "Distance"]
         columns = len(horizontalHeaders)
 
         table.setColumnCount(columns)
         table.setHorizontalHeaderLabels(horizontalHeaders)
-        table.verticalHeader().show()
         table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        table.verticalHeader().sectionClicked.connect(self.onPathTRowClicked)
+        try:
+            table.verticalHeader().sectionClicked.disconnect(self.onCenterTRowClicked)
+            table.verticalHeader().sectionClicked.connect(self.onPathTRowClicked)
+        except TypeError:
+            table.verticalHeader().sectionClicked.connect(self.onPathTRowClicked)
 
     def _setupEccentricityTable(self):
         table = self.ui.info_panel.table
         table_label = self.ui.info_panel.table_label
         table_label.setText('Eccentricity Table')
 
+        table.setRowCount(0)
+
         horizontalHeaders = ["Vertex", "Eccentricity"]
         columns = len(horizontalHeaders)
 
         table.setColumnCount(columns)
         table.setHorizontalHeaderLabels(horizontalHeaders)
-        table.verticalHeader().hide()
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        try:
+            table.verticalHeader().sectionClicked.disconnect(self.onPathTRowClicked)
+            table.verticalHeader().sectionClicked.connect(self.onCenterTRowClicked)
+        except TypeError:
+            table.verticalHeader().sectionClicked.connect(self.onCenterTRowClicked)
+
+    def _setupIndependenceTable(self):
+        table = self.ui.info_panel.table
+        table_label = self.ui.info_panel.table_label
+        table_label.setText('Independent Sets Table')
+
+        table.setRowCount(0)
+
+        horizontalHeaders = ["Maximal", "Independent Set"]
+        columns = len(horizontalHeaders)
+
+        table.setColumnCount(columns)
+        table.setHorizontalHeaderLabels(horizontalHeaders)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        table.verticalHeader().show()
+        table.verticalHeader().sectionClicked.connect(self.onIndependenceTRowClicked)
 
     def _setupConnections(self):
         """
@@ -136,6 +163,7 @@ class MyApp(QMainWindow):
         control_panel.path_button.clicked.connect(self.onPathButtonClicked)
         control_panel.find_center_button.clicked.connect(self.onCenterButtonClicked)
         control_panel.mcst_button.toggled.connect(self.onMCSTToggled)
+        control_panel.show_IS_button.clicked.connect(self.onISButtonClicked)
 
         self.ui.view.tool.revert_button.clicked.connect(self.onRevertButtonClicked)
         self.ui.view.tool.done_button.clicked.connect(self._unCheckButtonGroup)
@@ -269,38 +297,105 @@ class MyApp(QMainWindow):
 
     def onPathButtonClicked(self):
         """Finds and displays paths in the graph."""
+        self.onRevertButtonClicked()
         self._setupPathTable()
         self.graph.findPath()
         self._updatePathTable()
-        self._unCheckButtonGroup()
 
     def onCenterButtonClicked(self):
-        ecc = self.graph.findEccentricity()
-        center = min(ecc)
+        result = self.graph.findGraphCenter()
 
-        vertices = self.graph.getVertices()
-        center_vertex = vertices[ecc.index(center)]
+        if (not result):
+            return 
         
-        self.ui.control_panel.center_field.setText(center_vertex.id[1])
+        self.onRevertButtonClicked()
 
+        ecc, center = result
         table = self.ui.info_panel.table
-        rows = len(ecc)
-
         self._setupEccentricityTable()
+        rows = len(ecc)
         table.setRowCount(rows)
+        vertical_headers = ["Show"] * rows
+        table.setVerticalHeaderLabels(vertical_headers)
+        self.ui.control_panel.center_field.setText(center.id[1])
 
-        for i in range(rows):
-            _, vertex_id = vertices[i].id
+        row_index = 0
+        for vertex, dist in ecc:
+            _, vertex_id = vertex.id
             vertex_item = QTableWidgetItem(vertex_id)
             vertex_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
 
-            cost_item = QTableWidgetItem(str(ecc[i]))
+            cost_item = QTableWidgetItem(str(dist))
             cost_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
 
-            table.setItem(i,0,vertex_item)
-            table.setItem(i, 1, cost_item)
+            table.setItem(row_index, 0, vertex_item)
+            table.setItem(row_index, 1, cost_item)
 
+            row_index += 1
 
+    def onISButtonClicked(self):
+       result = self.graph.findIndependentSets()
+
+       if (not result):
+           return
+       
+       self.onRevertButtonClicked()
+
+       sets, max_number = result
+       table = self.ui.info_panel.table
+       self._setupIndependenceTable()
+
+       rows = len(sets)
+       table.setRowCount(rows)
+       vertical_headers = ["Show"] * rows
+       table.setVerticalHeaderLabels(vertical_headers)
+       self.ui.control_panel.independence_num_field.setText(str(max_number))
+
+       row_index = 0
+
+       for i_set in sets:
+           isMaximal = len(i_set) == max_number
+           maximal_item = QTableWidgetItem(str(isMaximal))
+           maximal_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+
+           set_string = '{ ' + ', '.join([v.id[1] for v in i_set]) + ' }'
+           set_item = QTableWidgetItem(set_string)
+           set_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+
+           table.setItem(row_index, 0, maximal_item)
+           table.setItem(row_index, 1, set_item)
+           row_index += 1
+
+    def onCenterTRowClicked(self, i: int):
+        try:
+            table = self.ui.info_panel.table
+            id = table.item(i,0).text()
+            vertices = self.graph.getVertices()
+            for v in vertices:
+                v.setHighlight(False)
+                if v.id[1] == id:
+                    v.setHighlight(True, 'end')
+
+            self.ui.view.tool.revert_button.show()
+        except Exception as e:
+            self.graph._showErrorDialog(title="Action Failed", message=str(e))
+
+    def onIndependenceTRowClicked(self, i: int):
+        try:
+            table = self.ui.info_panel.table
+            i_set = table.item(i,1).text()
+            ids = i_set.strip('{}').split(', ')
+            vertex_ids = [id.strip() for id in ids]
+            vertices = self.graph.getVertices()
+
+            for v in vertices:
+                v.setHighlight(False)
+                if v.id[1] in vertex_ids:
+                    v.setHighlight(True, 'end')
+
+            self.ui.view.tool.revert_button.show()
+        except Exception as e:
+            self.graph._showErrorDialog(title="Action Failed", message=str(e))
 
     def onRevertButtonClicked(self):
         """Reverts the graph to the previous state."""
@@ -319,6 +414,7 @@ class MyApp(QMainWindow):
     def _updateGraphListeners(self):
         self._updateInfoPanel()
         self._updateControlPanel()
+        self.ui.control_panel.center_field.clear()
 
     def _updateControlPanel(self):
         mcst = self.graph.mcst_total_cost
@@ -382,10 +478,10 @@ class MyApp(QMainWindow):
                 table.setColumnWidth(columnIndex, 1)
 
     def _updatePathTable(self):
-        path_table = self.ui.info_panel.table
+        table = self.ui.info_panel.table
     
         # Clear the table first
-        path_table.setRowCount(0)
+        table.setRowCount(0)
 
         if not self.graph.getEdges():
             return
@@ -412,9 +508,9 @@ class MyApp(QMainWindow):
             return
 
         # Set row count and headers
+        table.setRowCount(rows)
         vertical_headers = ["Show Path"] * rows
-        path_table.setRowCount(rows)
-        path_table.setVerticalHeaderLabels(vertical_headers)
+        table.setVerticalHeaderLabels(vertical_headers)
 
         # Populate the table with paths and distances
         rowIndex = 0

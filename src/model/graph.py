@@ -289,17 +289,61 @@ class Graph(QGraphicsScene):
             self.mcst_graph.revert()
         self.emitSignal()
         
-    def findEccentricity(self) -> list[int]:
-        self.floyd.run(self.adj_matrix)
-        dist = self.floyd.distances
+    def findGraphCenter(self):
+        """
+        Computes eccentricities based on maximum values in each column
+        and determines the center of the graph.
+        """
+        try:
+            vertices = self.getVertices()
+            if len(vertices) == 1:
+                raise Exception('Add atleast 3 vertices with edges')
+            
+            for v in vertices:
+                if not v.edges:
+                    raise Exception('An isolated vertex is found. Cannot find graph center on a disconnected graph.')
+            
+            self.floyd.run(self.adj_matrix)
+            dist = self.floyd.distances
 
-        eccentricities = []
-        size = len(dist)
-        for j in range(size):
-            ecc = max([dist[i][j] for i in range(size)])
-            eccentricities.append(ecc)
-        
-        return eccentricities
+            eccentricities: list[int] = []
+            size = len(dist)
+            for j in range(size):
+                ecc = max([dist[i][j] for i in range(size)])
+                eccentricities.append(ecc)
+
+            center = min(eccentricities)
+            center_vertex = vertices[eccentricities.index(center)]
+            vertices_with_ecc = [(vertices[i], eccentricities[i]) for i in range(len(eccentricities))]
+            
+            return (vertices_with_ecc, center_vertex)
+        except Exception as e:
+            self._showErrorDialog("Operation Failed", str(e))
+
+    def findIndependentSets(self):
+        from src.model import IndependentSets
+        try:
+            independent_set = IndependentSets(self.adj_matrix)
+            result = independent_set.get()
+            print(result)
+            vertices = self.getVertices()
+            IS_vertices: list[list['Vertex']] = []
+            independence_num = len(vertices)
+            for set in result:
+                if not set:
+                    continue
+                
+                converted = [vertices[i] for i in set]
+                IS_vertices.append(converted)
+                independence_num = max(len(ind_set) for ind_set in IS_vertices)
+
+            if len(result) == 1:
+                IS_vertices.append(vertices)
+            
+            return (IS_vertices, independence_num)
+
+        except Exception as e:
+            self._showErrorDialog("Operation Failed", str(e))
 
 
 

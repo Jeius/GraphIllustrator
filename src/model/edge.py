@@ -37,12 +37,12 @@ class Edge(QGraphicsPathItem):
         super().__init__()
         self.start_vertex = start
         self.end_vertex= end
-        self.weight = math.inf
         self.graph = parent
+        self.weight = math.inf if self.graph.is_directed_graph else 1
+
         self.default_pen = QPen(self.COLORS['default'], 2) 
         self.label = Label(str(self.weight), self)
         self.label.setZValue(2)
-
         self.setFlag(QGraphicsLineItem.ItemIsSelectable, True)  
         self.setCursor(Qt.PointingHandCursor)  
         self.setPen(self.default_pen)  
@@ -170,12 +170,15 @@ class Edge(QGraphicsPathItem):
     def _updateLabel(self):    
         self_center = self.path().pointAtPercent(0.5)
         label_center = self.label.rect().center()
+        self.label.setText(str(self.weight))
 
-        if self.weight != math.inf:
-            self.label.setText(str(self.weight))
+        if self.graph.is_directed_graph and not math.isinf(self.weight):
+            self.label.setVisible(True)
+        elif not self.graph.is_directed_graph and self.weight != 1:
             self.label.setVisible(True)
         else:
             self.label.setVisible(False)
+
 
         self.label.setPos(QPointF(self_center - label_center))
 
