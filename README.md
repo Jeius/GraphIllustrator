@@ -1,33 +1,41 @@
 # Graph Illustrator
 
-### An Activity of
+## An Interactive Tool for Graph Algorithms and Visualization
+
+### An Activity by
 
 ### Julius P. Pahama in
 
 ### ITE112 - Algorithmic Graph Theory
 
-Graph Illustrator is a Python-based tool that allows you to visually explore and interact with graph algorithms, including Prim's, Kruskal's, Dijkstra's, and Floyd-Warshall algorithms. It supports directed and undirected graphs and provides functionality for displaying the complement of a graph. This tool is designed to help users better understand and visualize the workings of key graph algorithms in a graphical interface.
+Graph Illustrator is a Python-based tool that allows users to visually explore and interact with various graph algorithms, including Prim's, Kruskal's, Dijkstra's, and Floyd-Warshall algorithms. It supports both directed and undirected graphs and offers functionality to display the complement of a graph. Designed for educational purposes, this tool helps users better understand and visualize the workings of key graph algorithms through an intuitive graphical interface.
+
+---
 
 ## Features
 
-### Graph Algorithms:
+### Graph Algorithms
 
 - **Prim's Algorithm**: Computes the Minimum Spanning Tree (MST) of a connected, undirected graph.
-- **Kruskal's Algorithm**: Another approach to finding the Minimum Spanning Tree, based on edge sorting.
-- **Dijkstra's Algorithm**: Finds the shortest paths from a single source vertex to all other vertices in a weighted graph.
-- **Floyd-Warshall Algorithm**: Computes the shortest paths between all pairs of vertices in a graph.
-- **Graph Center**: Identifies the center of the graph by finding the vertex or vertices with minimum eccentricity.
-- **Independent Sets**: Determines sets of vertices such that no two vertices are adjacent.
+- **Kruskal's Algorithm**: Finds the MST using a greedy approach, based on edge sorting.
+- **Dijkstra's Algorithm**: Determines the shortest paths from a single source vertex to all other vertices in a weighted graph.
+- **Floyd-Warshall Algorithm**: Calculates the shortest paths between all pairs of vertices in a graph.
+- **Graph Center**: Identifies the center of the graph by locating the vertex or vertices with the minimum eccentricity.
+- **Independent Sets**: Determines sets of vertices where no two vertices are adjacent.
 - **Vertex Covers**: Finds the minimum set of vertices that covers all edges in the graph.
-- **Graph Complement**: Easily visualize the complement of a given graph, where edges are flipped between existing and non-existing connections.
+- **Graph Complement**: Visualizes the complement of a graph, where edges are inverted between existing and non-existing connections.
 
-### Directed and Undirected Graphs:
+### Directed and Undirected Graphs
 
-Switch between directed and undirected graph representations with full support for the corresponding algorithms.
+Switch seamlessly between directed and undirected graph representations, with full algorithm support for each type.
 
-### Interactive Interface:
+### Interactive Interface
 
-The tool provides a graphical interface to interact with the graph, add/remove vertices and edges, and run the algorithms visually.
+- Add and remove vertices and edges with ease.
+- Execute algorithms visually for better understanding.
+- Explore results interactively within the graphical interface.
+
+---
 
 ## Installation and Setup
 
@@ -37,54 +45,66 @@ The tool provides a graphical interface to interact with the graph, add/remove v
 
 ### Step-by-Step Guide
 
-1. **Clone the Repository:**
+1. **Clone the Repository**
 
    ```bash
    git clone <repository_url>
    cd <project_directory>
    ```
 
-2. **Create and Activate Conda Environment:**
-   Create a new Conda environment using the `environment.yaml` file provided:
+2. **Create and Activate Conda Environment**
+   Use the provided `environment.yaml` file to create a new Conda environment:
 
    ```bash
    conda env create -f environment.yaml
    conda activate graph-illustrator
    ```
 
-3. **Install Additional Dependencies (if necessary):**
-   If new dependencies are added to the project:
+3. **Install Additional Dependencies (if necessary)**
+   If new dependencies are added, update the environment:
 
    ```bash
    conda env update -f environment.yaml
    ```
 
-4. **Run the Project:**
-   Use the `run.bat` file to start the application:
+4. **Run the Project**
+   Start the application using the `run.bat` file:
 
    ```bash
    run.bat
    ```
 
-5. **Build the Executable:**
-   To build the project into an executable, use the `build.bat` file. This uses PyInstaller to package the application:
+5. **Build the Executable**
+   Package the project into an executable using the `build.bat` file. PyInstaller is used for the build process:
    ```bash
    build.bat
    ```
-   After building, the executable can be found in the `dist` folder.
+   After building, the executable will be located in the `dist` folder.
+
+---
 
 ## How to Use
 
 1. Launch the application by running `run.bat`.
-2. Use the graphical interface to add or remove vertices and edges.
-3. Select and execute graph algorithms from the available options.
-4. Switch between directed and undirected graphs as needed.
-5. Explore advanced features like finding graph centers, independent sets, and vertex covers.
-6. Visualize the complement of the graph for better understanding of connections.
+2. Use the graphical interface to:
+   - Add or remove vertices and edges.
+   - Select and execute graph algorithms from the available options.
+   - Switch between directed and undirected graph representations.
+3. Explore advanced features such as:
+   - Finding the graph center.
+   - Identifying independent sets and vertex covers.
+   - Visualizing the graph's complement.
+
+---
 
 ## Contributions
 
-Contributions are welcome! Please feel free to submit a pull request or report issues on the GitHub repository.
+Contributions are welcome! If you would like to contribute:
+
+- Submit a pull request.
+- Report issues via the GitHub repository.
+
+---
 
 ## License
 
